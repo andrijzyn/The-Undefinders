@@ -1,0 +1,44 @@
+[gd_scene load_steps=7 format=3 uid="uid://ddj7yhyrrg4b8"]
+
+[ext_resource type="PackedScene" uid="uid://cjd68qtn0ujeb" path="res://Scenes/soldier.tscn" id="1_o4col"]
+[ext_resource type="PackedScene" uid="uid://dpetlsrf5pbpe" path="res://Scenes/garage_imp.tscn" id="1_sn7h3"]
+[ext_resource type="PackedScene" uid="uid://bbsgnge3ole1f" path="res://Scenes/ground.tscn" id="2_hvjiq"]
+[ext_resource type="Script" path="res://Scripts/Entities/camera_3d.gd" id="3_72cn3"]
+[ext_resource type="PackedScene" uid="uid://csgixjv8xlbg8" path="res://Scenes/garage.tscn" id="3_boie0"]
+
+[sub_resource type="GDScript" id="GDScript_fkrak"]
+script/source = "extends StaticBody3D
+
+
+func _on_camera_3d_picked() -> void:
+	print(\"Garage Picked\")
+"
+
+[node name="MainScene" type="Node3D"]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(-1, 7.71897e-08, -4.10425e-08, -1.95898e-09, 0.449569, 0.893246, 8.74008e-08, 0.893246, -0.449569, -1.48664, 12.5988, -22.3207)
+script = ExtResource("3_72cn3")
+
+[node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
+
+[node name="GarageImp" parent="." instance=ExtResource("1_sn7h3")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -10.0964, 0, -3.802)
+
+[node name="Soldier" parent="." instance=ExtResource("1_o4col")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.29847, 0.283726, -10.2299)
+
+[node name="Ground" parent="." instance=ExtResource("2_hvjiq")]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.873772, 0.486335, 0, -0.486335, -0.873772, 0, 9.89356, -15.9748)
+
+[node name="Garage" parent="." instance=ExtResource("3_boie0")]
+transform = Transform3D(0.75, 0, 0, 0, 0.75, 0, 0, 0, 0.75, -2.38014, 0.0383926, 6.96699)
+script = SubResource("GDScript_fkrak")
+
+[node name="GarageImp2" parent="." instance=ExtResource("1_sn7h3")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 14.712, 0, 5.20839)
+
+[node name="GarageImp3" parent="." instance=ExtResource("1_sn7h3")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 14.712, 0, -11.3173)
