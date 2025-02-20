@@ -11,12 +11,12 @@ config_version=5
 [application]
 
 config/name="EpicRTSOfXXICentury"
-run/main_scene="res://Scenes/menu.tscn"
+run/main_scene="res://Scenes/GUI/menu.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
 
 [autoload]
 
-Resolution="*res://Scripts/resolution.gd"
+Resolution="*res://Scripts/GUI/resolution.gd"
 
 [display]
 
