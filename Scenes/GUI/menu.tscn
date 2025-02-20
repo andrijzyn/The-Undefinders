@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://cyq4cd1exuwat"]
 
-[ext_resource type="Script" path="res://Scripts/menu.gd" id="2_7nnbx"]
-[ext_resource type="FontFile" uid="uid://c07n1bedisch4" path="res://Daydream.ttf" id="2_j8eyx"]
+[ext_resource type="FontFile" uid="uid://c07n1bedisch4" path="res://Assets/Fonts/Daydream.ttf" id="1_acnjs"]
+[ext_resource type="Script" path="res://Scripts/GUI/menu.gd" id="2_6sgmf"]
 
 [sub_resource type="GDScript" id="GDScript_a0xms"]
 
@@ -44,28 +44,28 @@ alignment = 1
 layout_mode = 2
 theme = SubResource("Theme_hfjwo")
 theme_type_variation = &"FlatButton"
-theme_override_fonts/font = ExtResource("2_j8eyx")
+theme_override_fonts/font = ExtResource("1_acnjs")
 theme_override_font_sizes/font_size = 21
 text = "Set out on a journey"
-script = ExtResource("2_7nnbx")
+script = ExtResource("2_6sgmf")
 
 [node name="options" type="Button" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme = SubResource("Theme_hfjwo")
 theme_type_variation = &"FlatButton"
-theme_override_fonts/font = ExtResource("2_j8eyx")
+theme_override_fonts/font = ExtResource("1_acnjs")
 theme_override_font_sizes/font_size = 21
 text = "Shell"
-script = ExtResource("2_7nnbx")
+script = ExtResource("2_6sgmf")
 
 [node name="exit" type="Button" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme = SubResource("Theme_onbdq")
 theme_type_variation = &"FlatButton"
-theme_override_fonts/font = ExtResource("2_j8eyx")
+theme_override_fonts/font = ExtResource("1_acnjs")
 theme_override_font_sizes/font_size = 12
 text = "Fleeing"
-script = ExtResource("2_7nnbx")
+script = ExtResource("2_6sgmf")
 
 [connection signal="pressed" from="MarginContainer/VBoxContainer/play" to="MarginContainer/VBoxContainer/play" method="play"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/options" to="MarginContainer/VBoxContainer/options" method="options"]
