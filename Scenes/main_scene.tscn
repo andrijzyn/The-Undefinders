@@ -1,10 +1,10 @@
 [gd_scene load_steps=7 format=3 uid="uid://ddj7yhyrrg4b8"]
 
 [ext_resource type="PackedScene" uid="uid://cjd68qtn0ujeb" path="res://Scenes/CharacterNodes/soldier.tscn" id="1_o4col"]
-[ext_resource type="PackedScene" uid="uid://dpetlsrf5pbpe" path="res://Scenes/Static Nodes/garage_imp.tscn" id="1_sn7h3"]
-[ext_resource type="PackedScene" uid="uid://bbsgnge3ole1f" path="res://Scenes/Static Nodes/ground.tscn" id="2_hvjiq"]
+[ext_resource type="PackedScene" uid="uid://dpetlsrf5pbpe" path="res://Scenes/StaticNodes/garage_imp.tscn" id="1_sn7h3"]
+[ext_resource type="PackedScene" uid="uid://bbsgnge3ole1f" path="res://Scenes/StaticNodes/ground.tscn" id="2_hvjiq"]
 [ext_resource type="Script" path="res://Scripts/Entities/camera_3d.gd" id="3_72cn3"]
-[ext_resource type="PackedScene" uid="uid://csgixjv8xlbg8" path="res://Scenes/Static Nodes/garage.tscn" id="3_boie0"]
+[ext_resource type="PackedScene" uid="uid://csgixjv8xlbg8" path="res://Scenes/StaticNodes/garage.tscn" id="3_boie0"]
 
 [sub_resource type="GDScript" id="GDScript_fkrak"]
 script/source = "extends StaticBody3D
