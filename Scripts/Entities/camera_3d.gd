@@ -120,18 +120,6 @@ func updateSelectionRectangle():
 	selection_overlay.position = selection_rect.position
 	selection_overlay.size = selection_rect.size
 
-func selectObjectsInSelection():
-	var selectable_nodes := get_tree().get_nodes_in_group(Constants.selectable)
-	for node in selected_nodes:
-		node.setSelected(false)
-		selected_nodes.clear()
-	for node in selectable_nodes:
-		var screen_pos = get_viewport().get_camera_3d().unproject_position(node.global_transform.origin)
-		
-		if selection_rect.has_point(screen_pos):
-			node.setSelected(true)
-			selected_nodes.append(node)
-
 func cameraMovement(delta:float)-> void:
 	var directionZ := Input.get_axis("ui_down", "ui_up")
 	var directionX := Input.get_axis("ui_right", "ui_left")

@@ -10,16 +10,24 @@ var target_angle: float = 0.0
 var is_rotating: bool = false
 var threshold: float = 0.01
 
+var isMoving: bool = false
+
 var isSelected := false
+var direction: Vector3
 
 @onready var animPlayer := $AnimPlayer
+@onready var navAgent :NavigationAgent3D = $NavAgent
 @onready var mainCamera: MainCamera
 func _init() -> void:
 	add_to_group(Constants.selectable)
 	add_to_group(Constants.movable)
 
 func _process(delta: float) -> void:
-	OrderHandler.handleRotateOrder(self, mainCamera, delta)
+	direction = Vector3.ZERO
+	#OrderHandler.handleRotateOrder(self, mainCamera, delta)
+	OrderHandler.handleMovingOrder(self, mainCamera, delta)
+	
+	move_and_slide()
 	
 
 func _ready() -> void:

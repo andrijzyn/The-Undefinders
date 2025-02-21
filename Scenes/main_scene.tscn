@@ -1,10 +1,14 @@
-[gd_scene load_steps=7 format=3 uid="uid://ddj7yhyrrg4b8"]
+[gd_scene load_steps=8 format=3 uid="uid://ddj7yhyrrg4b8"]
 
 [ext_resource type="PackedScene" uid="uid://cjd68qtn0ujeb" path="res://Scenes/CharacterNodes/soldier.tscn" id="1_o4col"]
 [ext_resource type="PackedScene" uid="uid://dpetlsrf5pbpe" path="res://Scenes/StaticNodes/garage_imp.tscn" id="1_sn7h3"]
 [ext_resource type="PackedScene" uid="uid://bbsgnge3ole1f" path="res://Scenes/StaticNodes/ground.tscn" id="2_hvjiq"]
 [ext_resource type="Script" path="res://Scripts/Entities/camera_3d.gd" id="3_72cn3"]
 [ext_resource type="PackedScene" uid="uid://csgixjv8xlbg8" path="res://Scenes/StaticNodes/garage.tscn" id="3_boie0"]
+
+[sub_resource type="NavigationMesh" id="NavigationMesh_beipy"]
+vertices = PackedVector3Array(-19.5, 0.5, -3, -17, 0.5, -3, -16.75, 0.5, -7, -19.5, 0.5, -19.5, -10, 0.5, -7, -10, 0.5, -19.5, 7.75, 0.5, -14.25, 8.25, 0.5, -14.5, 8.25, 0.5, -19.5, -8.25, 0.5, -7, 7.75, 0.5, -8.5, 16.75, 0.5, -14.5, 17, 0.5, -10.5, 19.5, 0.5, -10.5, 19.5, 0.5, -19.5, 10.5, 6, -14.5, 10.5, 6, -8.75, 14.5, 6, -8.75, 14.5, 6, -14.5, 10.5, 3.5, -13, 10.25, 3.75, -13.75, 8.75, 3.75, -13.75, 8.75, 3.5, -9.25, 10.25, 3.5, -9.25, 10.5, 3.5, -10.25, 11.5, 3.5, -10.25, 11.25, 3.5, -13, 16.25, 3.75, -13.75, 14.75, 3.75, -13.75, 14.5, 3.5, -13, 14.5, 3.5, -10.25, 14.75, 3.5, -9.25, 16.25, 3.75, -9.25, 13.75, 3.5, -13, 13.5, 3.5, -10.5, 9.25, 0.5, -13.25, 9.25, 0.5, -9.5, 15.5, 0.5, -9.5, 15.5, 0.5, -13.25, 12.25, 4.25, -12.25, 12.25, 4.25, -11.25, 12.75, 4.25, -11.25, 12.75, 4.25, -12.25, 16.75, 0.5, -8.25, 16.75, 0.5, 2, 17, 0.5, 6, 19.5, 0.5, 6, 9.75, 0.5, -8.25, 9.75, 0.5, 2, 11.75, 3.5, -9.25, 13.25, 3.5, -9.25, 13.5, 3.5, -10, 0.75, 0.5, 4.25, 7.75, 0.5, 4.25, 7.75, 0.5, 2.25, 0.5, 0.5, 1.25, -7.75, 0.5, -6.75, -7.75, 0.5, -1.25, -5, 0.5, 1.25, -14.25, 6, -7, -14.25, 6, -1.25, -10.5, 6, -1.25, -10.5, 6, -7, -14.25, 3.5, -5.5, -14.5, 3.75, -6.25, -16, 3.75, -6.25, -16, 3.5, -1.75, -14.5, 3.5, -1.75, -14.25, 3.5, -2.75, -13.25, 3.5, -2.75, -13.5, 3.5, -5.5, -11.5, 3.5, -2.75, -13, 3.5, -1.75, -11.5, 3.5, -1.75, -11.25, 3.5, -2.75, -11.25, 3.5, -5.5, -10.5, 3.5, -5.5, -10.5, 3.5, -2.75, -8.75, 3.75, -6.25, -10.25, 3.75, -6.25, -10.25, 3.5, -1.75, -8.75, 3.5, -1.75, -15.5, 0.5, -5.75, -15.5, 0.5, -2, -9.25, 0.5, -2, -9.25, 0.5, -5.75, -17, 0.5, -1, -19.5, 0.5, 8, -5.5, 0.5, 1.5, -8, 0.5, -0.75, -15.75, 0.5, -0.5, -5.5, 0.5, 8, 0, 5.25, 2, -4.75, 5.25, 2, -3.75, 5, 2.75, -1, 5, 2.75, -4.75, 5.25, 9.25, 0, 5.25, 9.25, -1, 5, 8.25, -3.75, 5, 8.25, 10.5, 6, 2.25, 10.5, 6, 7.75, 14.5, 6, 7.75, 14.5, 6, 2.25, -4.25, 0.75, 2.5, -4.25, 0.75, 8.75, -0.75, 0.75, 8.75, -0.75, 0.75, 2.5, 8.75, 3.75, 7.5, 10.25, 3.75, 7.5, 10.25, 3.5, 6.5, 10.5, 3.5, 3.5, 10.25, 3.75, 2.75, 8.75, 3.75, 2.75, 11.5, 3.5, 6.25, 11.25, 3.5, 3.5, 14.75, 3.5, 6.75, 14.75, 3.75, 7.5, 16.25, 3.75, 7.5, 16.25, 3.75, 2.75, 14.75, 3.75, 2.75, 14.5, 3.5, 3.5, 13.75, 3.5, 3.5, 13.5, 3.5, 6, 9.25, 0.5, 3.25, 9.25, 0.5, 7, 15.5, 0.5, 7, 15.5, 0.5, 3.25, -2.75, 6.5, 3.5, -2.75, 6, 7.5, -2, 6, 7.5, -2, 6.5, 3.5, 7.75, 0.5, 8, 0.75, 0.5, 10, -1, 0.5, 10.25, -0.75, 0.5, 19.5, 9.25, 0.5, 8.5, 9.25, 0.5, 19.5, 12.25, 4.25, 4.25, 12.25, 4.25, 5.25, 12.75, 4.25, 5.25, 12.75, 4.25, 4.25, 16.75, 0.5, 8.25, 19.5, 0.5, 19.5, 11.75, 3.75, 7.5, 13.25, 3.75, 7.5, 13.5, 3.5, 6.5, -4, 0.5, 19.5, -3.75, 0.5, 10.25, -5.5, 0.5, 10, -19.5, 0.5, 19.5)
+polygons = [PackedInt32Array(1, 0, 2), PackedInt32Array(2, 0, 3), PackedInt32Array(4, 2, 5), PackedInt32Array(5, 2, 3), PackedInt32Array(7, 6, 8), PackedInt32Array(8, 6, 5), PackedInt32Array(5, 6, 9), PackedInt32Array(5, 9, 4), PackedInt32Array(6, 10, 9), PackedInt32Array(12, 11, 13), PackedInt32Array(13, 11, 14), PackedInt32Array(7, 8, 11), PackedInt32Array(11, 8, 14), PackedInt32Array(18, 17, 15), PackedInt32Array(15, 17, 16), PackedInt32Array(20, 19, 21), PackedInt32Array(21, 19, 24), PackedInt32Array(21, 24, 23), PackedInt32Array(21, 23, 22), PackedInt32Array(19, 26, 24), PackedInt32Array(24, 26, 25), PackedInt32Array(28, 27, 29), PackedInt32Array(29, 27, 30), PackedInt32Array(30, 27, 31), PackedInt32Array(31, 27, 32), PackedInt32Array(33, 29, 34), PackedInt32Array(34, 29, 30), PackedInt32Array(38, 37, 35), PackedInt32Array(35, 37, 36), PackedInt32Array(42, 41, 39), PackedInt32Array(39, 41, 40), PackedInt32Array(12, 13, 43), PackedInt32Array(43, 13, 44), PackedInt32Array(44, 13, 45), PackedInt32Array(45, 13, 46), PackedInt32Array(44, 48, 43), PackedInt32Array(43, 48, 47), PackedInt32Array(50, 49, 51), PackedInt32Array(51, 49, 25), PackedInt32Array(53, 52, 54), PackedInt32Array(54, 52, 55), PackedInt32Array(10, 56, 9), PackedInt32Array(57, 56, 58), PackedInt32Array(58, 56, 55), PackedInt32Array(54, 55, 48), PackedInt32Array(48, 55, 47), PackedInt32Array(47, 55, 10), PackedInt32Array(10, 55, 56), PackedInt32Array(62, 61, 59), PackedInt32Array(59, 61, 60), PackedInt32Array(64, 63, 65), PackedInt32Array(65, 63, 68), PackedInt32Array(65, 68, 67), PackedInt32Array(65, 67, 66), PackedInt32Array(63, 70, 68), PackedInt32Array(68, 70, 69), PackedInt32Array(73, 72, 71), PackedInt32Array(71, 72, 69), PackedInt32Array(73, 71, 74), PackedInt32Array(74, 71, 75), PackedInt32Array(77, 74, 76), PackedInt32Array(76, 74, 75), PackedInt32Array(79, 78, 76), PackedInt32Array(76, 78, 77), PackedInt32Array(77, 78, 80), PackedInt32Array(80, 78, 81), PackedInt32Array(85, 84, 82), PackedInt32Array(82, 84, 83), PackedInt32Array(1, 86, 0), PackedInt32Array(0, 86, 87), PackedInt32Array(89, 57, 88), PackedInt32Array(88, 57, 58), PackedInt32Array(87, 86, 90), PackedInt32Array(88, 91, 89), PackedInt32Array(89, 91, 90), PackedInt32Array(90, 91, 87), PackedInt32Array(95, 94, 92), PackedInt32Array(92, 94, 93), PackedInt32Array(99, 98, 96), PackedInt32Array(96, 98, 97), PackedInt32Array(95, 92, 98), PackedInt32Array(98, 92, 97), PackedInt32Array(94, 99, 93), PackedInt32Array(93, 99, 96), PackedInt32Array(103, 102, 100), PackedInt32Array(100, 102, 101), PackedInt32Array(107, 106, 104), PackedInt32Array(104, 106, 105), PackedInt32Array(110, 109, 108), PackedInt32Array(112, 111, 113), PackedInt32Array(113, 111, 110), PackedInt32Array(113, 110, 108), PackedInt32Array(115, 114, 111), PackedInt32Array(111, 114, 110), PackedInt32Array(118, 117, 116), PackedInt32Array(120, 119, 121), PackedInt32Array(123, 122, 121), PackedInt32Array(116, 123, 118), PackedInt32Array(118, 123, 121), PackedInt32Array(118, 121, 119), PackedInt32Array(127, 126, 124), PackedInt32Array(124, 126, 125), PackedInt32Array(131, 130, 128), PackedInt32Array(128, 130, 129), PackedInt32Array(53, 132, 52), PackedInt32Array(52, 132, 133), PackedInt32Array(133, 135, 134), PackedInt32Array(132, 136, 133), PackedInt32Array(133, 136, 137), PackedInt32Array(133, 137, 135), PackedInt32Array(141, 140, 138), PackedInt32Array(138, 140, 139), PackedInt32Array(45, 46, 142), PackedInt32Array(142, 46, 143), PackedInt32Array(136, 142, 137), PackedInt32Array(137, 142, 143), PackedInt32Array(145, 144, 146), PackedInt32Array(146, 144, 114), PackedInt32Array(149, 148, 147), PackedInt32Array(87, 91, 149), PackedInt32Array(147, 150, 149), PackedInt32Array(149, 150, 87), PackedInt32Array(148, 134, 147), PackedInt32Array(147, 134, 135)]
 
 [sub_resource type="GDScript" id="GDScript_fkrak"]
 script/source = "extends StaticBody3D
@@ -22,23 +26,26 @@ script = ExtResource("3_72cn3")
 
 [node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
 
-[node name="GarageImp" parent="." instance=ExtResource("1_sn7h3")]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -10.0964, 0, -3.802)
-
-[node name="Ground" parent="." instance=ExtResource("2_hvjiq")]
-
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -0.873772, 0.486335, 0, -0.486335, -0.873772, 0, 9.89356, -15.9748)
 
-[node name="Garage" parent="." instance=ExtResource("3_boie0")]
+[node name="Soldier" parent="." instance=ExtResource("1_o4col")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.771701, 0.3719, -10.2719)
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
+navigation_mesh = SubResource("NavigationMesh_beipy")
+
+[node name="GarageImp" parent="NavigationRegion3D" instance=ExtResource("1_sn7h3")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -10.0964, 0, -3.802)
+
+[node name="Ground" parent="NavigationRegion3D" instance=ExtResource("2_hvjiq")]
+
+[node name="Garage" parent="NavigationRegion3D" instance=ExtResource("3_boie0")]
 transform = Transform3D(0.75, 0, 0, 0, 0.75, 0, 0, 0, 0.75, -2.38014, 0.0383926, 6.96699)
 script = SubResource("GDScript_fkrak")
 
-[node name="GarageImp2" parent="." instance=ExtResource("1_sn7h3")]
+[node name="GarageImp2" parent="NavigationRegion3D" instance=ExtResource("1_sn7h3")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 14.712, 0, 5.20839)
 
-[node name="GarageImp3" parent="." instance=ExtResource("1_sn7h3")]
+[node name="GarageImp3" parent="NavigationRegion3D" instance=ExtResource("1_sn7h3")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 14.712, 0, -11.3173)
-
-[node name="Soldier" parent="." instance=ExtResource("1_o4col")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.771701, 0.3719, -10.2719)

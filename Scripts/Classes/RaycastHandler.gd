@@ -17,5 +17,6 @@ static func getRaycastResultPosition(camera: MainCamera) -> Vector3:
 	var to := from + camera.project_ray_normal(mouse_pos) * 1000  # Длина луча
 	var query := PhysicsRayQueryParameters3D.create(from, to)
 	var result := space_state.intersect_ray(query)
-	return result.position
+	if result: return result.position
+	else: return Vector3.ZERO
 	
