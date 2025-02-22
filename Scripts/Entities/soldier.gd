@@ -1,15 +1,17 @@
 extends MovableUnit
 class_name Soldier
 
-func _physics_process(_delta: float) -> void:
-	var direction := Vector3.ZERO 
-	var movingDirection = Input.get_axis("down", "up")
-	direction += transform.basis.z * movingDirection
-	if Input.is_action_just_pressed("moving"):
-		animPlayer.play("rig|walk ")
-	if Input.is_action_just_released("moving"):
+func _init() -> void:
+	super._init()
+	maxHealth = 100
+	currentHealth = 100
+
+func _process(delta: float) -> void:
+	super._process(delta)
+
+	# Плей анимации если движется, иначе стоп анимацию
+	if isMoving:
+		if not animPlayer.is_playing() or animPlayer.current_animation != "rig|walk":
+			animPlayer.play("rig|walk")
+	else:
 		animPlayer.stop()
-	
-	velocity = direction.normalized() * SPEED
-	move_and_slide()
-	

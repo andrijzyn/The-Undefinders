@@ -43,11 +43,18 @@ func _process(delta:float) -> void:
 	cameraMovement(delta)
 	handleEdgeScrolling(delta)
 	handleRotation(delta)
+	HoverHandler.handleHover(self)
 	if selecting:
 		updateSelectionRectangle()
+	
+	if Input.is_action_just_pressed("moving"):
+		var result = RaycastHandler.getRaycastResult(self)
+		if result and result is MovableUnit:
+			result.handleHealthChange(10)
 
 func _input(event):
 	# Pressed Event (Left-Selection | Middle - Rotation | Right - Dragging)
+	
 	if event is InputEventMouseButton:
 		# Правая кнопка – перемещение (drag)
 		if event.button_index == MOUSE_BUTTON_RIGHT:
@@ -119,18 +126,6 @@ func updateSelectionRectangle():
 	selection_rect = Rect2(selection_start, current_mouse_pos - selection_start).abs()
 	selection_overlay.position = selection_rect.position
 	selection_overlay.size = selection_rect.size
-
-func selectObjectsInSelection():
-	var selectable_nodes := get_tree().get_nodes_in_group(Constants.selectable)
-	for node in selected_nodes:
-		node.setSelected(false)
-		selected_nodes.clear()
-	for node in selectable_nodes:
-		var screen_pos = get_viewport().get_camera_3d().unproject_position(node.global_transform.origin)
-		
-		if selection_rect.has_point(screen_pos):
-			node.setSelected(true)
-			selected_nodes.append(node)
 
 func cameraMovement(delta:float)-> void:
 	var directionZ := Input.get_axis("ui_down", "ui_up")

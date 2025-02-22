@@ -1,8 +1,9 @@
-[gd_scene load_steps=29 format=4 uid="uid://cjd68qtn0ujeb"]
+[gd_scene load_steps=31 format=4 uid="uid://cjd68qtn0ujeb"]
 
 [ext_resource type="Script" path="res://Scripts/Entities/soldier.gd" id="1_e6lx5"]
 [ext_resource type="Texture2D" uid="uid://bbfx4xwagb1dn" path="res://Assets/Soldier/source/Sketchfab_2021_03_16_23_33_20_0.png" id="1_njsy7"]
 [ext_resource type="Texture2D" uid="uid://ux60qfrp3omq" path="res://Assets/Soldier/textures/soldier.png" id="2_gih13"]
+[ext_resource type="PackedScene" uid="uid://pvsgtle0ubdj" path="res://Scenes/GUI/health_bar.tscn" id="4_l5f2g"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5vy43"]
 resource_name = "soldier"
@@ -2085,9 +2086,13 @@ _data = {
 "rig|walk ": SubResource("Animation_byxvm")
 }
 
+[sub_resource type="ViewportTexture" id="ViewportTexture_bwrmf"]
+viewport_path = NodePath("SubViewport")
+
 [node name="Soldier" type="CharacterBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.771701, 0, 1.65239)
 collision_layer = 2
+collision_mask = 3
 floor_stop_on_slope = false
 script = ExtResource("1_e6lx5")
 
@@ -2415,3 +2420,17 @@ libraries = {
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.43323e-05, 0.85064, 0.000509739)
 depth = 0.25
 polygon = PackedVector2Array(-0.332344, 0.0620837, -0.30454, 0.278718, -0.257118, 0.582399, -0.222353, 0.673571, -0.0681417, 0.70992, -0.103196, 0.902741, -0.00522757, 1.00664, 0.0736305, 0.937369, 0.0878451, 0.816651, 0.054507, 0.746254, 0.223766, 0.679899, 0.392634, 0.0824288, 0.378569, -0.0644886, 0.316766, -0.0399101, 0.196964, 0.401029, 0.217271, -0.0669617, 0.261595, -0.483062, 0.222486, -0.599725, 0.352701, -0.911617, 0.298753, -0.977908, 0.217039, -0.95053, 0.113159, -0.752939, 0.130092, -0.574235, 0.0780208, -0.505941, 0.0659468, -0.348438, 0.088798, -0.285313, 0.0213361, 0.0510523, -0.0285322, 0.0552739, -0.0371997, -0.138676, -0.0703697, -0.256371, -0.0631794, -0.421117, -0.109921, -0.541964, -0.130026, -0.58924, -0.0955581, -0.650001, -0.157585, -0.850963, -0.223295, -0.878976, -0.293371, -0.835519, -0.281813, -0.765687, -0.197369, -0.589342, -0.182466, -0.490694, -0.231962, -0.437641, -0.192337, -0.0822762)
+
+[node name="NavAgent" type="NavigationAgent3D" parent="."]
+
+[node name="HealthBarSprite" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00748909, 2.11136, 0.0319314)
+visible = false
+billboard = 1
+texture = SubResource("ViewportTexture_bwrmf")
+
+[node name="SubViewport" type="SubViewport" parent="."]
+transparent_bg = true
+size = Vector2i(140, 16)
+
+[node name="HealthBar" parent="SubViewport" instance=ExtResource("4_l5f2g")]
