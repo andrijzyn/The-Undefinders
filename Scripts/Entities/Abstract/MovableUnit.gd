@@ -43,16 +43,12 @@ func _ready() -> void:
 	mainCamera = get_tree().get_nodes_in_group(Constants.cameras)[0]
 	if not mainCamera: print(1)
 
-func setSelected(val:bool) -> void:
+func setSelected(val: bool) -> void:
 	isSelected = val
-	if isSelected == true:
-		setHealthBarVisibility(val)
-	else: setHealthBarVisibility(val)
+	setHealthBarVisibility(val)
 	
 func setHealthBarVisibility(val: bool):
-	isHealthBarVisible = val
-	if isHealthBarVisible: healthBarSprite.visible = true
-	else: healthBarSprite.visible = false
+	healthBarSprite.visible = val
 
 func handleHealthChange(val: float):
 	currentHealth -= val
