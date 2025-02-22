@@ -1,0 +1,38 @@
+[gd_scene load_steps=6 format=3 uid="uid://bawqeaoa6po36"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/M1A1.gd" id="1_gblbo"]
+[ext_resource type="PackedScene" uid="uid://caysjbe05pgno" path="res://Assets/M1A1/m1a1.fbx" id="1_jicda"]
+[ext_resource type="PackedScene" uid="uid://pvsgtle0ubdj" path="res://Scenes/GUI/health_bar.tscn" id="3_5idw2"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jvw2b"]
+size = Vector3(22.7698, 13.6875, 37.4682)
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_4r20m"]
+viewport_path = NodePath("SubViewport")
+
+[node name="M1A1" type="CharacterBody3D"]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 3.71236)
+script = ExtResource("1_gblbo")
+
+[node name="m1a1" parent="." instance=ExtResource("1_jicda")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.107119, 0, -0.1383)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00569725, 8.7423, -4.6425)
+shape = SubResource("BoxShape3D_jvw2b")
+
+[node name="HealthBarSprite" type="Sprite3D" parent="."]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0.344372, 19.9952, -7.88893)
+visible = false
+billboard = 1
+texture = SubResource("ViewportTexture_4r20m")
+
+[node name="SubViewport" type="SubViewport" parent="."]
+size = Vector2i(140, 15)
+
+[node name="HealthBar" parent="SubViewport" instance=ExtResource("3_5idw2")]
+
+[node name="NavAgent" type="NavigationAgent3D" parent="."]
+height = 2.0
+radius = 36.84
+neighbor_distance = 151.01

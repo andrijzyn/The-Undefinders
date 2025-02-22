@@ -6,9 +6,9 @@ var maxHealth: float
 
 const SPEED = 2.0
 const JUMP_VELOCITY = 4.5
-const rotatingSpeed = 0.05
+#const rotatingSpeed = 0.05
 const threshold: float = 0.01
-const rotation_speed: float = 5.0
+var rotation_speed: float = 5.0
 
 var target_angle: float = 0.0
 var is_rotating: bool = false
