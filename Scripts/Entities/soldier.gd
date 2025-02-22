@@ -9,9 +9,9 @@ func _init() -> void:
 func _process(delta: float) -> void:
 	super._process(delta)
 
+	# Плей анимации если движется, иначе стоп анимацию
 	if isMoving:
-		animPlayer.play("rig|walk ")
-	if not isMoving:
+		if not animPlayer.is_playing() or animPlayer.current_animation != "rig|walk":
+			animPlayer.play("rig|walk")
+	else:
 		animPlayer.stop()
-
-	
