@@ -1,25 +1,33 @@
 extends CharacterBody3D
 class_name MovableUnit
 
+var currentHealth: float
+var maxHealth: float
+
 const SPEED = 2.0
 const JUMP_VELOCITY = 4.5
 const rotatingSpeed = 0.05
+const threshold: float = 0.01
+const rotation_speed: float = 5.0
 
-var rotation_speed: float = 5.0
 var target_angle: float = 0.0
 var is_rotating: bool = false
-var threshold: float = 0.01
+
 
 var isMoving: bool = false
-
+var isHealthBarVisible := false
 var isSelected := false
+
 var direction: Vector3
 
 var waypointQueue: Array[Vector3]= []
 
 @onready var animPlayer := $AnimPlayer
 @onready var navAgent :NavigationAgent3D = $NavAgent
+@onready var healthBar :HealthBar = $SubViewport.get_child(0)
+@onready var healthBarSprite :Sprite3D = $HealthBarSprite
 @onready var mainCamera: MainCamera
+
 func _init() -> void:
 	add_to_group(Constants.selectable)
 	add_to_group(Constants.movable)
@@ -30,7 +38,6 @@ func _process(delta: float) -> void:
 	OrderHandler.handleAbortOrder(self)
 	
 	move_and_slide()
-	
 
 func _ready() -> void:
 	mainCamera = get_tree().get_nodes_in_group(Constants.cameras)[0]
@@ -39,5 +46,17 @@ func _ready() -> void:
 func setSelected(val:bool) -> void:
 	isSelected = val
 	if isSelected == true:
-		print("Soldier Picked")
-	else: print("Soldier Unpicked")
+		setHealthBarVisibility(val)
+	else: setHealthBarVisibility(val)
+	
+func setHealthBarVisibility(val: bool):
+	isHealthBarVisible = val
+	if isHealthBarVisible: healthBarSprite.visible = true
+	else: healthBarSprite.visible = false
+
+func handleHealthChange(val: float):
+	currentHealth -= val
+	changeHealthBar()
+
+func changeHealthBar():
+	healthBar.setHealthPercentage(currentHealth / maxHealth)

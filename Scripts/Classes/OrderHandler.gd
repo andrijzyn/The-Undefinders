@@ -57,6 +57,7 @@ static func handleMovingOrder(node:MovableUnit, camera: MainCamera, delta:float)
 				node.navAgent.target_position = node.waypointQueue[0]
 			else:
 				node.isMoving = false
+
 static func handleAbortOrder(node: MovableUnit):
 	if node.isSelected:
 		if Input.is_action_just_pressed("abort"):

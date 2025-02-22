@@ -43,11 +43,18 @@ func _process(delta:float) -> void:
 	cameraMovement(delta)
 	handleEdgeScrolling(delta)
 	handleRotation(delta)
+	HoverHandler.handleHover(self)
 	if selecting:
 		updateSelectionRectangle()
+	
+	if Input.is_action_just_pressed("moving"):
+		var result = RaycastHandler.getRaycastResult(self)
+		if result and result is MovableUnit:
+			result.handleHealthChange(10)
 
 func _input(event):
 	# Pressed Event (Left-Selection | Middle - Rotation | Right - Dragging)
+	
 	if event is InputEventMouseButton:
 		# Правая кнопка – перемещение (drag)
 		if event.button_index == MOUSE_BUTTON_RIGHT:
