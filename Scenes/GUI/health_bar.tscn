@@ -18,6 +18,7 @@ offset_bottom = 14.0
 color = Color(0.599057, 1.43189e-06, 4.33177e-07, 1)
 
 [node name="GreenBar" type="ColorRect" parent="."]
+layout_mode = 0
 offset_right = 141.0
 offset_bottom = 15.0
 pivot_offset = Vector2(68, 7)

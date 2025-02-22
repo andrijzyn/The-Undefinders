@@ -10,7 +10,7 @@ static func getRaycastResult(camera: MainCamera) -> Node3D:
 	var query := PhysicsRayQueryParameters3D.create(from, to)
 	var result := space_state.intersect_ray(query)
 	
-	return result ? result.collider : null
+	return result.collider if result else null
 
 static func getRaycastResultPosition(camera: MainCamera) -> Vector3:
 	var space_state := camera.get_world_3d().direct_space_state
@@ -20,4 +20,4 @@ static func getRaycastResultPosition(camera: MainCamera) -> Vector3:
 	var query := PhysicsRayQueryParameters3D.create(from, to)
 	var result := space_state.intersect_ray(query)
 	
-	return result ? result.position : Vector3.ZERO
+	return result.position if result else Vector3.ZERO
