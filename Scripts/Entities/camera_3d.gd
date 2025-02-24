@@ -17,6 +17,8 @@ var selecting := false
 var selection_start := Vector2()
 var selection_rect := Rect2().abs()
 var last_mouse_position := Vector2()
+var phantom_building: Node3D = null
+var rotating_building: bool = false
 
 var selection_overlay: ColorRect
 
@@ -52,12 +54,34 @@ func _process(delta:float) -> void:
 		if result and result is MovableUnit:
 			result.handleHealthChange(10)
 
+	if phantom_building:
+		if not rotating_building:
+			var mouse_pos = get_viewport().get_mouse_position()
+			var ray_origin = project_ray_origin(mouse_pos)
+			var ray_dir = project_ray_normal(mouse_pos)
+			var ground_plane = Plane(Vector3.UP, 0)
+			var intersection = ray_plane_intersection(ray_origin, ray_dir, ground_plane)
+			if intersection:
+				intersection.y = 0
+				phantom_building.global_transform.origin = intersection
+
 func _input(event):
 	# Pressed Event (Left-Selection | Middle - Rotation | Right - Dragging)
-	
 	if event is InputEventMouseButton:
+		if phantom_building:
+			if event.button_index == MOUSE_BUTTON_MIDDLE:
+				if event.pressed:
+					rotating_building = true
+					last_mouse_position = event.position
+				else:
+					rotating_building = false
+				return
 		# Правая кнопка – перемещение (drag)
 		if event.button_index == MOUSE_BUTTON_RIGHT:
+			if phantom_building:
+				phantom_building.queue_free()
+				phantom_building = null
+				return
 			dragging = event.pressed
 			last_mouse_position = event.position
 
@@ -69,6 +93,10 @@ func _input(event):
 		# Левая кнопка – выделение
 		elif event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
+				if phantom_building:
+					fix_building_transparency(phantom_building)
+					phantom_building = null
+					return
 				# Если зажата клавиша Shift или происходит двойной клик – выполняем мгновенное выделение
 				if Input.is_action_pressed("shift"):
 					var result = RaycastHandler.getRaycastResult(self)
@@ -99,10 +127,18 @@ func _input(event):
 						var result = RaycastHandler.getRaycastResult(self)
 						if result:
 							selected_nodes = SelectionHandler.handleSingleSelection(selected_nodes, result)
+				var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
+				if ui:
+					ui.update_selected_objects(selected_nodes)
 
 
 	# RMB Movement
 	elif event is InputEventMouseMotion:
+		if phantom_building and rotating_building:
+			var delta_angle = event.position.x - last_mouse_position.x
+			var sensitivity = 0.005
+			phantom_building.rotate_y(-delta_angle * sensitivity)
+			last_mouse_position = event.position
 		if dragging:
 			var delta_move = event.position - last_mouse_position
 			var move_x = transform.basis.x * delta_move.x * 0.05  # Sensitivity
@@ -188,3 +224,52 @@ func handleRotation(delta: float) -> void:
 		rotate_y(ROTATION_SPEED * delta)
 	elif Input.is_action_pressed("rotate_right"):
 		rotate_y(-ROTATION_SPEED * delta)
+
+func start_building_placement(building_name: String) -> void:
+	if phantom_building:
+		phantom_building.queue_free()
+	var building_scene = load("res://scenes/buildings/" + building_name + ".tscn").instantiate()
+	phantom_building = building_scene
+	phantom_building.rotation = Vector3(phantom_building.rotation.x, 0.0, phantom_building.rotation.z)
+	phantom_building.scale = Vector3(0.5, 0.5, 0.5)
+	set_phantom_transparency(phantom_building)
+	get_tree().get_current_scene().add_child(phantom_building)
+
+func set_phantom_transparency(node: Node) -> void:
+	if node is MeshInstance3D:
+		var new_mat: StandardMaterial3D = null
+		if node.material_override:
+			new_mat = node.material_override.duplicate(true) as StandardMaterial3D
+		elif node.mesh:
+			var surface_count = node.mesh.get_surface_count()
+			if surface_count > 0:
+				var orig_mat = node.mesh.surface_get_material(0)
+				if orig_mat and orig_mat is StandardMaterial3D:
+					new_mat = orig_mat.duplicate(true) as StandardMaterial3D
+		if new_mat:
+			new_mat.albedo_color.a = 0.5
+			new_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			node.material_override = new_mat
+		else:
+			print("Material not found for node: ", node.name)
+	
+	for child in node.get_children():
+		set_phantom_transparency(child)
+
+func fix_building_transparency(node: Node) -> void:
+	if node is MeshInstance3D:
+		if node.material_override and node.material_override is StandardMaterial3D:
+			var mat := node.material_override as StandardMaterial3D
+			mat.albedo_color.a = 1.0
+			mat.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+	for child in node.get_children():
+		fix_building_transparency(child)
+
+func ray_plane_intersection(origin: Vector3, dir: Vector3, plane: Plane) -> Vector3:
+	var denom = plane.normal.dot(dir)
+	if abs(denom) < 0.001:
+		return Vector3.ZERO
+	var t = -(plane.normal.dot(origin) + plane.d) / denom
+	if t < 0:
+		return Vector3.ZERO
+	return origin + dir * t
