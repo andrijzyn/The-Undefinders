@@ -4,7 +4,7 @@ class_name MainCamera
 @export var SPEED := 10
 @export var ZOOM_SPEED := 200
 @export var EDGE_SCROLL_SPEED := 5
-@export var EDGE_MARGIN := 50
+@export var EDGE_MARGIN := 25
 @export var EDGE_SCROLL_ACCEL := 10  # Acceleration multiplier
 @export var ROTATION_SPEED := 2.0
 
@@ -92,6 +92,8 @@ func _input(event):
 
 		# Левая кнопка – выделение
 		elif event.button_index == MOUSE_BUTTON_LEFT:
+			if is_mouse_over_ui():
+				return #Block input if it's over UI
 			if event.pressed:
 				if phantom_building:
 					fix_building_transparency(phantom_building)
@@ -135,6 +137,8 @@ func _input(event):
 	# RMB Movement
 	elif event is InputEventMouseMotion:
 		if phantom_building and rotating_building:
+			if is_mouse_over_ui():
+				return #Block input if it's over UI
 			var delta_angle = event.position.x - last_mouse_position.x
 			var sensitivity = 0.005
 			phantom_building.rotate_y(-delta_angle * sensitivity)
@@ -185,6 +189,9 @@ func cameraMovement(delta:float)-> void:
 		position += zoom_offset
 
 func handleEdgeScrolling(delta: float) -> void:
+	if is_mouse_over_ui():
+		return #Block input if it's over UI
+
 	var viewport_size = get_viewport().size
 	var mouse_pos = get_viewport().get_mouse_position()
 
@@ -273,3 +280,16 @@ func ray_plane_intersection(origin: Vector3, dir: Vector3, plane: Plane) -> Vect
 	if t < 0:
 		return Vector3.ZERO
 	return origin + dir * t
+
+func is_mouse_over_ui() -> bool:
+	var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
+	if not ui:
+		return false
+	
+	var mouse_pos = get_viewport().get_mouse_position()
+	
+	for node in ui.find_children("", "Control", true):
+		if node.visible and node.get_global_rect().has_point(mouse_pos):
+			return true
+	
+	return false
