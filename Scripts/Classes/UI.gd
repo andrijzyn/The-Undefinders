@@ -34,6 +34,9 @@ func _ready():
 	button_selection.pressed.connect(_on_selection_button_pressed)
 
 func _on_selection_button_pressed():
+	if selection_container.get_child_count() > 0:
+		return
+
 	var target_y_panel = selection_panel.position.y - 50 if !selection_is_moved else selection_panel.position.y + 50
 	var target_y_buttons = button_selection.position.y - 50 if !selection_is_moved else button_selection.position.y + 50
 	var target_y_inner_panel = selection_menu.position.y - 50 if !selection_is_moved else selection_menu.position.y + 50
@@ -74,6 +77,8 @@ func animate_element(element: Control, target_y: float):
 
 func adjust_selection_panel():
 	if !selection_is_moved:
+		if selection_container.get_child_count() == 0:
+			selection_menu.size.y = 40
 		await get_tree().process_frame
 
 		var menu_height = selection_menu.size.y
@@ -83,10 +88,13 @@ func adjust_selection_panel():
 		button_selection.position.y = selection_panel.position.y + selection_panel.size.y - button_selection.size.y - 10
 
 func _process(delta:float) -> void:
-	update_selection_display()
 	adjust_selection_panel()
+	update_selection_display()
 
 func update_selection_display():
+	if selection_is_moved:
+		return
+
 	for child in selection_container.get_children():
 		child.queue_free()
 
