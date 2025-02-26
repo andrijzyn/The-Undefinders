@@ -1,13 +1,13 @@
 [gd_scene load_steps=14 format=3 uid="uid://hs2mytyqoi4c"]
 
 [ext_resource type="Script" path="res://shared/HandlerClasses/UI.gd" id="1_uapss"]
-[ext_resource type="Texture2D" path="res://features/GUI/options/Textures/UIBottom_background.png" id="2_f7ndo"]
+[ext_resource type="Texture2D" uid="uid://drk5dy7nhkavt" path="res://features/GUI/textures/UIBottom_background.png" id="2_f7ndo"]
 [ext_resource type="PackedScene" uid="uid://ba4afwkd8iv77" path="res://shared/HUD/ui_button_up.tscn" id="3_h72wp"]
-[ext_resource type="Texture2D" path="res://features/GUI/options/Textures/Button_background_right.png" id="3_v6ggh"]
-[ext_resource type="Texture2D" path="res://features/GUI/options/Textures/UIRightUp.png" id="4_a8s5j"]
-[ext_resource type="Texture2D" path="res://features/GUI/options/Textures/Button_background_left.png" id="4_s0ir5"]
+[ext_resource type="Texture2D" uid="uid://dy2j46ciwsjmu" path="res://features/GUI/textures/Button_background_right.png" id="3_v6ggh"]
+[ext_resource type="Texture2D" uid="uid://dd0phtrd2nbgq" path="res://features/GUI/textures/UIRightUp.png" id="4_a8s5j"]
+[ext_resource type="Texture2D" uid="uid://cslwe8xrqw4b" path="res://features/GUI/textures/Button_background_left.png" id="4_s0ir5"]
 [ext_resource type="PackedScene" uid="uid://cbv76juler6ym" path="res://shared/HUD/ui_button_down.tscn" id="5_07yxw"]
-[ext_resource type="Texture2D" path="res://features/GUI/options/Textures/UILeftUp.png" id="6_iyvft"]
+[ext_resource type="Texture2D" uid="uid://bbs0cwuwh53yx" path="res://features/GUI/textures/UILeftUp.png" id="6_iyvft"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_pddki"]
 texture = ExtResource("2_f7ndo")

@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" path="res://entities/Buildings/GLA/garage/garage_imp.gd" id="1_nltkj"]
 
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nkjya"]
 resource_name = "Материал"
 vertex_color_use_as_albedo = true

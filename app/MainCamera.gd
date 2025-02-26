@@ -241,7 +241,7 @@ func start_building_placement(building_name: String) -> void:
 		phantom_building = null
 	
 	# Load new phantom object
-	var path = "res://Scenes/Buildings/" + building_name + ".tscn"
+	var path = "res://entities/Buildings/" + building_name + ".tscn"
 	if ResourceLoader.exists(path):
 		var building_scene = load(path).instantiate()
 		
@@ -305,11 +305,11 @@ func setup_phantom_area(node: Node) -> void:
 	area.connect("body_entered", Callable(self,"_on_phantom_area_body_entered"))
 	area.connect("body_exited", Callable(self, "_on_phantom_area_body_exited"))
 
-func _on_phantom_area_body_entered() -> void:
+func _on_phantom_area_body_entered(body: Node) -> void:
 	overlapping_bodies_count += 1
 	set_phantom_collision_state(true)
 
-func _on_phantom_area_body_exited() -> void:
+func _on_phantom_area_body_exited(body: Node) -> void:
 	overlapping_bodies_count -= 1
 	if overlapping_bodies_count <= 0:
 		overlapping_bodies_count = 0
@@ -392,7 +392,7 @@ func ray_plane_intersection(origin: Vector3, dir: Vector3, plane: Plane) -> Vect
 	return origin + dir * t
 
 func is_mouse_over_ui() -> bool:
-	var ui = get_tree().current_scene.get_node("HUD/rts_ui")
+	var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
 	if not ui:
 		return false
 	
