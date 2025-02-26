@@ -252,15 +252,11 @@ func start_building_placement(building_name: String) -> void:
 		phantom_building.scale = Vector3(0.5, 0.5, 0.5)
 	
 		apply_ghost_shader(phantom_building)
+		disable_colliders(phantom_building)
+		setup_phantom_area(phantom_building)
 		get_tree().get_current_scene().add_child(phantom_building)
 	else:
 		print("Error: Scene not found at path:", path)
-
-	apply_ghost_shader(phantom_building)
-	disable_colliders(phantom_building)
-	setup_phantom_area(phantom_building)
-	
-	get_tree().get_current_scene().add_child(phantom_building)
 
 # Duplicate the mesh so that its materials are not shared
 func duplicate_meshes(node: Node) -> void:
