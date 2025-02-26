@@ -20,13 +20,15 @@ var isSelected := false
 
 var direction: Vector3
 
-var waypointQueue: Array[Vector3]= []
+var waypointQueue: PackedVector3Array = []
+var currentPaths: PackedVector3Array = []
+var currentPath: int = 0
 
 @onready var animPlayer := $AnimPlayer
-@onready var navAgent :NavigationAgent3D = $NavAgent
 @onready var healthBar :HealthBar = $SubViewport.get_child(0)
 @onready var healthBarSprite :Sprite3D = $HealthBarSprite
 @onready var mainCamera: MainCamera
+@onready var mapRID: RID
 
 func _init() -> void:
 	add_to_group(Constants.selectable)
@@ -34,14 +36,14 @@ func _init() -> void:
 
 func _process(delta: float) -> void:
 	direction = Vector3.ZERO
-	OrderHandler.handleMovingOrder(self, mainCamera, delta)
-	OrderHandler.handleAbortOrder(self)
-	
+	OrderHandler.listen(self, delta)
+	#OrderHandler.handleMovingOrder(self, delta)
+	#OrderHandler.handleAbortOrder(self)
 	move_and_slide()
 
 func _ready() -> void:
 	mainCamera = get_tree().get_nodes_in_group(Constants.cameras)[0]
-	if not mainCamera: print(1)
+	mapRID = get_world_3d().navigation_map
 
 func setSelected(val: bool) -> void:
 	isSelected = val
