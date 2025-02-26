@@ -10,6 +10,7 @@ class_name MainCamera
 
 var selected_nodes: Array[Node3D] = []
 const DRAG_THRESHOLD := 5
+var ghost_shader = preload("res://shaders/ghost_shader.gdshader")
 
 var dragging := false
 var rotating := false
@@ -79,8 +80,7 @@ func _input(event):
 		# Правая кнопка – перемещение (drag)
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			if phantom_building:
-				phantom_building.queue_free()
-				phantom_building = null
+				cancel_building_placement()
 				return
 			dragging = event.pressed
 			last_mouse_position = event.position
@@ -96,8 +96,7 @@ func _input(event):
 				return #Block input if it's over UI
 			if event.pressed:
 				if phantom_building:
-					fix_building_transparency(phantom_building)
-					phantom_building = null
+					finish_building_placement()
 					return
 				# Если зажата клавиша Shift или происходит двойной клик – выполняем мгновенное выделение
 				if Input.is_action_pressed("shift"):
@@ -233,44 +232,73 @@ func handleRotation(delta: float) -> void:
 		rotate_y(-ROTATION_SPEED * delta)
 
 func start_building_placement(building_name: String) -> void:
+	# If there is an old phantom object, delete and restore the materials
 	if phantom_building:
+		fix_building_transparency(phantom_building)
 		phantom_building.queue_free()
+		phantom_building = null
+	
+	# Load new phantom object
 	var building_scene = load("res://scenes/buildings/" + building_name + ".tscn").instantiate()
+	duplicate_meshes(building_scene)
+	
 	phantom_building = building_scene
 	phantom_building.rotation = Vector3(phantom_building.rotation.x, 0.0, phantom_building.rotation.z)
 	phantom_building.scale = Vector3(0.5, 0.5, 0.5)
-	set_phantom_transparency(phantom_building)
+
+	apply_ghost_shader(phantom_building)
 	get_tree().get_current_scene().add_child(phantom_building)
 
-func set_phantom_transparency(node: Node) -> void:
-	if node is MeshInstance3D:
-		var new_mat: StandardMaterial3D = null
-		if node.material_override:
-			new_mat = node.material_override.duplicate(true) as StandardMaterial3D
-		elif node.mesh:
-			var surface_count = node.mesh.get_surface_count()
-			if surface_count > 0:
-				var orig_mat = node.mesh.surface_get_material(0)
-				if orig_mat and orig_mat is StandardMaterial3D:
-					new_mat = orig_mat.duplicate(true) as StandardMaterial3D
-		if new_mat:
-			new_mat.albedo_color.a = 0.5
-			new_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-			node.material_override = new_mat
-		else:
-			print("Material not found for node: ", node.name)
-	
+# Duplicate the mesh so that its materials are not shared
+func duplicate_meshes(node: Node) -> void:
+	if node is MeshInstance3D and node.mesh:
+		node.mesh = node.mesh.duplicate()
 	for child in node.get_children():
-		set_phantom_transparency(child)
+		duplicate_meshes(child)
+
+func apply_ghost_shader(node: Node) -> void:
+	if node is MeshInstance3D and node.mesh:
+		var surface_count = node.mesh.get_surface_count()
+		for i in range(surface_count):
+			var orig_mat = node.mesh.surface_get_material(i)
+			if orig_mat and not (orig_mat is ShaderMaterial):
+				var ghost_material := ShaderMaterial.new()
+				ghost_material.shader = ghost_shader
+				ghost_material.set_shader_parameter("ghost_alpha", 0.5)
+				ghost_material.set_shader_parameter("original_material", orig_mat)
+
+				if orig_mat is StandardMaterial3D:
+					ghost_material.set_shader_parameter("albedo_texture", orig_mat.albedo_texture)
+					ghost_material.set_shader_parameter("albedo_color", orig_mat.albedo_color)
+
+				node.mesh.surface_set_material(i, ghost_material)
+
+	for child in node.get_children():
+		apply_ghost_shader(child)
 
 func fix_building_transparency(node: Node) -> void:
-	if node is MeshInstance3D:
-		if node.material_override and node.material_override is StandardMaterial3D:
-			var mat := node.material_override as StandardMaterial3D
-			mat.albedo_color.a = 1.0
-			mat.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+	if node is MeshInstance3D and node.mesh:
+		var surface_count = node.mesh.get_surface_count()
+		for i in range(surface_count):
+			var orig_mat = node.mesh.surface_get_material(i)
+			if orig_mat and orig_mat is ShaderMaterial:
+				var prev_mat = orig_mat.get_shader_parameter("original_material")
+				if prev_mat:
+					node.mesh.surface_set_material(i, prev_mat)
+
 	for child in node.get_children():
 		fix_building_transparency(child)
+
+func cancel_building_placement() -> void:
+	if phantom_building:
+		fix_building_transparency(phantom_building)
+		phantom_building.queue_free()
+		phantom_building = null
+
+func finish_building_placement() -> void:
+	if phantom_building:
+		fix_building_transparency(phantom_building)
+		phantom_building = null
 
 func ray_plane_intersection(origin: Vector3, dir: Vector3, plane: Plane) -> Vector3:
 	var denom = plane.normal.dot(dir)
