@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bbfx4xwagb1dn"
-path.s3tc="res://.godot/imported/Sketchfab_2021_03_16_23_33_20_0.png-28691d1f6b9156c7f178e40ff966b1c9.s3tc.ctex"
+path.s3tc="res://.godot/imported/Sketchfab_2021_03_16_23_33_20_0.png-64717b766b64d5c076bc77e77ed06fad.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -14,8 +14,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/enteties/solider/source/Sketchfab_2021_03_16_23_33_20_0.png"
-dest_files=["res://.godot/imported/Sketchfab_2021_03_16_23_33_20_0.png-28691d1f6b9156c7f178e40ff966b1c9.s3tc.ctex"]
+source_file="res://entities/Units/USA/Infantry/Soldier/source/Sketchfab_2021_03_16_23_33_20_0.png"
+dest_files=["res://.godot/imported/Sketchfab_2021_03_16_23_33_20_0.png-64717b766b64d5c076bc77e77ed06fad.s3tc.ctex"]
 
 [params]
 
