@@ -10,7 +10,7 @@ class_name MainCamera
 
 var selected_nodes: Array[Node3D] = []
 const DRAG_THRESHOLD := 5
-var ghost_shader = preload("res://shaders/ghost_shader.gdshader")
+var ghost_shader = preload("res://Shaders/ghost_shader.gdshader")
 
 var dragging := false
 var rotating := false
@@ -239,15 +239,21 @@ func start_building_placement(building_name: String) -> void:
 		phantom_building = null
 	
 	# Load new phantom object
-	var building_scene = load("res://scenes/buildings/" + building_name + ".tscn").instantiate()
-	duplicate_meshes(building_scene)
+	var path = "res://Scenes/Buildings/" + building_name + ".tscn"
+	if ResourceLoader.exists(path):
+		var building_scene = load(path).instantiate()
+		
+		duplicate_meshes(building_scene)
 	
-	phantom_building = building_scene
-	phantom_building.rotation = Vector3(phantom_building.rotation.x, 0.0, phantom_building.rotation.z)
-	phantom_building.scale = Vector3(0.5, 0.5, 0.5)
+		phantom_building = building_scene
+		phantom_building.rotation = Vector3(phantom_building.rotation.x, 0.0, phantom_building.rotation.z)
+		phantom_building.scale = Vector3(0.5, 0.5, 0.5)
+	
+		apply_ghost_shader(phantom_building)
+		get_tree().get_current_scene().add_child(phantom_building)
+	else:
+		print("Error: Scene not found at path:", path)
 
-	apply_ghost_shader(phantom_building)
-	get_tree().get_current_scene().add_child(phantom_building)
 
 # Duplicate the mesh so that its materials are not shared
 func duplicate_meshes(node: Node) -> void:
