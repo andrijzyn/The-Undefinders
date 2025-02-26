@@ -23,6 +23,7 @@ Resolution="*res://Scripts/GUI/resolution.gd"
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/size/resizable=false
+window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 enabled=true
 action="fullscreen"

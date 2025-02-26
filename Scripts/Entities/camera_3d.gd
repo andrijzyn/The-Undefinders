@@ -20,6 +20,8 @@ var selection_rect := Rect2().abs()
 var last_mouse_position := Vector2()
 var phantom_building: Node3D = null
 var rotating_building: bool = false
+var can_place: bool = true
+var overlapping_bodies_count: int = 0
 
 var selection_overlay: ColorRect
 
@@ -247,6 +249,9 @@ func start_building_placement(building_name: String) -> void:
 	phantom_building.scale = Vector3(0.5, 0.5, 0.5)
 
 	apply_ghost_shader(phantom_building)
+	disable_colliders(phantom_building)
+	setup_phantom_area(phantom_building)
+	
 	get_tree().get_current_scene().add_child(phantom_building)
 
 # Duplicate the mesh so that its materials are not shared
@@ -255,6 +260,75 @@ func duplicate_meshes(node: Node) -> void:
 		node.mesh = node.mesh.duplicate()
 	for child in node.get_children():
 		duplicate_meshes(child)
+
+func disable_colliders(node: Node) -> void:
+	if node is CollisionShape3D:
+		node.disabled = true
+	for child in node.get_children():
+		disable_colliders(child)
+
+func enable_colliders(node: Node) -> void:
+	if node is CollisionShape3D:
+		node.disabled = false
+	for child in node.get_children():
+		enable_colliders(child)
+
+func find_first_collision_shape(node: Node) -> CollisionShape3D:
+	if node is CollisionShape3D:
+		return node
+	for child in node.get_children():
+		var collider = find_first_collision_shape(child)
+		if collider:
+			return collider
+	return null
+
+# Add Area3D for intersection detection
+func setup_phantom_area(node: Node) -> void:
+	var area = Area3D.new()
+	var new_collision_shape = CollisionShape3D.new()
+	
+	var original_collider = find_first_collision_shape(node)
+	new_collision_shape.shape = original_collider.shape.duplicate()
+	new_collision_shape.position = original_collider.position
+	new_collision_shape.rotation = original_collider.rotation
+	
+	area.add_child(new_collision_shape)
+	area.monitoring = true
+	area.monitorable = true
+	area.collision_layer = 2
+	area.collision_mask = 2
+	node.add_child(area)
+	area.connect("body_entered", Callable(self,"_on_phantom_area_body_entered"))
+	area.connect("body_exited", Callable(self, "_on_phantom_area_body_exited"))
+
+func _on_phantom_area_body_entered(body: Node) -> void:
+	overlapping_bodies_count += 1
+	set_phantom_collision_state(true)
+
+func _on_phantom_area_body_exited(body: Node) -> void:
+	overlapping_bodies_count -= 1
+	if overlapping_bodies_count <= 0:
+		overlapping_bodies_count = 0
+		set_phantom_collision_state(false)
+
+func set_phantom_collision_state(is_colliding: bool) -> void:
+	can_place = not is_colliding
+	update_phantom_material_color(phantom_building, is_colliding)
+
+func update_phantom_material_color(node: Node, is_colliding: bool) -> void:
+	if node is MeshInstance3D and node.mesh:
+		for i in range(node.mesh.get_surface_count()):
+			var mat = node.mesh.surface_get_material(i)
+			if mat and (mat is ShaderMaterial):
+				if is_colliding:
+					mat.set_shader_parameter("albedo_color", Color(1, 0, 0))
+				else:
+					var orig_mat = mat.get_shader_parameter("original_material")
+					if orig_mat and orig_mat is StandardMaterial3D:
+						mat.set_shader_parameter("albedo_color", orig_mat.albedo_color)
+	if node:
+		for child in node.get_children():
+				update_phantom_material_color(child, is_colliding)
 
 func apply_ghost_shader(node: Node) -> void:
 	if node is MeshInstance3D and node.mesh:
@@ -296,7 +370,11 @@ func cancel_building_placement() -> void:
 		phantom_building = null
 
 func finish_building_placement() -> void:
-	if phantom_building:
+	if phantom_building and can_place:
+		for child in phantom_building.get_children():
+			if child is Area3D:
+				child.queue_free()
+		enable_colliders(phantom_building)
 		fix_building_transparency(phantom_building)
 		phantom_building = null
 

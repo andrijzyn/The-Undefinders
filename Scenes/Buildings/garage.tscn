@@ -243,6 +243,7 @@ size = Vector3(6.88969, 6.65125, 10.1031)
 
 [node name="Garage" type="StaticBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.374, 0.001, -3.039)
+collision_layer = 2
 
 [node name="Garage" type="MeshInstance3D" parent="."]
 transform = Transform3D(340.476, 0, 0, 0, -4.05879e-05, 340.476, 0, -340.476, -4.05879e-05, 0.013776, 0, -1.48549)
