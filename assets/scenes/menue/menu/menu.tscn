@@ -1,0 +1,68 @@
+[gd_scene load_steps=5 format=3 uid="uid://cyq4cd1exuwat"]
+
+[ext_resource type="Script" path="res://assets/scenes/menue/menu/menu.gd" id="1_1itpr"]
+
+[sub_resource type="GDScript" id="GDScript_a0xms"]
+
+[sub_resource type="Theme" id="Theme_hfjwo"]
+
+[sub_resource type="Theme" id="Theme_onbdq"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 8
+script = SubResource("GDScript_a0xms")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -75.0
+offset_right = 200.0
+offset_bottom = 75.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(200, 75)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
+
+[node name="localGame" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme = SubResource("Theme_hfjwo")
+theme_type_variation = &"FlatButton"
+theme_override_font_sizes/font_size = 21
+text = "Set out on a journey"
+script = ExtResource("1_1itpr")
+
+[node name="options" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme = SubResource("Theme_hfjwo")
+theme_type_variation = &"FlatButton"
+theme_override_font_sizes/font_size = 21
+text = "Shell"
+script = ExtResource("1_1itpr")
+
+[node name="exit" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme = SubResource("Theme_onbdq")
+theme_type_variation = &"FlatButton"
+theme_override_font_sizes/font_size = 12
+text = "Fleeing"
+script = ExtResource("1_1itpr")
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/localGame" to="MarginContainer/VBoxContainer/localGame" method="play"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/options" to="MarginContainer/VBoxContainer/options" method="options"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/exit" to="MarginContainer/VBoxContainer/exit" method="exit"]
