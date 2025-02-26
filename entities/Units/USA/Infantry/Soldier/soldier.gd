@@ -15,3 +15,5 @@ func _process(delta: float) -> void:
 			animPlayer.play("rig|walk ")
 	else:
 		animPlayer.stop()
+		animPlayer.play("rig|idle ")
+		animPlayer.stop()

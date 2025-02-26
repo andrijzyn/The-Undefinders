@@ -4,7 +4,7 @@ class_name OrderHandler
 static func listen(node:MovableUnit, delta):
 	if Input.is_action_just_pressed("MRB") and Input.is_action_pressed("rotate") and node.isSelected:
 		handleRotateOrder(node)
-	if Input.is_action_just_pressed("MRB") and Input.is_action_pressed("patrol") and node.isSelected:
+	elif Input.is_action_just_pressed("MRB") and Input.is_action_pressed("patrol") and node.isSelected:
 		handlePatrolOrder(node)
 	elif Input.is_action_just_pressed("MRB") and node.isSelected:
 		handleMovingOrder(node)
@@ -28,9 +28,11 @@ static func handleRotateOrder(node: MovableUnit) -> void:
 		node.is_rotating = true
 static func keepRotating(node:MovableUnit, delta) -> void:
 	node.rotation.y = lerp_angle(node.rotation.y, node.target_angle, node.rotation_speed * delta)
+	print("rotating")
 	if Utils.angle_diff(node.rotation.y, node.target_angle) < node.threshold:
 		node.rotation.y = node.target_angle
 		node.is_rotating = false
+		print("end")
 
 static func handleRotateOrderbyPosition(node: MovableUnit, delta:float,  move_direction: Vector3) -> void:
 	if move_direction.length() == 0:
@@ -38,11 +40,11 @@ static func handleRotateOrderbyPosition(node: MovableUnit, delta:float,  move_di
 	if not node.is_rotating:
 		node.target_angle = atan2(move_direction.x, move_direction.z)
 		node.is_rotating = true
-	if node.is_rotating:
-		node.rotation.y = lerp_angle(node.rotation.y, node.target_angle, node.rotation_speed * delta)
-		if Utils.angle_diff(node.rotation.y, node.target_angle) < node.threshold:
-			node.rotation.y = node.target_angle
-			node.is_rotating = false
+	#if node.is_rotating:
+		#node.rotation.y = lerp_angle(node.rotation.y, node.target_angle, node.rotation_speed * delta)
+		#if Utils.angle_diff(node.rotation.y, node.target_angle) < node.threshold:
+		#	node.rotation.y = node.target_angle
+		#	node.is_rotating = false
 
 static func handleMovingOrder(node:MovableUnit) -> void:
 	var targetLocation = RaycastHandler.getRaycastResultPosition(node.mainCamera)
@@ -58,8 +60,8 @@ static func handleMovingOrder(node:MovableUnit) -> void:
 		node.isMoving = true
 static func keepMoving(node:MovableUnit, delta) -> void:
 		var next_position = node.currentPaths[node.currentPath] - node.global_position
-		#handleRotateOrderbyPosition(node, delta, next_position)
-		node.rotation.y = atan2(next_position.x, next_position.z)
+		handleRotateOrderbyPosition(node, delta, next_position)
+		#node.rotation.y = atan2(next_position.x, next_position.z)
 		node.direction = next_position.normalized()
 		node.velocity = node.velocity.lerp(node.direction * node.SPEED, delta)
 		if next_position.length_squared() < 1.0:
