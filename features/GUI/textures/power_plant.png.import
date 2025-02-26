@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bbs0cwuwh53yx"
-path="res://.godot/imported/UILeftUp.png-fd0ea80d89ac02b8b2a4710d16ea7e68.ctex"
+uid="uid://cveryvtscrbdy"
+path="res://.godot/imported/power_plant.png-af1297a52da8392bff8239a1ca452b2d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Textures/UILeftUp.png"
-dest_files=["res://.godot/imported/UILeftUp.png-fd0ea80d89ac02b8b2a4710d16ea7e68.ctex"]
+source_file="res://features/GUI/textures/power_plant.png"
+dest_files=["res://.godot/imported/power_plant.png-af1297a52da8392bff8239a1ca452b2d.ctex"]
 
 [params]
 

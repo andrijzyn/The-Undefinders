@@ -10,7 +10,7 @@ class_name MainCamera
 
 var selected_nodes: Array[Node3D] = []
 const DRAG_THRESHOLD := 5
-var ghost_shader = preload("res://Shaders/ghost_shader.gdshader")
+var ghost_shader = preload("res://shaders/ghost_shader.gdshader")
 
 var dragging := false
 var rotating := false
@@ -305,11 +305,11 @@ func setup_phantom_area(node: Node) -> void:
 	area.connect("body_entered", Callable(self,"_on_phantom_area_body_entered"))
 	area.connect("body_exited", Callable(self, "_on_phantom_area_body_exited"))
 
-func _on_phantom_area_body_entered(body: Node) -> void:
+func _on_phantom_area_body_entered() -> void:
 	overlapping_bodies_count += 1
 	set_phantom_collision_state(true)
 
-func _on_phantom_area_body_exited(body: Node) -> void:
+func _on_phantom_area_body_exited() -> void:
 	overlapping_bodies_count -= 1
 	if overlapping_bodies_count <= 0:
 		overlapping_bodies_count = 0
@@ -392,7 +392,7 @@ func ray_plane_intersection(origin: Vector3, dir: Vector3, plane: Plane) -> Vect
 	return origin + dir * t
 
 func is_mouse_over_ui() -> bool:
-	var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
+	var ui = get_tree().current_scene.get_node("HUD/rts_ui")
 	if not ui:
 		return false
 	

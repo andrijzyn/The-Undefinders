@@ -21,9 +21,9 @@ const MOVE_OFFSET: int = 133
 const MOVE_TIME: float = 0.5
 var selected_objects = {}
 var buildings = {
-	"garage_imp": { "icon": preload("res://Textures/barracks.png"), "cost": 200, "size": Vector2(2,2) },
-	"factory": { "icon": preload("res://Textures/factory.png"), "cost": 300, "size": Vector2(3,3) },
-	"power_plant": { "icon": preload("res://Textures/power_plant.png"), "cost": 150, "size": Vector2(2,2) }
+	"garage_imp": { "icon": preload("res://features/GUI/textures/barracks.png"), "cost": 200, "size": Vector2(2,2) },
+	"factory": { "icon": preload("res://features/GUI/textures/factory.png"), "cost": 300, "size": Vector2(3,3) },
+	"power_plant": { "icon": preload("res://features/GUI/textures/power_plant.png"), "cost": 150, "size": Vector2(2,2) }
 }
 
 func _ready():
@@ -104,14 +104,14 @@ func update_selection_display():
 	for object_type in selected_objects.keys():
 		var object_data = selected_objects[object_type]
 		if object_data.count > 1:
-			var group_icon = preload("res://Scenes/GUI/group_icon.tscn").instantiate()
+			var group_icon = preload("res://shared/HUD/group_icon.tscn").instantiate()
 			group_icon.get_node("TextureRect").texture = object_data.icon
 			group_icon.get_node("Label").text = str(object_data.count)
 			selection_container.add_child(group_icon)
 			total_elements += 1
 		else:
 			for i in range(object_data.count):
-				var unit_icon = preload("res://Scenes/GUI/unit_icon.tscn").instantiate()
+				var unit_icon = preload("res://shared/HUD/unit_icon.tscn").instantiate()
 				unit_icon.get_node("TextureRect").texture = object_data.icon
 				selection_container.add_child(unit_icon)
 				total_elements += 1
@@ -135,7 +135,7 @@ func update_buildings_display():
 		buildings_container.columns = 3
 
 	for building in buildings.keys():
-		var building_button = preload("res://Scenes/GUI/building_button.tscn").instantiate()
+		var building_button = preload("res://shared/HUD/building_button.tscn").instantiate()
 		var texture_rect = building_button.get_node_or_null("TextureRect")
 		if texture_rect:
 			texture_rect.texture = buildings[building].icon
@@ -159,7 +159,7 @@ func update_selected_objects(selected_nodes: Array):
 			if node.has_method("get_icon"):
 				icon = node.get_icon()
 			selected_objects[object_type] = {
-				"icon": icon if icon else preload("res://Textures/default.png"),
+				"icon": icon if icon else preload("res://features/GUI/textures/default.png"),
 				"count": 1
 			}
 	update_selection_display()

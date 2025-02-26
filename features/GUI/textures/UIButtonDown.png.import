@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bdikmwnugu25f"
-path="res://.godot/imported/UIButtonDown.png-9b3447fd92a18d458a1903578810b641.ctex"
+path="res://.godot/imported/UIButtonDown.png-2e26da84fc1af301205ad44e116ba576.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Textures/UIButtonDown.png"
-dest_files=["res://.godot/imported/UIButtonDown.png-9b3447fd92a18d458a1903578810b641.ctex"]
+source_file="res://features/GUI/textures/UIButtonDown.png"
+dest_files=["res://.godot/imported/UIButtonDown.png-2e26da84fc1af301205ad44e116ba576.ctex"]
 
 [params]
 
