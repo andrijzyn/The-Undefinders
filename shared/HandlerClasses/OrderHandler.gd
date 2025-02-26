@@ -102,7 +102,8 @@ static func handlePatrolOrder(node:MovableUnit) -> void:
 static func keepPatrolling(node:MovableUnit, delta) -> void:
 	# Вычисляем вектор до следующей точки в текущем маршруте
 	var next_position = node.currentPaths[node.currentPath] - node.global_position
-	node.rotation.y = atan2(next_position.x, next_position.z)
+	#node.rotation.y = atan2(next_position.x, next_position.z)
+	handleRotateOrderbyPosition(node, delta, next_position)
 	node.direction = next_position.normalized()
 	node.velocity = node.velocity.lerp(node.direction * node.SPEED, delta)
 	
