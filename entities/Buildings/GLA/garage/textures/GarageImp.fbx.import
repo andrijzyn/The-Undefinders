@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://c1dkcq66h6c8d"
-path="res://.godot/imported/GarageImp.fbx-e0b47317816fa42b9ca00f6aa20a4122.scn"
+path="res://.godot/imported/GarageImp.fbx-47d6ec77f4c393b229a349acfb7b0edf.scn"
 
 [deps]
 
-source_file="res://assets/props/garage/textures/GarageImp.fbx"
-dest_files=["res://.godot/imported/GarageImp.fbx-e0b47317816fa42b9ca00f6aa20a4122.scn"]
+source_file="res://entities/Buildings/GLA/garage/textures/GarageImp.fbx"
+dest_files=["res://.godot/imported/GarageImp.fbx-47d6ec77f4c393b229a349acfb7b0edf.scn"]
 
 [params]
 

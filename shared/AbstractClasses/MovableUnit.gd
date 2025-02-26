@@ -36,7 +36,6 @@ func _process(delta: float) -> void:
 	direction = Vector3.ZERO
 	OrderHandler.handleMovingOrder(self, mainCamera, delta)
 	OrderHandler.handleAbortOrder(self)
-	
 	move_and_slide()
 
 func _ready() -> void:
