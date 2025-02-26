@@ -17,12 +17,15 @@ var is_rotating: bool = false
 var isMoving: bool = false
 var isHealthBarVisible := false
 var isSelected := false
+var isPatrolling := false
 
 var direction: Vector3
 
 var waypointQueue: PackedVector3Array = []
+var patrolPoints: PackedVector3Array = []
 var currentPaths: PackedVector3Array = []
 var currentPath: int = 0
+var currentPatrolPoint: int = 0
 
 @onready var animPlayer := $AnimPlayer
 @onready var healthBar :HealthBar = $SubViewport.get_child(0)
@@ -48,7 +51,7 @@ func _ready() -> void:
 func setSelected(val: bool) -> void:
 	isSelected = val
 	setHealthBarVisibility(val)
-	
+
 func setHealthBarVisibility(val: bool):
 	healthBarSprite.visible = val
 
