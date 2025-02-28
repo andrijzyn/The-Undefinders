@@ -58,13 +58,51 @@ newSelection:Node3D, camera: MainCamera) -> Array[Node3D]:
 	return oldSelections
 
 static func handleSelectionBySelectionRect(camera: MainCamera):
-	var selectable_nodes := camera.get_tree().get_nodes_in_group(Constants.selectable)
+	var space_state := camera.get_world_3d().direct_space_state
+	var viewport := camera.get_viewport()
+	var camera_3d := viewport.get_camera_3d()
+	var rect := camera.selection_rect
+	var top_left := rect.position
+	var bottom_right := rect.end
+	var max_rays = 10000
+	var selection_width = bottom_right.x - top_left.x
+	var selection_height = bottom_right.y - top_left.y
+
+	# Calculate the grid size based on the frame size
+	var grid_size_x = int(sqrt(max_rays * (selection_width / selection_height)))
+	var grid_size_y = int(max_rays / grid_size_x)
+
+	# Minimum grid size
+	grid_size_x = max(grid_size_x, 3)
+	grid_size_y = max(grid_size_y, 3)
+
+	# Clearing the previous selection
 	for node in camera.selected_nodes:
-		node.setSelected(false)
-		camera.selected_nodes.clear()
-	for node in selectable_nodes:
-		var screen_pos = camera.get_viewport().get_camera_3d().unproject_position(node.global_transform.origin)
-		
-		if camera.selection_rect.has_point(screen_pos):
-			node.setSelected(true)
-			camera.selected_nodes.append(node)
+		if node.has_method("setSelected"):
+			node.setSelected(false)
+	camera.selected_nodes.clear()
+
+	var selected_objects := {}
+	# Generate a grid of dots inside the frame
+	for i in range(grid_size_x):
+		for j in range(grid_size_y):
+			# Interpolate coordinates for x and y (from top left to bottom right)
+			var t_x = float(i) / (grid_size_x - 1)
+			var t_y = float(j) / (grid_size_y - 1)
+			var screen_pos = top_left.lerp(bottom_right, t_x)
+			var screen_pos_y = top_left.lerp(bottom_right, t_y)
+
+			screen_pos = Vector2(screen_pos.x, screen_pos_y.y)
+
+			var from := camera_3d.project_ray_origin(screen_pos)
+			var to := from + camera_3d.project_ray_normal(screen_pos) * 1000 # Ray length
+			var query := PhysicsRayQueryParameters3D.create(from, to)
+			var result := space_state.intersect_ray(query)
+
+			if result and result.collider:
+				selected_objects[result.collider] = true  # Avoid duplication
+
+	for obj in selected_objects.keys():
+		if obj.has_method("setSelected"):
+			obj.setSelected(true)
+			camera.selected_nodes.append(obj)

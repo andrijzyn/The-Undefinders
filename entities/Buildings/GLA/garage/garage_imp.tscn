@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" path="res://entities/Buildings/GLA/garage/garage_imp.gd" id="1_nltkj"]
 
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nkjya"]
 resource_name = "Материал"
 vertex_color_use_as_albedo = true
@@ -459,6 +458,7 @@ size = Vector3(16.0626, 6.71863, 10.6256)
 
 [node name="GarageImp" type="StaticBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.18084, 0, 0.100148)
+collision_layer = 2
 script = ExtResource("1_nltkj")
 
 [node name="Garage" type="MeshInstance3D" parent="."]

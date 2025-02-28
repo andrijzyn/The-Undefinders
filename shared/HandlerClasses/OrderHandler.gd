@@ -1,67 +1,110 @@
 class_name OrderHandler
 
-static func handleRotateOrderbyClick(node: MovableUnit, camera: MainCamera, delta:float) -> void:
-	if node.isSelected == true:
-		if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
-			
-			var targetLocation = RaycastHandler.getRaycastResultPosition(camera)
-			var direction: Vector3 = targetLocation - node.position
-			direction.y = 0
-			if direction.length() != 0:
-				direction = direction.normalized()
-				node.target_angle = atan2(direction.x, direction.z)
-				node.is_rotating = true
-
-			# Если установлена цель, продолжаем поворачивать объект
-	if node.is_rotating:
-		node.rotation.y = lerp_angle(node.rotation.y, node.target_angle, node.rotation_speed * delta)
-		if Utils.angle_diff(node.rotation.y, node.target_angle) < node.threshold:
-			node.rotation.y = node.target_angle
-			node.is_rotating = false
-
-static func handleRotateOrderbyPosition(node: MovableUnit, delta:float,  move_direction: Vector3) -> void:
-	if move_direction.length() == 0:
-		return
-	if not node.is_rotating:
-		node.target_angle = atan2(move_direction.x, move_direction.z)
-		node.is_rotating = true
-	if node.is_rotating:
-		node.rotation.y = lerp_angle(node.rotation.y, node.target_angle, node.rotation_speed * delta)
-		if Utils.angle_diff(node.rotation.y, node.target_angle) < node.threshold:
-			node.rotation.y = node.target_angle
-			node.is_rotating = false
-
-static func handleMovingOrder(node:MovableUnit, camera: MainCamera, delta:float) -> void:
+static func listen(node: MovableUnit, delta):
 	if node.isSelected:
-		if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
-			var targetLocation = RaycastHandler.getRaycastResultPosition(camera)
-			if Input.is_key_pressed(KEY_SHIFT):
-				node.waypointQueue.append(targetLocation)
+		if Input.is_action_just_pressed("MRB"):
+			if Input.is_action_pressed("rotate"):
+				handleRotateOrder(node)
+			elif Input.is_action_pressed("patrol"):
+				handlePatrolOrder(node)
 			else:
-				node.waypointQueue.clear()
-				node.velocity = Vector3.ZERO
-				node.waypointQueue.append(targetLocation)
-			node.navAgent.target_position = node.waypointQueue[0]
-			
-			node.isMoving = true
+				handleMovingOrder(node)
+
+		if Input.is_action_just_pressed("abort"):
+			handleAbortOrder(node)
 
 	if node.isMoving:
-		var next_position = node.navAgent.get_next_path_position()
-		node.direction = (next_position - node.global_transform.origin).normalized()
-		handleRotateOrderbyPosition(node, delta, node.direction)
-		node.velocity = node.velocity.lerp(node.direction * node.SPEED, delta)
-		if node.navAgent.is_target_reached():
-			node.velocity = Vector3.ZERO
-			node.waypointQueue.remove_at(0)
-			if node.waypointQueue.size() > 0:
-				node.navAgent.target_position = node.waypointQueue[0]
-			else:
-				node.isMoving = false
+		keepMoving(node, delta)
+	elif node.isPatrolling:
+		keepPatrolling(node, delta)
+	else:
+		keepRotating(node, delta)
 
-static func handleAbortOrder(node: MovableUnit):
-	if node.isSelected:
-		if Input.is_action_just_pressed("abort"):
-			node.isMoving = false
-			node.is_rotating = false
-			node.velocity = Vector3.ZERO
+static func handleRotateOrder(node: MovableUnit) -> void:
+	var targetLocation = RaycastHandler.getRaycastResultPosition(node.mainCamera)
+	var direction = (targetLocation - node.global_position).normalized()
+	direction.y = 0
+	if direction.length() > 0:
+		node.target_angle = atan2(direction.x, direction.z)
+
+static func keepRotating(node: MovableUnit, delta) -> void:
+	if Utils.angle_diff(node.rotation.y, node.target_angle) > node.threshold:
+		node.rotation.y = lerp_angle(node.rotation.y, node.target_angle, node.rotation_speed * delta)
+
+static func handleRotateOrderbyPosition(node: MovableUnit, delta: float, move_direction: Vector3) -> void:
+	if move_direction.length_squared() > 0.01:
+		node.target_angle = atan2(move_direction.x, move_direction.z)
+		node.rotation.y = lerp_angle(node.rotation.y, node.target_angle, node.rotation_speed * delta)
+
+static func handleMovingOrder(node: MovableUnit) -> void:
+	var targetLocation = RaycastHandler.getRaycastResultPosition(node.mainCamera)
+	if not Input.is_action_pressed("shift"):
+		node.waypointQueue.clear()
+		node.velocity = Vector3.ZERO
+	node.waypointQueue.append(targetLocation)
+	_newPath(node)
+	node.isMoving = true
+
+static func keepMoving(node: MovableUnit, delta) -> void:
+	var next_position = node.currentPaths[node.currentPath] - node.global_position
+	handleRotateOrderbyPosition(node, delta, next_position)
+	node.velocity = node.velocity.lerp(next_position.normalized() * node.SPEED, delta)
 	
+	if next_position.length_squared() < 1.0:
+		if node.currentPath < node.currentPaths.size() - 1:
+			node.currentPath += 1
+		elif node.waypointQueue.size() > 1:
+			if node.waypointQueue.size() > 0:
+				node.waypointQueue.remove_at(0)
+			node.velocity = Vector3.ZERO
+			_newPath(node)
+		else:
+			node.velocity = Vector3.ZERO
+			node.isMoving = false
+
+static func handlePatrolOrder(node: MovableUnit) -> void:
+	var targetLocation = RaycastHandler.getRaycastResultPosition(node.mainCamera)
+	if Input.is_action_pressed("shift"):
+		if node.patrolPoints.is_empty():
+			node.patrolPoints.append(node.global_position)
+		node.patrolPoints.append(targetLocation)
+	else:
+		node.patrolPoints = [node.global_position, targetLocation]
+	node.currentPatrolPoint = 0
+	node.isPatrolling = true
+	_updatePatrolPath(node)
+
+static func keepPatrolling(node: MovableUnit, delta) -> void:
+	var next_position = node.currentPaths[node.currentPath] - node.global_position
+	handleRotateOrderbyPosition(node, delta, next_position)
+	node.velocity = node.velocity.lerp(next_position.normalized() * node.SPEED, delta)
+	
+	if next_position.length_squared() < 1.0:
+		if node.currentPath < node.currentPaths.size() - 1:
+			node.currentPath += 1
+		else:
+			node.currentPatrolPoint = (node.currentPatrolPoint + 1) % node.patrolPoints.size()
+			_updatePatrolPath(node)
+
+static func _updatePatrolPath(node: MovableUnit) -> void:
+	node.waypointQueue = [
+		node.patrolPoints[node.currentPatrolPoint],
+		node.patrolPoints[(node.currentPatrolPoint + 1) % node.patrolPoints.size()]
+	]
+	_newPath(node)
+
+static func handleAbortOrder(node: MovableUnit) -> void:
+	node.isMoving = false
+	node.isPatrolling = false
+	node.velocity = Vector3.ZERO
+	node.waypointQueue.clear()
+	node.currentPaths.clear()
+	node.patrolPoints.clear()
+	node.currentPath = 0
+
+static func _newPath(node: MovableUnit) -> void:
+	if node.waypointQueue.is_empty():
+		return
+	var safeTargetLocation = NavigationServer3D.map_get_closest_point(node.mapRID, node.waypointQueue[0])
+	node.currentPaths = NavigationServer3D.map_get_path(node.mapRID, node.global_position, safeTargetLocation, true)
+	node.currentPath = 0
