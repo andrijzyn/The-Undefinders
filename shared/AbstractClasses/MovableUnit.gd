@@ -13,7 +13,6 @@ const rotation_speed: float = 5.0
 var target_angle: float = 0.0
 var is_rotating: bool = false
 
-
 var isMoving: bool = false
 var isHealthBarVisible := false
 var isSelected := false
@@ -40,8 +39,6 @@ func _init() -> void:
 func _process(delta: float) -> void:
 	direction = Vector3.ZERO
 	OrderHandler.listen(self, delta)
-	#OrderHandler.handleMovingOrder(self, delta)
-	#OrderHandler.handleAbortOrder(self)
 	move_and_slide()
 
 func _ready() -> void:

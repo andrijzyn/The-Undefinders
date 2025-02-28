@@ -87,7 +87,7 @@ func adjust_selection_panel():
 		selection_panel.position.y = panel_target_y
 		button_selection.position.y = selection_panel.position.y + selection_panel.size.y - button_selection.size.y - 10
 
-func _process(delta:float) -> void:
+func _process(delta: float) -> void:
 	adjust_selection_panel()
 	update_selection_display()
 
