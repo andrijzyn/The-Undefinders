@@ -10,12 +10,6 @@ var options_scene
 var credits_scene
 var sub_menu
 
-func load_game_scene():
-	SceneLoader.load_scene(game_scene_path)
-
-func new_game():
-	load_game_scene()
-
 func _open_sub_menu(menu : Control):
 	sub_menu = menu
 	sub_menu.show()
@@ -75,7 +69,7 @@ func _ready():
 	_setup_game_buttons()
 
 func _on_new_game_button_pressed():
-	new_game()
+	SceneLoader.load_scene(game_scene_path)
 
 func _on_options_button_pressed():
 	_open_sub_menu(options_scene)

@@ -121,7 +121,6 @@ static func set_audio_from_config():
 	set_mute(mute_audio_flag)
 
 # Video
-
 static func set_fullscreen_enabled(value : bool, window : Window) -> void:
 	window.mode = Window.MODE_EXCLUSIVE_FULLSCREEN if (value) else Window.MODE_WINDOWED
 
