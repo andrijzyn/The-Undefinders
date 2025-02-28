@@ -51,11 +51,7 @@ func _process(delta:float) -> void:
 	HoverHandler.handleHover(self)
 	if selecting:
 		updateSelectionRectangle()
-	
-	if Input.is_action_just_pressed("moving"):
-		var result = RaycastHandler.getRaycastResult(self)
-		if result and result is MovableUnit:
-			result.handleHealthChange(10)
+
 
 	if phantom_building:
 		if not rotating_building:
