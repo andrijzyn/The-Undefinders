@@ -1,19 +1,25 @@
 extends MovableUnit
 class_name Soldier
 
+var isWalking: bool = false
+
 func _init() -> void:
 	super._init()
-	maxHealth = 100
-	currentHealth = 100
+	var soldier_config = UnitConfig.new()
+	soldier_config.max_health = 100
+	soldier_config.speed = 3.0
+	soldier_config.rotation_speed = 5.0
+	soldier_config.threshold = 0.01
+	set_config(soldier_config)
 
 func _process(delta: float) -> void:
 	super._process(delta)
 
-	# Плей анимации если движется, иначе стоп анимацию
 	if isMoving or isPatrolling:
-		if not animPlayer.is_playing() or animPlayer.current_animation != "rig|walk ":
+		if not isWalking:
 			animPlayer.play("rig|walk ")
+			isWalking = true
 	else:
-		animPlayer.stop()
-		animPlayer.play("rig|idle ")
-		animPlayer.stop()
+		if isWalking:
+			animPlayer.play("rig|idle ")
+			isWalking = false

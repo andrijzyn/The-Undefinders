@@ -3,26 +3,18 @@ class_name MovableUnit
 
 var currentHealth: float
 var maxHealth: float
-
-const SPEED = 2.0
-const JUMP_VELOCITY = 4.5
-const threshold: float = 0.01
-const rotation_speed: float = 5.0
-
 var target_angle: float = 0.0
-
 var isMoving: bool = false
 var isHealthBarVisible := false
 var isSelected := false
 var isPatrolling := false
-
 var direction: Vector3
-
 var waypointQueue: PackedVector3Array = []
 var patrolPoints: PackedVector3Array = []
 var currentPaths: PackedVector3Array = []
 var currentPath: int = 0
 var currentPatrolPoint: int = 0
+var unit_config: UnitConfig
 
 @onready var animPlayer := $AnimPlayer
 @onready var healthBar :HealthBar = $SubViewport.get_child(0)
@@ -44,6 +36,11 @@ func _ready() -> void:
 	mainCamera = get_tree().get_nodes_in_group(Constants.cameras)[0]
 	mapRID = get_world_3d().navigation_map
 
+func set_config(config: UnitConfig) -> void:
+	unit_config = config
+	maxHealth = unit_config.max_health
+	currentHealth = maxHealth
+
 func setSelected(val: bool) -> void:
 	isSelected = val
 	setHealthBarVisibility(val)
@@ -56,7 +53,8 @@ func handleHealthChange(val: float):
 	changeHealthBar()
 
 func changeHealthBar():
-	healthBar.setHealthPercentage(currentHealth / maxHealth)
+	var health_percentage = currentHealth / maxHealth
+	healthBar.setHealthPercentage(health_percentage)
 
 func handle_input():
 	if isSelected:
@@ -117,13 +115,13 @@ func update_movement(delta: float):
 		keep_rotating(delta)
 
 func keep_rotating(delta: float):
-	if Utils.angle_diff(rotation.y, target_angle) > threshold:
-		rotation.y = lerp_angle(rotation.y, target_angle, rotation_speed * delta)
+	if Utils.angle_diff(rotation.y, target_angle) > unit_config.threshold:
+		rotation.y = lerp_angle(rotation.y, target_angle, unit_config.rotation_speed * delta)
 
 func keep_moving(delta: float):
 	var next_position = currentPaths[currentPath] - global_position
 	handle_rotate_by_position(delta, next_position)
-	velocity = velocity.lerp(next_position.normalized() * SPEED, delta)
+	velocity = velocity.lerp(next_position.normalized() * unit_config.speed, delta)
 	
 	if next_position.length_squared() < 1.0:
 		if currentPath < currentPaths.size() - 1:
@@ -140,7 +138,7 @@ func keep_moving(delta: float):
 func keep_patrolling(delta: float):
 	var next_position = currentPaths[currentPath] - global_position
 	handle_rotate_by_position(delta, next_position)
-	velocity = velocity.lerp(next_position.normalized() * SPEED, delta)
+	velocity = velocity.lerp(next_position.normalized() * unit_config.speed, delta)
 	
 	if next_position.length_squared() < 1.0:
 		if currentPath < currentPaths.size() - 1:
@@ -150,9 +148,9 @@ func keep_patrolling(delta: float):
 			update_patrol_path()
 
 func handle_rotate_by_position(delta: float, move_direction: Vector3):
-	if move_direction.length_squared() > 0.01:
+	if move_direction.length_squared() > unit_config.threshold:
 		target_angle = atan2(move_direction.x, move_direction.z)
-		rotation.y = lerp_angle(rotation.y, target_angle, rotation_speed * delta)
+		rotation.y = lerp_angle(rotation.y, target_angle, unit_config.rotation_speed * delta)
 
 func update_path():
 	if waypointQueue.is_empty():
