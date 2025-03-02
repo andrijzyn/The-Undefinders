@@ -2,15 +2,15 @@ class_name OrderHandler
 
 static func listen(node: MovableUnit, delta):
 	if node.isSelected:
-		if Input.is_action_just_pressed("MRB"):
-			if Input.is_action_pressed("rotate"):
+		if Input.is_action_just_pressed("CONTEXT"):
+			if Input.is_action_pressed("ROTATE"):
 				handleRotateOrder(node)
-			elif Input.is_action_pressed("patrol"):
+			elif Input.is_action_pressed("PATROL"):
 				handlePatrolOrder(node)
 			else:
 				handleMovingOrder(node)
 
-		if Input.is_action_just_pressed("abort"):
+		if Input.is_action_just_pressed("ABORT"):
 			handleAbortOrder(node)
 
 	if node.isMoving:

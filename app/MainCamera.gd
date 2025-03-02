@@ -1,12 +1,12 @@
 extends Camera3D
 class_name MainCamera
 
-@export var SPEED := 10
-@export var ZOOM_SPEED := 200
-@export var EDGE_SCROLL_SPEED := 5
+@export var CAMERA_SPEED_MULTPLIER := 10
+@export var ZOOM_SPEED_MULTPLIER := 200
+@export var EDGE_SCROLL_SPEED_MULTPLIER := 5
 @export var EDGE_MARGIN := 25
-@export var EDGE_SCROLL_ACCEL := 10  # Acceleration multiplier
-@export var ROTATION_SPEED := 2.0
+@export var EDGE_SCROLL_ACCEL := 10
+@export var ROTATION_SPEED := 1
 
 var selected_nodes: Array[Node3D] = []
 const DRAG_THRESHOLD := 5
@@ -168,20 +168,20 @@ func cameraMovement(delta:float)-> void:
 	var directionZ := Input.get_axis("ui_down", "ui_up")
 	var directionX := Input.get_axis("ui_right", "ui_left")
 
-	var move_x = transform.basis.x * directionX * SPEED * delta
-	var move_z = transform.basis.z * directionZ * SPEED * delta
+	var move_x = transform.basis.x * directionX * CAMERA_SPEED_MULTPLIER * delta
+	var move_z = transform.basis.z * directionZ * CAMERA_SPEED_MULTPLIER * delta
 	move_x.y = 0
 	move_z.y = 0
 
 	position -= move_x + move_z
 
-	if position.y >= 10 and Input.is_action_just_pressed("MWU"):
+	if position.y >= 10 and Input.is_action_just_pressed("ZOOM_IN"):
 		# -transform.basis.z дает локальный вектор "вперед" камеры
-		var zoom_offset: Vector3 = -transform.basis.z * ZOOM_SPEED * delta
+		var zoom_offset: Vector3 = -transform.basis.z * ZOOM_SPEED_MULTPLIER * delta
 		print("Zoom offset: ", zoom_offset)
 		position += zoom_offset
-	elif Input.is_action_just_pressed("MWD") and position.y < 40:
-		var zoom_offset: Vector3 = -transform.basis.z * -1 * ZOOM_SPEED * delta
+	elif Input.is_action_just_pressed("ZOOM_OUT") and position.y < 40:
+		var zoom_offset: Vector3 = -transform.basis.z * -1 * ZOOM_SPEED_MULTPLIER * delta
 		print("Zoom offset: ", zoom_offset)
 		position += zoom_offset
 
@@ -221,12 +221,12 @@ func handleEdgeScrolling(delta: float) -> void:
 		var move_z = transform.basis.z * move_dir.z
 		move_x.y = 0
 		move_z.y = 0
-		position -= (move_x + move_z).normalized() * (EDGE_SCROLL_SPEED + total_speed_multiplier * EDGE_SCROLL_ACCEL) * delta
+		position -= (move_x + move_z).normalized() * (EDGE_SCROLL_SPEED_MULTPLIER + total_speed_multiplier * EDGE_SCROLL_ACCEL) * delta
 
 func handleRotation(delta: float) -> void:
-	if Input.is_action_pressed("rotate_left"):
+	if Input.is_action_pressed("ROTATE_LEFT"):
 		rotate_y(ROTATION_SPEED * delta)
-	elif Input.is_action_pressed("rotate_right"):
+	elif Input.is_action_pressed("ROTATE_RIGHT"):
 		rotate_y(-ROTATION_SPEED * delta)
 
 func start_building_placement(building_name: String) -> void:
