@@ -1,9 +1,9 @@
 [gd_scene load_steps=7 format=3 uid="uid://ddj7yhyrrg4b8"]
 
-[ext_resource type="PackedScene" uid="uid://cjd68qtn0ujeb" path="res://entities/Units/USA/Infantry/Soldier/soldier.tscn" id="1_o4col"]
-[ext_resource type="PackedScene" uid="uid://dpetlsrf5pbpe" path="res://entities/Buildings/GLA/garage/garage_imp.tscn" id="1_sn7h3"]
-[ext_resource type="PackedScene" uid="uid://bbsgnge3ole1f" path="res://entities/Maps/ground.tscn" id="2_hvjiq"]
-[ext_resource type="Script" path="res://app/MainCamera.gd" id="3_72cn3"]
+[ext_resource type="Script" path="res://app/MainCamera.gd" id="1_on7ou"]
+[ext_resource type="PackedScene" uid="uid://bbsgnge3ole1f" path="res://entities/Maps/ground.tscn" id="2_ti1jg"]
+[ext_resource type="PackedScene" uid="uid://dpetlsrf5pbpe" path="res://entities/Buildings/GLA/garage/garage_imp.tscn" id="3_xy8ys"]
+[ext_resource type="PackedScene" uid="uid://cjd68qtn0ujeb" path="res://entities/Units/USA/Infantry/Soldier/soldier.tscn" id="4_gt2kt"]
 [ext_resource type="PackedScene" uid="uid://hs2mytyqoi4c" path="res://shared/HUD/rts_ui.tscn" id="5_pqs64"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_beipy"]
@@ -14,7 +14,7 @@ polygons = [PackedInt32Array(1, 0, 2), PackedInt32Array(2, 0, 3), PackedInt32Arr
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(-1, 7.71897e-08, -4.10425e-08, -1.95898e-09, 0.449569, 0.893246, 8.74008e-08, 0.893246, -0.449569, -1.48664, 12.5988, -22.3207)
-script = ExtResource("3_72cn3")
+script = ExtResource("1_on7ou")
 
 [node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
 
@@ -24,18 +24,18 @@ transform = Transform3D(1, 0, 0, 0, -0.873772, 0.486335, 0, -0.486335, -0.873772
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
 navigation_mesh = SubResource("NavigationMesh_beipy")
 
-[node name="Ground" parent="NavigationRegion3D" instance=ExtResource("2_hvjiq")]
+[node name="Ground" parent="NavigationRegion3D" instance=ExtResource("2_ti1jg")]
 
-[node name="GarageImp" parent="NavigationRegion3D" instance=ExtResource("1_sn7h3")]
+[node name="GarageImp" parent="NavigationRegion3D" instance=ExtResource("3_xy8ys")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -1.771, 0, 9.498)
 
-[node name="GarageImp2" parent="NavigationRegion3D" instance=ExtResource("1_sn7h3")]
+[node name="GarageImp2" parent="NavigationRegion3D" instance=ExtResource("3_xy8ys")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 13.3159, 0, 0.100148)
 
-[node name="GarageImp3" parent="NavigationRegion3D" instance=ExtResource("1_sn7h3")]
+[node name="GarageImp3" parent="NavigationRegion3D" instance=ExtResource("3_xy8ys")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -2.06647, 0, -12.4719)
 
-[node name="Soldier" parent="." instance=ExtResource("1_o4col")]
+[node name="Soldier" parent="." instance=ExtResource("4_gt2kt")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.87615, 0, -9.82027)
 
 [node name="RTS_UI" parent="." instance=ExtResource("5_pqs64")]
