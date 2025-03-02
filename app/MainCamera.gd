@@ -1,12 +1,14 @@
 extends Camera3D
 class_name MainCamera
 
-@export var CAMERA_SPEED_MULTPLIER := 10
+@export var CAMERA_SPEED_MULTPLIER := 0.05
 @export var CAMERA_ROTATION_SPEED := 1
+
+@export var ROTATION_SPEED_MULTIPLIER = 0.005
 
 @export var ZOOM_SPEED_MULTPLIER := 200
 
-@export var EDGE_MARGIN := 200
+@export var EDGE_MARGIN := 120
 @export var EDGE_SCROLL_SPEED := 20
 
 var selected_nodes: Array[Node3D] = []
@@ -47,9 +49,8 @@ func _ready():
 
 func _process(delta:float) -> void:
 	MouseChanger.mouseChange(self)
-	cameraMovement(delta)
 	handleEdgeScrolling(delta)
-	handleRotation(delta)
+	cameraZoom(delta)
 	HoverHandler.handleHover(self)
 
 	if selecting:
@@ -138,19 +139,18 @@ func _input(event):
 			if is_mouse_over_ui():
 				return # Block input if over UI
 			var delta_angle = event.position.x - last_mouse_position.x
-			var sensitivity = 0.005
-			phantom_building.rotate_y(-delta_angle * sensitivity)
+			phantom_building.rotate_y(-delta_angle * ROTATION_SPEED_MULTIPLIER)
 			last_mouse_position = event.position
 		if dragging:
 			var delta_move = event.position - last_mouse_position
-			var move_x = transform.basis.x * delta_move.x * 0.05
-			var move_z = transform.basis.z * delta_move.y * 0.05
+			var move_x = transform.basis.x * delta_move.x * CAMERA_SPEED_MULTPLIER
+			var move_z = transform.basis.z * delta_move.y * CAMERA_SPEED_MULTPLIER
 			move_x.y = 0
 			move_z.y = 0
 			position += move_x + move_z
 			last_mouse_position = event.position
 		elif rotating:
-			var delta_rotate = (event.position - last_mouse_position) * 0.005
+			var delta_rotate = (event.position - last_mouse_position) * ROTATION_SPEED_MULTIPLIER
 			rotate_y(-delta_rotate.x)
 			last_mouse_position = event.position
 
@@ -160,17 +160,7 @@ func updateSelectionRectangle():
 	selection_overlay.position = selection_rect.position
 	selection_overlay.size = selection_rect.size
 
-func cameraMovement(delta:float)-> void:
-	var directionZ := Input.get_axis("ui_down", "ui_up")
-	var directionX := Input.get_axis("ui_right", "ui_left")
-
-	var move_x = transform.basis.x * directionX * CAMERA_SPEED_MULTPLIER * delta
-	var move_z = transform.basis.z * directionZ * CAMERA_SPEED_MULTPLIER * delta
-	move_x.y = 0
-	move_z.y = 0
-
-	position -= move_x + move_z
-
+func cameraZoom(delta:float)-> void:
 	if position.y >= 10 and Input.is_action_just_pressed("ZOOM_IN"):
 		# -transform.basis.z дает локальный вектор "вперед" камеры
 		var zoom_offset: Vector3 = -transform.basis.z * ZOOM_SPEED_MULTPLIER * delta
@@ -216,13 +206,6 @@ func handleEdgeScrolling(delta: float) -> void:
 	# Применяем множитель скорости (от 0 до 100%)
 	if move_dir.length() > 0:
 		position += move_dir.normalized() * EDGE_SCROLL_SPEED * abs(speed_x + speed_z) * delta
-
-
-func handleRotation(delta: float) -> void:
-	if Input.is_action_pressed("ROTATE_LEFT"):
-		rotate_y(CAMERA_ROTATION_SPEED * delta)
-	elif Input.is_action_pressed("ROTATE_RIGHT"):
-		rotate_y(-CAMERA_ROTATION_SPEED * delta)
 
 func start_building_placement(building_name: String) -> void:
 	# If there is an old phantom object, delete and restore the materials
