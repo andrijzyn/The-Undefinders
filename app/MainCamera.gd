@@ -1,12 +1,15 @@
 extends Camera3D
 class_name MainCamera
 
-@export var SPEED := 10
-@export var ZOOM_SPEED := 200
-@export var EDGE_SCROLL_SPEED := 5
-@export var EDGE_MARGIN := 25
-@export var EDGE_SCROLL_ACCEL := 10  # Acceleration multiplier
-@export var ROTATION_SPEED := 2.0
+@export var CAMERA_SPEED_MULTPLIER := 0.05
+@export var CAMERA_ROTATION_SPEED := 1
+
+@export var ROTATION_SPEED_MULTIPLIER = 0.005
+
+@export var ZOOM_SPEED_MULTPLIER := 200
+
+@export var EDGE_MARGIN := 120
+@export var EDGE_SCROLL_SPEED := 20
 
 var selected_nodes: Array[Node3D] = []
 const DRAG_THRESHOLD := 5
@@ -29,6 +32,7 @@ func _init() -> void:
 	add_to_group(Constants.cameras)
 
 func _ready():
+	# Create selection overlay UI
 	var canvas_layer = CanvasLayer.new()
 	get_viewport().add_child.call_deferred(canvas_layer)
 
@@ -45,14 +49,14 @@ func _ready():
 
 func _process(delta:float) -> void:
 	MouseChanger.mouseChange(self)
-	cameraMovement(delta)
 	handleEdgeScrolling(delta)
-	handleRotation(delta)
+	cameraZoom(delta)
 	HoverHandler.handleHover(self)
+
 	if selecting:
 		updateSelectionRectangle()
 
-
+	# Move phantom building along the ground
 	if phantom_building:
 		if not rotating_building:
 			var mouse_pos = get_viewport().get_mouse_position()
@@ -65,9 +69,10 @@ func _process(delta:float) -> void:
 				phantom_building.global_transform.origin = intersection
 
 func _input(event):
-	# Pressed Event (Left-Selection | Middle - Rotation | Right - Dragging)
+	# Handle mouse button events
 	if event is InputEventMouseButton:
 		if phantom_building:
+			# Middle mouse button rotates phantom building
 			if event.button_index == MOUSE_BUTTON_MIDDLE:
 				if event.pressed:
 					rotating_building = true
@@ -75,7 +80,7 @@ func _input(event):
 				else:
 					rotating_building = false
 				return
-		# Правая кнопка – перемещение (drag)
+		# Right mouse button - drag movement
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			if phantom_building:
 				cancel_building_placement()
@@ -83,78 +88,69 @@ func _input(event):
 			dragging = event.pressed
 			last_mouse_position = event.position
 
-		# Средняя кнопка – вращение
+		# Middle mouse button - camera rotation
 		elif event.button_index == MOUSE_BUTTON_MIDDLE:
 			rotating = event.pressed
 			last_mouse_position = event.position
 
-		# Левая кнопка – выделение
+		# Left mouse button - selection
 		elif event.button_index == MOUSE_BUTTON_LEFT:
 			if is_mouse_over_ui():
-				return #Block input if it's over UI
+				return # Block input if mouse is over UI
 			if event.pressed:
 				if phantom_building:
 					finish_building_placement()
 					return
-				# Если зажата клавиша Shift или происходит двойной клик – выполняем мгновенное выделение
+				# Shift + click selects multiple units
 				if Input.is_action_pressed("shift"):
 					var result = RaycastHandler.getRaycastResult(self)
 					if result:
 						selected_nodes = SelectionHandler.handleMultipleSelectionByShift(selected_nodes, result)
 				elif event.double_click:
+					# Double-click selects multiple objects of the same type
 					var result = RaycastHandler.getRaycastResult(self)
 					if result:
 						selected_nodes = SelectionHandler.handleMultipleSelectionByDoubleClick(selected_nodes, result, self)
 				else:
-					# Иначе начинаем выделение рамкой
+					# Start selection box
 					selecting = true
 					selection_start = event.position
 					selection_overlay.position = selection_start
 					selection_overlay.size = Vector2.ZERO
 					selection_overlay.visible = true
-
 			else:
-				# Отпускание левой кнопки
+				# Left button release
 				if selecting:
 					selecting = false
 					selection_overlay.visible = false
-					# Если рамка достаточно большая – считаем, что это drag-выделение
 					if event.position.distance_to(selection_start) > DRAG_THRESHOLD:
 						SelectionHandler.handleSelectionBySelectionRect(self)
 					else:
-						# Если рамка почти не изменилась – это клик по объекту
 						var result = RaycastHandler.getRaycastResult(self)
 						if result:
 							selected_nodes = SelectionHandler.handleSingleSelection(selected_nodes, result)
-				var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
-				if ui:
-					ui.update_selected_objects(selected_nodes)
+					var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
+					if ui:
+						ui.update_selected_objects(selected_nodes)
 
-
-	# RMB Movement
+	# Handle mouse movement (drag and rotate)
 	elif event is InputEventMouseMotion:
 		if phantom_building and rotating_building:
 			if is_mouse_over_ui():
-				return #Block input if it's over UI
+				return # Block input if over UI
 			var delta_angle = event.position.x - last_mouse_position.x
-			var sensitivity = 0.005
-			phantom_building.rotate_y(-delta_angle * sensitivity)
+			phantom_building.rotate_y(-delta_angle * ROTATION_SPEED_MULTIPLIER)
 			last_mouse_position = event.position
 		if dragging:
 			var delta_move = event.position - last_mouse_position
-			var move_x = transform.basis.x * delta_move.x * 0.05  # Sensitivity
-			var move_z = transform.basis.z * delta_move.y * 0.05
-
+			var move_x = transform.basis.x * delta_move.x * CAMERA_SPEED_MULTPLIER
+			var move_z = transform.basis.z * delta_move.y * CAMERA_SPEED_MULTPLIER
 			move_x.y = 0
 			move_z.y = 0
-
-			var movement = move_x + move_z
-			movement = movement.normalized() * movement.length()
-
-			position += movement
+			position += move_x + move_z
 			last_mouse_position = event.position
 		elif rotating:
-			var delta_rotate = (event.position - last_mouse_position) * 0.005
+			var delta_rotate = (event.position - last_mouse_position) * ROTATION_SPEED_MULTIPLIER
 			rotate_y(-delta_rotate.x)
 			last_mouse_position = event.position
 
@@ -164,70 +160,52 @@ func updateSelectionRectangle():
 	selection_overlay.position = selection_rect.position
 	selection_overlay.size = selection_rect.size
 
-func cameraMovement(delta:float)-> void:
-	var directionZ := Input.get_axis("ui_down", "ui_up")
-	var directionX := Input.get_axis("ui_right", "ui_left")
-
-	var move_x = transform.basis.x * directionX * SPEED * delta
-	var move_z = transform.basis.z * directionZ * SPEED * delta
-	move_x.y = 0
-	move_z.y = 0
-
-	position -= move_x + move_z
-
-	if position.y >= 10 and Input.is_action_just_pressed("MWU"):
+func cameraZoom(delta:float)-> void:
+	if position.y >= 10 and Input.is_action_just_pressed("ZOOM_IN"):
 		# -transform.basis.z дает локальный вектор "вперед" камеры
-		var zoom_offset: Vector3 = -transform.basis.z * ZOOM_SPEED * delta
+		var zoom_offset: Vector3 = -transform.basis.z * ZOOM_SPEED_MULTPLIER * delta
 		print("Zoom offset: ", zoom_offset)
 		position += zoom_offset
-	elif Input.is_action_just_pressed("MWD") and position.y < 40:
-		var zoom_offset: Vector3 = -transform.basis.z * -1 * ZOOM_SPEED * delta
+	elif Input.is_action_just_pressed("ZOOM_OUT") and position.y < 40:
+		var zoom_offset: Vector3 = -transform.basis.z * -1 * ZOOM_SPEED_MULTPLIER * delta
 		print("Zoom offset: ", zoom_offset)
 		position += zoom_offset
 
 func handleEdgeScrolling(delta: float) -> void:
 	if is_mouse_over_ui():
-		return #Block input if it's over UI
+		return  # Блокировать ввод, если курсор над UI
 
 	var viewport_size = get_viewport().size
 	var mouse_pos = get_viewport().get_mouse_position()
 
-	#Checking if the cursor is in the window
+	# Проверяем, что курсор в пределах окна
 	if mouse_pos.x < 0 or mouse_pos.x > viewport_size.x or mouse_pos.y < 0 or mouse_pos.y > viewport_size.y:
 		return
 
 	var move_dir = Vector3.ZERO
-	var speed_multiplier_x = 0.0
-	var speed_multiplier_z = 0.0
 
-	if mouse_pos.x <= EDGE_MARGIN:
-		speed_multiplier_x = 1.0 - (mouse_pos.x / EDGE_MARGIN)
-		move_dir.x += 1
-	elif mouse_pos.x >= viewport_size.x - EDGE_MARGIN:
-		speed_multiplier_x = 1.0 - ((viewport_size.x - mouse_pos.x) / EDGE_MARGIN)
-		move_dir.x -= 1
+	# Функция для расчёта множителя скорости
+	var calculate_speed_multiplier = func(pos: float, margin: float, max_size: float) -> float:
+		if pos <= margin:
+			return -(1.0 - (pos / margin))  # Левый/верхний край (отрицательное значение)
+		elif pos >= max_size - margin:
+			return 1.0 - ((max_size - pos) / margin)  # Правый/нижний край (положительное значение)
+		return 0.0
 
-	if mouse_pos.y <= EDGE_MARGIN:
-		speed_multiplier_z = 1.0 - (mouse_pos.y / EDGE_MARGIN)
-		move_dir.z += 1
-	elif mouse_pos.y >= viewport_size.y - EDGE_MARGIN:
-		speed_multiplier_z = 1.0 - ((viewport_size.y - mouse_pos.y) / EDGE_MARGIN)
-		move_dir.z -= 1
+	# Рассчитываем множитель скорости
+	var speed_x = calculate_speed_multiplier.call(mouse_pos.x, EDGE_MARGIN, viewport_size.x)
+	var speed_z = calculate_speed_multiplier.call(mouse_pos.y, EDGE_MARGIN, viewport_size.y)
 
-	# Applying acceleration
-	var total_speed_multiplier = max(speed_multiplier_x, speed_multiplier_z)
-	if move_dir != Vector3.ZERO:
-		var move_x = transform.basis.x * move_dir.x
-		var move_z = transform.basis.z * move_dir.z
-		move_x.y = 0
-		move_z.y = 0
-		position -= (move_x + move_z).normalized() * (EDGE_SCROLL_SPEED + total_speed_multiplier * EDGE_SCROLL_ACCEL) * delta
+	# Корректное направление движения
+	move_dir += transform.basis.x * speed_x
+	move_dir += transform.basis.z * speed_z
 
-func handleRotation(delta: float) -> void:
-	if Input.is_action_pressed("rotate_left"):
-		rotate_y(ROTATION_SPEED * delta)
-	elif Input.is_action_pressed("rotate_right"):
-		rotate_y(-ROTATION_SPEED * delta)
+	# Убираем перемещение по Y
+	move_dir.y = 0
+
+	# Применяем множитель скорости (от 0 до 100%)
+	if move_dir.length() > 0:
+		position += move_dir.normalized() * EDGE_SCROLL_SPEED * abs(speed_x + speed_z) * delta
 
 func start_building_placement(building_name: String) -> void:
 	# If there is an old phantom object, delete and restore the materials
