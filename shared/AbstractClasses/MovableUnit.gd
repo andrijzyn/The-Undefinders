@@ -58,15 +58,15 @@ func changeHealthBar():
 
 func handle_input():
 	if isSelected:
-		if Input.is_action_just_pressed("MRB"):
-			if Input.is_action_pressed("rotate"):
+		if Input.is_action_just_pressed("CONTEXT"):
+			if Input.is_action_pressed("ROTATE"):
 				start_rotate_order()
-			elif Input.is_action_pressed("patrol"):
+			elif Input.is_action_pressed("PATROL"):
 				start_patrol_order()
 			else:
 				start_move_order()
 
-		if Input.is_action_just_pressed("abort"):
+		if Input.is_action_just_pressed("ABORT"):
 			abort_order()
 
 func start_rotate_order():
