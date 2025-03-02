@@ -30,6 +30,7 @@ func _init() -> void:
 	add_to_group(Constants.cameras)
 
 func _ready():
+	# Create selection overlay UI
 	var canvas_layer = CanvasLayer.new()
 	get_viewport().add_child.call_deferred(canvas_layer)
 
@@ -50,10 +51,11 @@ func _process(delta:float) -> void:
 	handleEdgeScrolling(delta)
 	handleRotation(delta)
 	HoverHandler.handleHover(self)
+
 	if selecting:
 		updateSelectionRectangle()
 
-
+	# Move phantom building along the ground
 	if phantom_building:
 		if not rotating_building:
 			var mouse_pos = get_viewport().get_mouse_position()
@@ -66,9 +68,10 @@ func _process(delta:float) -> void:
 				phantom_building.global_transform.origin = intersection
 
 func _input(event):
-	# Pressed Event (Left-Selection | Middle - Rotation | Right - Dragging)
+	# Handle mouse button events
 	if event is InputEventMouseButton:
 		if phantom_building:
+			# Middle mouse button rotates phantom building
 			if event.button_index == MOUSE_BUTTON_MIDDLE:
 				if event.pressed:
 					rotating_building = true
@@ -76,7 +79,7 @@ func _input(event):
 				else:
 					rotating_building = false
 				return
-		# Правая кнопка – перемещение (drag)
+		# Right mouse button - drag movement
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			if phantom_building:
 				cancel_building_placement()
@@ -84,75 +87,67 @@ func _input(event):
 			dragging = event.pressed
 			last_mouse_position = event.position
 
-		# Средняя кнопка – вращение
+		# Middle mouse button - camera rotation
 		elif event.button_index == MOUSE_BUTTON_MIDDLE:
 			rotating = event.pressed
 			last_mouse_position = event.position
 
-		# Левая кнопка – выделение
+		# Left mouse button - selection
 		elif event.button_index == MOUSE_BUTTON_LEFT:
 			if is_mouse_over_ui():
-				return #Block input if it's over UI
+				return # Block input if mouse is over UI
 			if event.pressed:
 				if phantom_building:
 					finish_building_placement()
 					return
-				# Если зажата клавиша Shift или происходит двойной клик – выполняем мгновенное выделение
+				# Shift + click selects multiple units
 				if Input.is_action_pressed("shift"):
 					var result = RaycastHandler.getRaycastResult(self)
 					if result:
 						selected_nodes = SelectionHandler.handleMultipleSelectionByShift(selected_nodes, result)
 				elif event.double_click:
+					# Double-click selects multiple objects of the same type
 					var result = RaycastHandler.getRaycastResult(self)
 					if result:
 						selected_nodes = SelectionHandler.handleMultipleSelectionByDoubleClick(selected_nodes, result, self)
 				else:
-					# Иначе начинаем выделение рамкой
+					# Start selection box
 					selecting = true
 					selection_start = event.position
 					selection_overlay.position = selection_start
 					selection_overlay.size = Vector2.ZERO
 					selection_overlay.visible = true
-
 			else:
-				# Отпускание левой кнопки
+				# Left button release
 				if selecting:
 					selecting = false
 					selection_overlay.visible = false
-					# Если рамка достаточно большая – считаем, что это drag-выделение
 					if event.position.distance_to(selection_start) > DRAG_THRESHOLD:
 						SelectionHandler.handleSelectionBySelectionRect(self)
 					else:
-						# Если рамка почти не изменилась – это клик по объекту
 						var result = RaycastHandler.getRaycastResult(self)
 						if result:
 							selected_nodes = SelectionHandler.handleSingleSelection(selected_nodes, result)
-				var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
-				if ui:
-					ui.update_selected_objects(selected_nodes)
+					var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
+					if ui:
+						ui.update_selected_objects(selected_nodes)
 
-
-	# RMB Movement
+	# Handle mouse movement (drag and rotate)
 	elif event is InputEventMouseMotion:
 		if phantom_building and rotating_building:
 			if is_mouse_over_ui():
-				return #Block input if it's over UI
+				return # Block input if over UI
 			var delta_angle = event.position.x - last_mouse_position.x
 			var sensitivity = 0.005
 			phantom_building.rotate_y(-delta_angle * sensitivity)
 			last_mouse_position = event.position
 		if dragging:
 			var delta_move = event.position - last_mouse_position
-			var move_x = transform.basis.x * delta_move.x * 0.05  # Sensitivity
+			var move_x = transform.basis.x * delta_move.x * 0.05
 			var move_z = transform.basis.z * delta_move.y * 0.05
-
 			move_x.y = 0
 			move_z.y = 0
-
-			var movement = move_x + move_z
-			movement = movement.normalized() * movement.length()
-
-			position += movement
+			position += move_x + move_z
 			last_mouse_position = event.position
 		elif rotating:
 			var delta_rotate = (event.position - last_mouse_position) * 0.005
