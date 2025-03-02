@@ -6,4 +6,3 @@ static var movable := "movable"
 static var mouseChanger := "mouseChanger"
 static var garageImp := "GarageImp"
 static var cameras := "cameras"
- 

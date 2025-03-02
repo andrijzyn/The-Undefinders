@@ -8,6 +8,6 @@ static func handleHover(camera: MainCamera):
 	if result and result is MovableUnit:
 		result.setHealthBarVisibility(true)
 		hoverItem = result
-	elif hoverItem and hoverItem.isSelected != true: 
+	elif hoverItem and not hoverItem.isSelected:
 		hoverItem.setHealthBarVisibility(false)
 		hoverItem = null
