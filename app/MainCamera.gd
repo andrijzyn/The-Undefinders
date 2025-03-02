@@ -2,11 +2,12 @@ extends Camera3D
 class_name MainCamera
 
 @export var CAMERA_SPEED_MULTPLIER := 10
+@export var CAMERA_ROTATION_SPEED := 1
+
 @export var ZOOM_SPEED_MULTPLIER := 200
-@export var EDGE_SCROLL_SPEED_MULTPLIER := 5
-@export var EDGE_MARGIN := 25
-@export var EDGE_SCROLL_ACCEL := 10
-@export var ROTATION_SPEED := 1
+
+@export var EDGE_MARGIN := 200
+@export var EDGE_SCROLL_SPEED := 20
 
 var selected_nodes: Array[Node3D] = []
 const DRAG_THRESHOLD := 5
@@ -187,47 +188,46 @@ func cameraMovement(delta:float)-> void:
 
 func handleEdgeScrolling(delta: float) -> void:
 	if is_mouse_over_ui():
-		return #Block input if it's over UI
+		return  # Блокировать ввод, если курсор над UI
 
 	var viewport_size = get_viewport().size
 	var mouse_pos = get_viewport().get_mouse_position()
 
-	#Checking if the cursor is in the window
+	# Проверяем, что курсор в пределах окна
 	if mouse_pos.x < 0 or mouse_pos.x > viewport_size.x or mouse_pos.y < 0 or mouse_pos.y > viewport_size.y:
 		return
 
 	var move_dir = Vector3.ZERO
-	var speed_multiplier_x = 0.0
-	var speed_multiplier_z = 0.0
 
-	if mouse_pos.x <= EDGE_MARGIN:
-		speed_multiplier_x = 1.0 - (mouse_pos.x / EDGE_MARGIN)
-		move_dir.x += 1
-	elif mouse_pos.x >= viewport_size.x - EDGE_MARGIN:
-		speed_multiplier_x = 1.0 - ((viewport_size.x - mouse_pos.x) / EDGE_MARGIN)
-		move_dir.x -= 1
+	# Функция для расчёта множителя скорости
+	var calculate_speed_multiplier = func(pos: float, margin: float, max_size: float) -> float:
+		if pos <= margin:
+			return -(1.0 - (pos / margin))  # Левый/верхний край (отрицательное значение)
+		elif pos >= max_size - margin:
+			return 1.0 - ((max_size - pos) / margin)  # Правый/нижний край (положительное значение)
+		return 0.0
 
-	if mouse_pos.y <= EDGE_MARGIN:
-		speed_multiplier_z = 1.0 - (mouse_pos.y / EDGE_MARGIN)
-		move_dir.z += 1
-	elif mouse_pos.y >= viewport_size.y - EDGE_MARGIN:
-		speed_multiplier_z = 1.0 - ((viewport_size.y - mouse_pos.y) / EDGE_MARGIN)
-		move_dir.z -= 1
+	# Рассчитываем множитель скорости
+	var speed_x = calculate_speed_multiplier.call(mouse_pos.x, EDGE_MARGIN, viewport_size.x)
+	var speed_z = calculate_speed_multiplier.call(mouse_pos.y, EDGE_MARGIN, viewport_size.y)
 
-	# Applying acceleration
-	var total_speed_multiplier = max(speed_multiplier_x, speed_multiplier_z)
-	if move_dir != Vector3.ZERO:
-		var move_x = transform.basis.x * move_dir.x
-		var move_z = transform.basis.z * move_dir.z
-		move_x.y = 0
-		move_z.y = 0
-		position -= (move_x + move_z).normalized() * (EDGE_SCROLL_SPEED_MULTPLIER + total_speed_multiplier * EDGE_SCROLL_ACCEL) * delta
+	# Корректное направление движения
+	move_dir += transform.basis.x * speed_x
+	move_dir += transform.basis.z * speed_z
+
+	# Убираем перемещение по Y
+	move_dir.y = 0
+
+	# Применяем множитель скорости (от 0 до 100%)
+	if move_dir.length() > 0:
+		position += move_dir.normalized() * EDGE_SCROLL_SPEED * abs(speed_x + speed_z) * delta
+
 
 func handleRotation(delta: float) -> void:
 	if Input.is_action_pressed("ROTATE_LEFT"):
-		rotate_y(ROTATION_SPEED * delta)
+		rotate_y(CAMERA_ROTATION_SPEED * delta)
 	elif Input.is_action_pressed("ROTATE_RIGHT"):
-		rotate_y(-ROTATION_SPEED * delta)
+		rotate_y(-CAMERA_ROTATION_SPEED * delta)
 
 func start_building_placement(building_name: String) -> void:
 	# If there is an old phantom object, delete and restore the materials
