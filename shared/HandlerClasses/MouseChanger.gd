@@ -5,4 +5,5 @@ static func mouseChange(camera: MainCamera):
 	
 	if result and result.is_in_group(Constants.mouseChanger):
 		Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
-	else : Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+	else:
+		Input.set_default_cursor_shape(Input.CURSOR_ARROW)

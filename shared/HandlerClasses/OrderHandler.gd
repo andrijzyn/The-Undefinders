@@ -8,7 +8,7 @@ static func listen(node: MovableUnit, delta):
 			elif Input.is_action_pressed("PATROL"):
 				handlePatrolOrder(node)
 			else:
-				handleMovingOrder(node)
+				node.handle_order("move")
 
 		if Input.is_action_just_pressed("ABORT"):
 			handleAbortOrder(node)

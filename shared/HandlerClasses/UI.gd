@@ -26,6 +26,8 @@ var buildings = {
 	"power_plant": { "icon": preload("res://features/GUI/textures/power_plant.png"), "cost": 150, "size": Vector2(2,2) }
 }
 
+var tween_cache: Dictionary = {}
+
 func _ready():
 	update_buildings_display()
 	button_left.pressed.connect(_on_bottom_button_pressed)
@@ -72,7 +74,12 @@ func _on_bottom_button_pressed():
 	bottom_is_moved = !bottom_is_moved
 
 func animate_element(element: Control, target_y: float):
-	var tween = create_tween()
+	var tween: Tween
+	if not element in tween_cache:
+		tween = create_tween()
+		tween_cache[element] = tween
+	else:
+		tween = tween_cache[element]
 	tween.tween_property(element, "position:y", target_y, MOVE_TIME).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 func adjust_selection_panel():
