@@ -58,16 +58,22 @@ func changeHealthBar():
 
 func handle_input():
 	if isSelected:
-		if Input.is_action_just_pressed("CONTEXT"):
+		# Right-click handling
+		if Input.is_action_just_pressed("RIGHT_MOUSE_BUTTON"):
 			if Input.is_action_pressed("ROTATE"):
 				start_rotate_order()
 			elif Input.is_action_pressed("PATROL"):
-				start_patrol_order()
+				staratrol_order()
+			#elif Input.is_action_pressed("ATTACK"):  # Example of adding another action
+				#start_attack_order()  # Example function for attack
 			else:
 				start_move_order()
 
+		# Abort handling
 		if Input.is_action_just_pressed("ABORT"):
 			abort_order()
+
+		# Optional: Handle other commands or key combinations here if needed.
 
 func start_rotate_order():
 	var targetLocation = RaycastHandler.getRaycastResultPosition(mainCamera)
@@ -78,7 +84,7 @@ func start_rotate_order():
 
 func start_move_order():
 	var targetLocation = RaycastHandler.getRaycastResultPosition(mainCamera)
-	if not Input.is_action_pressed("shift"):
+	if not Input.is_action_pressed("MULTI_SELECT"):
 		waypointQueue.clear()
 		velocity = Vector3.ZERO
 	waypointQueue.append(targetLocation)
@@ -87,7 +93,7 @@ func start_move_order():
 
 func start_patrol_order():
 	var targetLocation = RaycastHandler.getRaycastResultPosition(mainCamera)
-	if Input.is_action_pressed("shift"):
+	if Input.is_action_pressed("MULTI_SELECT"):
 		if patrolPoints.is_empty():
 			patrolPoints.append(global_position)
 		patrolPoints.append(targetLocation)
