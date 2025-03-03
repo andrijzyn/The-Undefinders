@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://c1dkcq66h6c8d"
-path="res://.godot/imported/GarageImp.fbx-47d6ec77f4c393b229a349acfb7b0edf.scn"
+uid="uid://bt5eoykqtscja"
+path="res://.godot/imported/garage_imp.glb-1d1d344d51803dc0cf37ca7a91fc60c8.scn"
 
 [deps]
 
-source_file="res://entities/Buildings/GLA/garage/textures/GarageImp.fbx"
-dest_files=["res://.godot/imported/GarageImp.fbx-47d6ec77f4c393b229a349acfb7b0edf.scn"]
+source_file="res://entities/Buildings/GLA/garage/textures/garage_imp.glb"
+dest_files=["res://.godot/imported/garage_imp.glb-1d1d344d51803dc0cf37ca7a91fc60c8.scn"]
 
 [params]
 
@@ -27,11 +27,10 @@ meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=true
 animation/fps=30
-animation/trimming=true
+animation/trimming=false
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={}
-fbx/importer=0
-fbx/allow_geometry_helper_nodes=false
-fbx/embedded_image_handling=1
+gltf/naming_version=1
+gltf/embedded_image_handling=1

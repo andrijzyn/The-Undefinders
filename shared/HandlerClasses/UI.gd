@@ -26,8 +26,6 @@ var buildings = {
 	"power_plant": { "icon": preload("res://features/GUI/textures/power_plant.png"), "cost": 150, "size": Vector2(2,2) }
 }
 
-var tween_cache: Dictionary = {}
-
 func _ready():
 	update_buildings_display()
 	button_left.pressed.connect(_on_bottom_button_pressed)
@@ -74,12 +72,7 @@ func _on_bottom_button_pressed():
 	bottom_is_moved = !bottom_is_moved
 
 func animate_element(element: Control, target_y: float):
-	var tween: Tween
-	if not element in tween_cache:
-		tween = create_tween()
-		tween_cache[element] = tween
-	else:
-		tween = tween_cache[element]
+	var tween = create_tween()
 	tween.tween_property(element, "position:y", target_y, MOVE_TIME).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 func adjust_selection_panel():
@@ -141,13 +134,34 @@ func update_buildings_display():
 	if buildings_container is GridContainer:
 		buildings_container.columns = 3
 
-	for building in buildings.keys():
-		var building_button = preload("res://shared/HUD/building_button.tscn").instantiate()
-		var texture_rect = building_button.get_node_or_null("TextureRect")
-		if texture_rect:
-			texture_rect.texture = buildings[building].icon
-		building_button.connect("pressed", Callable(self, "on_building_selected").bind(building))
-		buildings_container.add_child(building_button)
+	var available_items = {}
+	var is_builder = false
+	var is_selected = false
+
+	for obj in selected_objects.keys():
+			if obj.has_method("get_available_items"):
+				is_selected = true
+				available_items = obj.get_available_items()
+				is_builder = obj.is_builder
+				break
+
+	if is_selected:
+		for item in available_items.keys():
+			var button = preload("res://shared/HUD/action_button.tscn").instantiate()
+			var texture_rect = button.get_node_or_null("TextureRect")
+			if texture_rect:
+				texture_rect.texture = available_items[item].icon
+			var callback = "on_building_selected" if is_builder else "on_unit_selected"
+			button.connect("pressed", Callable(self, callback).bind(item))
+			buildings_container.add_child(button)
+	else:
+		for building in buildings.keys():
+			var building_button = preload("res://shared/HUD/action_button.tscn").instantiate()
+			var texture_rect = building_button.get_node_or_null("TextureRect")
+			if texture_rect:
+				texture_rect.texture = buildings[building].icon
+			building_button.connect("pressed", Callable(self, "on_building_selected").bind(building))
+			buildings_container.add_child(building_button)
 
 func on_building_selected(building_name: String):
 	print("Building selected:", building_name)
@@ -155,18 +169,30 @@ func on_building_selected(building_name: String):
 	if camera:
 		camera.start_building_placement(building_name)
 
+func on_unit_selected(unit_name: String):
+	print("Unit selected:", unit_name)
+
+	for obj in selected_objects.keys():
+		if obj is GarageImp:
+			obj.spawn_unit(unit_name)
+			break
+
 func update_selected_objects(selected_nodes: Array):
 	selected_objects.clear()
+
 	for node in selected_nodes:
-		var object_type = node.name
-		if object_type in selected_objects:
-			selected_objects[object_type].count += 1
+		var icon = preload("res://features/GUI/textures/default.png")
+		if node.get("icon") != null:
+			icon = node.icon
+
+		var object_key = node
+		if object_key in selected_objects:
+			selected_objects[object_key].count += 1
 		else:
-			var icon = null
-			if node.has_method("get_icon"):
-				icon = node.get_icon()
-			selected_objects[object_type] = {
-				"icon": icon if icon else preload("res://features/GUI/textures/default.png"),
+			selected_objects[object_key] = {
+				"icon": icon,
 				"count": 1
 			}
+
+	update_buildings_display()
 	update_selection_display()
