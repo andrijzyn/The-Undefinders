@@ -3,11 +3,8 @@ class_name MainCamera
 
 @export var CAMERA_SPEED_MULTPLIER := 0.05
 @export var CAMERA_ROTATION_SPEED := 1
-
 @export var ROTATION_SPEED_MULTIPLIER = 0.005
-
 @export var ZOOM_SPEED_MULTPLIER := 200
-
 @export var EDGE_MARGIN := 120
 @export var EDGE_SCROLL_SPEED := 20
 
@@ -102,7 +99,7 @@ func _input(event):
 					finish_building_placement()
 					return
 				# Shift + click selects multiple units
-				if Input.is_action_pressed("shift"):
+				if Input.is_action_pressed("MULTI_SELECT"):
 					var result = RaycastHandler.getRaycastResult(self)
 					if result:
 						selected_nodes = SelectionHandler.handleMultipleSelectionByShift(selected_nodes, result)
