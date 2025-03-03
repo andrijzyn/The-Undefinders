@@ -21,6 +21,7 @@ var minimap_is_moved: bool = true
 var bottom_is_moved: bool = false
 const MOVE_OFFSET: int = 133
 const MOVE_TIME: float = 0.5
+var production_queues = {}
 var selected_objects = {}
 var buildings = {
 	"GLA/garage/garage_imp": { "icon": preload("res://features/GUI/textures/barracks.png"), "cost": 200, "size": Vector2(2,2) },
@@ -29,7 +30,7 @@ var buildings = {
 }
 
 func _ready():
-	update_buildings_display()
+	update_action_display()
 	button_left.pressed.connect(_on_bottom_button_pressed)
 	button_right.pressed.connect(_on_bottom_button_pressed)
 	button_minimap.pressed.connect(_on_minimap_button_pressed)
@@ -130,7 +131,7 @@ func update_selection_display():
 
 	selection_menu.custom_minimum_size.y = new_height
 
-func update_buildings_display():
+func update_action_display():
 	for child in action_container.get_children():
 		child.queue_free()
 
@@ -177,7 +178,10 @@ func on_unit_selected(unit_name: String):
 
 	for obj in selected_objects.keys():
 		if obj is GarageImp:
-			obj.spawn_unit(unit_name)
+			if production_queues.has(obj) and production_queues[obj].queue.size() >= 10:
+				print("Production queue full")
+				return
+			obj.start_production(unit_name, obj.available_items[unit_name].icon)
 			break
 
 func update_selected_objects(selected_nodes: Array):
@@ -197,5 +201,85 @@ func update_selected_objects(selected_nodes: Array):
 				"count": 1
 			}
 
-	update_buildings_display()
+	update_action_display()
 	update_selection_display()
+
+func update_production_queue():
+	var existing_producers = {}
+	for child in queue_container.get_children():
+		if child.has_meta("producer"):
+			var producer = child.get_meta("producer")
+			if not production_queues.has(producer) or production_queues[producer].queue.is_empty():
+				child.queue_free()
+			else:
+				existing_producers[producer] = child
+		else:
+			child.queue_free()
+
+	var row_index = 0
+	var col_index = 0
+	for producer in production_queues.keys():
+		var queue_data = production_queues[producer]
+
+		if queue_data.queue.is_empty():
+			if producer in existing_producers:
+				existing_producers[producer].queue_free()
+			continue
+
+		var producer_ui
+		if producer in existing_producers:
+			producer_ui = existing_producers[producer]
+		else:
+			producer_ui = preload("res://shared/HUD/queue_producer.tscn").instantiate()
+			producer_ui.set_meta("producer", producer)
+			queue_container.add_child(producer_ui)
+
+		producer_ui.get_node("TextureRect").texture = producer.icon
+		var product_grid = producer_ui.get_node("GridContainer")
+
+		for child in product_grid.get_children():
+			child.queue_free()
+
+		for product_data in queue_data.queue:
+			var product_ui = preload("res://shared/HUD/queue_product.tscn").instantiate()
+			product_ui.get_node("TextureRect").texture = product_data.icon
+			product_ui.get_node("Label").text = str(product_data.count)
+			product_ui.get_node("ProgressBar").value = product_data.progress * 100
+			product_grid.add_child(product_ui)
+
+		producer_ui.position = Vector2(col_index * 225, row_index * 50)
+		col_index += 1
+		if col_index >= 2:
+			col_index = 0
+			row_index += 1
+
+func add_to_production(producer, product_icon):
+	if not production_queues.has(producer):
+		production_queues[producer] = { "queue": [] }
+
+	var queue = production_queues[producer].queue
+	if queue.size() > 0 and queue[-1].icon == product_icon:
+		queue[-1].count += 1
+	else:
+		queue.append({ "icon": product_icon, "count": 1, "progress": 0.0 })  
+
+	update_production_queue()
+
+func update_production_progress(producer, progress):
+	if production_queues.has(producer) and production_queues[producer].queue.size() > 0:
+		production_queues[producer].queue[0].progress = progress
+		update_production_queue()
+
+func complete_production(producer):
+	if production_queues.has(producer):
+		var queue = production_queues[producer].queue
+		if queue.size() > 0:
+			if queue[0].count > 1:
+				queue[0].count -= 1
+			else:
+				queue.pop_front()
+
+		if queue.is_empty():
+			production_queues.erase(producer)
+
+	update_production_queue()
