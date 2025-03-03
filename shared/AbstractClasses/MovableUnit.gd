@@ -78,7 +78,7 @@ func start_rotate_order():
 
 func start_move_order():
 	var targetLocation = RaycastHandler.getRaycastResultPosition(mainCamera)
-	if not Input.is_action_pressed("shift"):
+	if not Input.is_action_pressed("MULTI_SELECT"):
 		waypointQueue.clear()
 		velocity = Vector3.ZERO
 	waypointQueue.append(targetLocation)
@@ -87,7 +87,7 @@ func start_move_order():
 
 func start_patrol_order():
 	var targetLocation = RaycastHandler.getRaycastResultPosition(mainCamera)
-	if Input.is_action_pressed("shift"):
+	if Input.is_action_pressed("MULTI_SELECT"):
 		if patrolPoints.is_empty():
 			patrolPoints.append(global_position)
 		patrolPoints.append(targetLocation)

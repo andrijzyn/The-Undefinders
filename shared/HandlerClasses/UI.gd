@@ -2,10 +2,12 @@ extends Control
 
 @onready var selection_menu: PanelContainer = $SelectionMenu
 @onready var action_menu: PanelContainer = $ActionMenu
+@onready var queue_menu: PanelContainer = $QueueMenu
 @onready var minimap_panel: PanelContainer = $MinimapPanel
 @onready var selection_panel: PanelContainer = $SelectionPanel
 @onready var selection_container: GridContainer = $SelectionMenu/SelectionContainer
-@onready var buildings_container: GridContainer = $ActionMenu/ActionContainer
+@onready var action_container: GridContainer = $ActionMenu/ActionContainer
+@onready var queue_container: GridContainer = $QueueMenu/QueueContainer
 @onready var button_left: Button = $ButtonLeft
 @onready var button_right: Button = $ButtonRight
 @onready var button_minimap: Button = $ButtonMap
@@ -66,6 +68,7 @@ func _on_bottom_button_pressed():
 	animate_element(button_left, target_y_buttons)
 	animate_element(button_right, target_y_buttons)
 	animate_element(action_menu, target_y_inner_panel)
+	animate_element(queue_menu, target_y_inner_panel)
 	animate_element(button_left_background, target_y_button_background)
 	animate_element(button_right_background, target_y_button_background)
 
@@ -128,11 +131,11 @@ func update_selection_display():
 	selection_menu.custom_minimum_size.y = new_height
 
 func update_buildings_display():
-	for child in buildings_container.get_children():
+	for child in action_container.get_children():
 		child.queue_free()
 
-	if buildings_container is GridContainer:
-		buildings_container.columns = 3
+	if action_container is GridContainer:
+		action_container.columns = 3
 
 	var available_items = {}
 	var is_builder = false
@@ -153,7 +156,7 @@ func update_buildings_display():
 				texture_rect.texture = available_items[item].icon
 			var callback = "on_building_selected" if is_builder else "on_unit_selected"
 			button.connect("pressed", Callable(self, callback).bind(item))
-			buildings_container.add_child(button)
+			action_container.add_child(button)
 	else:
 		for building in buildings.keys():
 			var building_button = preload("res://shared/HUD/action_button.tscn").instantiate()
@@ -161,7 +164,7 @@ func update_buildings_display():
 			if texture_rect:
 				texture_rect.texture = buildings[building].icon
 			building_button.connect("pressed", Callable(self, "on_building_selected").bind(building))
-			buildings_container.add_child(building_button)
+			action_container.add_child(building_button)
 
 func on_building_selected(building_name: String):
 	print("Building selected:", building_name)

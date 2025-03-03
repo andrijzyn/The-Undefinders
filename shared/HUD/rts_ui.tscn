@@ -77,12 +77,24 @@ size_flags_vertical = 0
 
 [node name="ActionMenu" type="PanelContainer" parent="."]
 layout_mode = 0
-offset_left = 192.0
-offset_top = 732.0
-offset_right = 592.0
-offset_bottom = 832.0
+offset_left = 186.0
+offset_top = 731.0
+offset_right = 636.0
+offset_bottom = 846.0
 
 [node name="ActionContainer" type="GridContainer" parent="ActionMenu"]
+layout_mode = 2
+theme_override_constants/h_separation = 64
+columns = 3
+
+[node name="QueueMenu" type="PanelContainer" parent="."]
+layout_mode = 2
+offset_left = 645.0
+offset_top = 731.0
+offset_right = 1095.0
+offset_bottom = 846.0
+
+[node name="QueueContainer" type="GridContainer" parent="QueueMenu"]
 layout_mode = 2
 theme_override_constants/h_separation = 64
 columns = 3
