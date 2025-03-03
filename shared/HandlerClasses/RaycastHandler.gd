@@ -1,8 +1,10 @@
+extends Node
+
 class_name RaycastHandler
 
-const RAY_LENGTH := 1000  # Константа длины луча
+const RAY_LENGTH := 1000  # Константа довжини променя
 
-static func getRaycastResult(camera: MainCamera) -> Node3D:
+static func get_raycast_result(camera: MainCamera) -> Node3D:
 	var space_state := camera.get_world_3d().direct_space_state
 	var mouse_pos := camera.get_viewport().get_mouse_position()
 	var from := camera.project_ray_origin(mouse_pos)
@@ -10,9 +12,10 @@ static func getRaycastResult(camera: MainCamera) -> Node3D:
 	var query := PhysicsRayQueryParameters3D.create(from, to)
 	var result := space_state.intersect_ray(query)
 	
+	# Повертаємо collider, якщо є результат, інакше null
 	return result.collider if result else null
 
-static func getRaycastResultPosition(camera: MainCamera) -> Vector3:
+static func get_raycast_result_position(camera: MainCamera) -> Vector3:
 	var space_state := camera.get_world_3d().direct_space_state
 	var mouse_pos := camera.get_viewport().get_mouse_position()
 	var from := camera.project_ray_origin(mouse_pos)
@@ -20,4 +23,5 @@ static func getRaycastResultPosition(camera: MainCamera) -> Vector3:
 	var query := PhysicsRayQueryParameters3D.create(from, to)
 	var result := space_state.intersect_ray(query)
 	
+	# Повертаємо позицію зіткнення, якщо є результат, інакше Vector3.ZERO
 	return result.position if result else Vector3.ZERO

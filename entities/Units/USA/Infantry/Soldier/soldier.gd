@@ -3,13 +3,9 @@ class_name Soldier
 
 var isWalking: bool = false
 
-func _init() -> void:
-	super._init()
-	var soldier_config = UnitConfig.new()
-	soldier_config.max_health = 100
-	soldier_config.speed = 3.0
-	soldier_config.rotation_speed = 5.0
-	soldier_config.threshold = 0.01
+func _ready() -> void:
+	# Create a new soldier config and set its properties
+	var soldier_config = Unit.new(100, 3.0, 5.0, 0.01)  # Example of passing values to the constructor
 	set_config(soldier_config)
 
 func _process(delta: float) -> void:

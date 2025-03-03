@@ -1,4 +1,5 @@
 extends Control
+class_name userInterface
 
 @onready var selection_menu: PanelContainer = $SelectionMenu
 @onready var action_menu: PanelContainer = $ActionMenu
@@ -13,6 +14,7 @@ extends Control
 @onready var bottom_panel: Control = $BottomPanel
 @onready var button_left_background: Control = $ButtonRightPanel
 @onready var button_right_background: Control = $ButtonLeftPanel
+
 
 var selection_is_moved: bool = true
 var minimap_is_moved: bool = true
@@ -81,6 +83,8 @@ func animate_element(element: Control, target_y: float):
 	else:
 		tween = tween_cache[element]
 	tween.tween_property(element, "position:y", target_y, MOVE_TIME).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+
 
 func adjust_selection_panel():
 	if !selection_is_moved:
@@ -170,3 +174,16 @@ func update_selected_objects(selected_nodes: Array):
 				"count": 1
 			}
 	update_selection_display()
+
+func is_mouse_over_ui() -> bool:
+	var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
+	if not ui:
+		return false
+	
+	var mouse_pos = get_viewport().get_mouse_position()
+	
+	for node in ui.find_children("", "Control", true):
+		if node.visible and node.get_global_rect().has_point(mouse_pos):
+			return true
+	
+	return false
