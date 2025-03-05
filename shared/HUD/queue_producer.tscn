@@ -1,4 +1,6 @@
-[gd_scene format=3 uid="uid://bg8mtoo81y3e7"]
+[gd_scene load_steps=2 format=3 uid="uid://bg8mtoo81y3e7"]
+
+[ext_resource type="Script" path="res://shared/HUD/scripts/queue_producer.gd" id="1_kopkb"]
 
 [node name="QueueProduct" type="Control"]
 layout_mode = 3
@@ -9,6 +11,7 @@ offset_right = -1140.0
 offset_bottom = -674.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_kopkb")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 layout_mode = 0

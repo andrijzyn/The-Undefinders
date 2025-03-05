@@ -246,19 +246,20 @@ func update_production_queue():
 			var product_ui
 			if existing_products.has(product_data.icon):
 				product_ui = existing_products[product_data.icon]
-				product_ui.get_node("Label").text = str(product_data.count)
+				product_ui.get_node("TextureRect/Label").text = str(product_data.count)
 				product_ui.get_node("ProgressBar").value = product_data.progress * 100
 				existing_products.erase(product_data.icon)
 			else:
 				product_ui = preload("res://shared/HUD/queue_product.tscn").instantiate()
 				product_ui.get_node("TextureRect").texture = product_data.icon
-				product_ui.get_node("Label").text = str(product_data.count)
+				product_ui.get_node("TextureRect/Label").text = str(product_data.count)
 				product_ui.get_node("ProgressBar").value = product_data.progress * 100
 				product_grid.add_child(product_ui)
 				product_ui.connect("pressed", Callable(self, "_on_product_clicked").bind(producer, product_data))
 		for leftover in existing_products.values():
 			leftover.queue_free()
 
+		producer_ui.update_grid_layout()
 		producer_ui.position = Vector2(col_index * 225, row_index * 50)
 		col_index += 1
 		if col_index >= 2:
