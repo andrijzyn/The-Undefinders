@@ -237,21 +237,56 @@ func update_production_queue():
 		producer_ui.get_node("TextureRect").texture = producer.icon
 		var product_grid = producer_ui.get_node("GridContainer")
 
+		var existing_products = {}
 		for child in product_grid.get_children():
-			child.queue_free()
+			var icon = child.get_node("TextureRect").texture
+			existing_products[icon] = child
 
 		for product_data in queue_data.queue:
-			var product_ui = preload("res://shared/HUD/queue_product.tscn").instantiate()
-			product_ui.get_node("TextureRect").texture = product_data.icon
-			product_ui.get_node("Label").text = str(product_data.count)
-			product_ui.get_node("ProgressBar").value = product_data.progress * 100
-			product_grid.add_child(product_ui)
+			var product_ui
+			if existing_products.has(product_data.icon):
+				product_ui = existing_products[product_data.icon]
+				product_ui.get_node("Label").text = str(product_data.count)
+				product_ui.get_node("ProgressBar").value = product_data.progress * 100
+				existing_products.erase(product_data.icon)
+			else:
+				product_ui = preload("res://shared/HUD/queue_product.tscn").instantiate()
+				product_ui.get_node("TextureRect").texture = product_data.icon
+				product_ui.get_node("Label").text = str(product_data.count)
+				product_ui.get_node("ProgressBar").value = product_data.progress * 100
+				product_grid.add_child(product_ui)
+				product_ui.connect("pressed", Callable(self, "_on_product_clicked").bind(producer, product_data))
+		for leftover in existing_products.values():
+			leftover.queue_free()
 
 		producer_ui.position = Vector2(col_index * 225, row_index * 50)
 		col_index += 1
 		if col_index >= 2:
 			col_index = 0
 			row_index += 1
+
+func find_existing_product_ui(grid, product_data):
+	for child in grid.get_children():
+		if child.get_node("TextureRect").texture == product_data.icon:
+			return child
+	return null
+
+func _on_product_clicked(producer, product_data):
+	if production_queues.has(producer):
+		var queue = production_queues[producer].queue
+		for i in range(queue.size()):
+			if queue[i].icon == product_data.icon:
+				if queue[i].count > 1:
+					queue[i].count -= 1
+				else:
+					queue.remove_at(i)
+				producer.cancel_production(i)
+				break
+
+		if queue.is_empty():
+			production_queues.erase(producer)
+
+	update_production_queue()
 
 func add_to_production(producer, product_icon):
 	if not production_queues.has(producer):

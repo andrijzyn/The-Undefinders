@@ -61,6 +61,11 @@ func process_next_in_queue():
 	var current_product = production_queue[0]
 	for i in range(100):
 		await get_tree().create_timer(0.1).timeout
+		if production_queue.is_empty() or production_queue[0] != current_product:
+			is_producing = false
+			if not production_queue.is_empty():
+				process_next_in_queue()
+			return
 		current_product["progress"] = (i + 1) / 100.0
 		ui.update_production_progress(self, current_product["progress"])
 
@@ -73,4 +78,7 @@ func process_next_in_queue():
 func cancel_production(index: int):
 	if index >= 0 and index < production_queue.size():
 		production_queue.remove_at(index)
+		if index == 0 and is_producing:
+			is_producing = false
+			process_next_in_queue()
 		ui.update_production_queue()
