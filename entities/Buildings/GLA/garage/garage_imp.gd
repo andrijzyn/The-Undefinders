@@ -2,7 +2,7 @@ extends Node3D
 class_name GarageImp
 
 var available_items = {
-	"Soldier/soldier": { "icon": preload("res://entities/Units/USA/Infantry/Soldier/soldier_icon.PNG"), "cost": 100 }
+	"Soldier/soldier": { "icon": preload("res://entities/Units/USA/Infantry/Soldier/soldier_icon.PNG"), "cost": 100, "time": 5.0}
 }
 
 var ui
@@ -12,6 +12,7 @@ var isSelected: bool = false;
 var is_garage_active: bool = false;
 @onready var animPlayer := $AnimationPlayer
 @onready var spawn_point := $SpawnPoint
+@onready var exit_point := $ExitPoint
 
 var production_queue: Array = []
 var is_producing: bool = false
@@ -44,6 +45,7 @@ func spawn_unit(unit_name: String):
 	var unit_instance = load(path).instantiate()
 	get_parent().add_child(unit_instance)
 	unit_instance.global_transform.origin = spawn_point.global_transform.origin
+	unit_instance.move_to_exit_point(exit_point.global_transform.origin)
 	
 	await get_tree().create_timer(5.0).timeout
 	animPlayer.play("GarageDoorClose")
@@ -52,7 +54,13 @@ func spawn_unit(unit_name: String):
 
 func start_production(unit_name: String, unit_icon: Texture2D):
 	if production_queue.size() < MAX_QUEUE_SIZE:
-		production_queue.append({"name": unit_name, "icon": unit_icon, "progress": 0.0})
+		var production_time = available_items[unit_name].get("time", 5.0)
+		production_queue.append({
+			"name": unit_name,
+			"icon": unit_icon,
+			"progress": 0.0,
+			"production_time": production_time
+		})
 		ui.add_to_production(self, unit_icon)
 		if not is_producing:
 			process_next_in_queue()
@@ -65,8 +73,9 @@ func process_next_in_queue():
 	is_producing = true
 	var current_product = production_queue[0]
 	var progress = current_product.get("progress", 0.0)
+	var production_time = current_product["production_time"]
 	for i in range(int(progress * 100), 100):
-		await get_tree().create_timer(0.1).timeout
+		await get_tree().create_timer(production_time / 100.0).timeout
 		if production_queue.is_empty() or production_queue[0] != current_product:
 			is_producing = false
 			if not production_queue.is_empty():

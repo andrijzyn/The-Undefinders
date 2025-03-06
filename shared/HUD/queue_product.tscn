@@ -13,6 +13,7 @@ offset_bottom = -700.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/icon_pressed_color = Color(0.501961, 0.501961, 0.501961, 0.666667)
+flat = true
 script = ExtResource("1_yypn5")
 
 [node name="TextureRect" type="TextureRect" parent="."]

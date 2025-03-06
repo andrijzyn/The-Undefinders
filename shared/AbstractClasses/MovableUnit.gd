@@ -165,3 +165,7 @@ func update_patrol_path():
 		patrolPoints[(currentPatrolPoint + 1) % patrolPoints.size()]
 	]
 	update_path()
+
+#Responsible for unit SPAWN
+func move_to_exit_point(exit_position: Vector3):
+	OrderHandler.move_to_exit_point(self, exit_position)

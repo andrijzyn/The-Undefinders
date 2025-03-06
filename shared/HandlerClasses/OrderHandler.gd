@@ -108,3 +108,10 @@ static func _newPath(node: MovableUnit) -> void:
 	var safeTargetLocation = NavigationServer3D.map_get_closest_point(node.mapRID, node.waypointQueue[0])
 	node.currentPaths = NavigationServer3D.map_get_path(node.mapRID, node.global_position, safeTargetLocation, true)
 	node.currentPath = 0
+
+#Responsible for unit SPAWN
+static func move_to_exit_point(unit: MovableUnit, exit_position: Vector3):
+	unit.waypointQueue.clear()
+	unit.waypointQueue.append(exit_position)
+	_newPath(unit)
+	unit.isMoving = true
