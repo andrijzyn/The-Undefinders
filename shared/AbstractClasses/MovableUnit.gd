@@ -8,6 +8,7 @@ var isMoving: bool = false
 var isHealthBarVisible := false
 var isSelected := false
 var isPatrolling := false
+var isLeavingBuilding := false
 var direction: Vector3
 var waypointQueue: PackedVector3Array = []
 var patrolPoints: PackedVector3Array = []
@@ -123,7 +124,8 @@ func keep_moving(delta: float):
 	handle_rotate_by_position(delta, next_position)
 	velocity = velocity.lerp(next_position.normalized() * unit_config.speed, delta)
 	
-	if next_position.length_squared() < 1.0:
+	#Do not set below 0.1 - causes errors
+	if next_position.length_squared() < 0.1:
 		if currentPath < currentPaths.size() - 1:
 			currentPath += 1
 		elif waypointQueue.size() > 1:
@@ -134,6 +136,9 @@ func keep_moving(delta: float):
 		else:
 			velocity = Vector3.ZERO
 			isMoving = false
+			if isLeavingBuilding:
+				isLeavingBuilding = false
+				$CollisionPolygon3D2.disabled = false
 
 func keep_patrolling(delta: float):
 	var next_position = currentPaths[currentPath] - global_position
@@ -168,4 +173,6 @@ func update_patrol_path():
 
 #Responsible for unit SPAWN
 func move_to_exit_point(exit_position: Vector3):
+	isLeavingBuilding = true
+	$CollisionPolygon3D2.disabled = true
 	OrderHandler.move_to_exit_point(self, exit_position)
