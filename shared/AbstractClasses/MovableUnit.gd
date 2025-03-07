@@ -22,6 +22,7 @@ var unit_config: UnitConfig
 @onready var healthBarSprite :Sprite3D = $HealthBarSprite
 @onready var mainCamera: MainCamera
 @onready var mapRID: RID
+signal reached_exit
 
 func _init() -> void:
 	add_to_group(Constants.selectable)
@@ -139,6 +140,7 @@ func keep_moving(delta: float):
 			if isLeavingBuilding:
 				isLeavingBuilding = false
 				$CollisionPolygon3D2.disabled = false
+				reached_exit.emit()
 
 func keep_patrolling(delta: float):
 	var next_position = currentPaths[currentPath] - global_position

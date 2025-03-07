@@ -24,10 +24,11 @@ func _init() -> void:
 
 func _ready() -> void:
 	ui = get_tree().get_root().get_node("MainScene/RTS_UI")
+	animPlayer.animation_finished.connect(_on_animation_finished)
 
 func setSelected(val:bool):
 	if is_garage_active:
-		return
+		return true
 	isSelected = val
 	if isSelected == true:
 		animPlayer.play("Selected")
@@ -47,10 +48,9 @@ func spawn_unit(unit_name: String):
 	unit_instance.global_transform.origin = spawn_point.global_transform.origin
 	unit_instance.move_to_exit_point(exit_point.global_transform.origin)
 	
-	await get_tree().create_timer(5.0).timeout
+	await unit_instance.reached_exit
 	animPlayer.play("GarageDoorClose")
 	await animPlayer.animation_finished
-	is_garage_active = false
 
 func start_production(unit_name: String, unit_icon: Texture2D):
 	if production_queue.size() < MAX_QUEUE_SIZE:
@@ -105,3 +105,7 @@ func cancel_production(index: int):
 			process_next_in_queue()
 
 		ui.update_production_queue()
+
+func _on_animation_finished(anim_name: String):
+	if anim_name == "GarageDoorClose":
+		is_garage_active = false
