@@ -9,6 +9,9 @@ var isSelected: bool = false
 var is_producing: bool = false
 var production_queue: Array = []
 const MAX_QUEUE_SIZE: int = 10
+var rally_point: Vector3
+var target_location_active: bool = false
+var rally_flag: Node3D
 
 func _init():
 	add_to_group(Constants.selectable)
@@ -19,6 +22,8 @@ func _ready():
 
 func setSelected(val: bool):
 	isSelected = val
+	if rally_flag:
+		rally_flag.visible = isSelected and target_location_active
 
 func get_available_items() -> Dictionary:
 	return available_items 
@@ -79,3 +84,14 @@ func cancel_production(index: int):
 			process_next_in_queue()
 
 		ui.update_production_queue()
+
+func set_rally_point(position: Vector3):
+	rally_point = position
+	target_location_active = true
+
+	if not rally_flag:
+		rally_flag = preload("res://entities/Buildings/Shared/Rally_flag/rally_flag.tscn").instantiate()
+		add_child(rally_flag)
+
+	rally_flag.global_transform.origin = rally_point
+	rally_flag.visible = isSelected

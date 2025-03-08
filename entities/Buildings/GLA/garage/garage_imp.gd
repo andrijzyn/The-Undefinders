@@ -15,9 +15,9 @@ func _ready():
 	animPlayer.animation_finished.connect(_on_animation_finished)
 
 func setSelected(val: bool):
+	super(val)
 	if is_garage_active:
 		return true
-	super(val)
 	if isSelected:
 		animPlayer.play("Selected")
 	else:
@@ -32,7 +32,10 @@ func on_production_complete(unit_name: String):
 	var unit_instance = load(path).instantiate()
 	get_parent().add_child(unit_instance)
 	unit_instance.global_transform.origin = spawn_point.global_transform.origin
-	unit_instance.move_to_exit_point(exit_point.global_transform.origin)
+	if target_location_active:
+		unit_instance.move_to_exit_point(exit_point.global_transform.origin, target_location_active, rally_point)
+	else:
+		unit_instance.move_to_exit_point(exit_point.global_transform.origin)
 
 	await unit_instance.reached_exit
 	animPlayer.play("GarageDoorClose")

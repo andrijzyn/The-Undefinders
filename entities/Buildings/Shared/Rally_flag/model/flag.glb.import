@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://bt5eoykqtscja"
-path="res://.godot/imported/garage_imp.glb-1d1d344d51803dc0cf37ca7a91fc60c8.scn"
+uid="uid://b4t0g3pmhkqig"
+path="res://.godot/imported/flag.glb-f4af5b4d6aeed9538958499fd17d14ba.scn"
 
 [deps]
 
-source_file="res://entities/Buildings/GLA/garage/textures/garage_imp.glb"
-dest_files=["res://.godot/imported/garage_imp.glb-1d1d344d51803dc0cf37ca7a91fc60c8.scn"]
+source_file="res://entities/Buildings/Shared/Rally_flag/model/flag.glb"
+dest_files=["res://.godot/imported/flag.glb-f4af5b4d6aeed9538958499fd17d14ba.scn"]
 
 [params]
 

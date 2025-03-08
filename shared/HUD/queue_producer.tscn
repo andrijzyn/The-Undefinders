@@ -13,14 +13,14 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_kopkb")
 
-[node name="TextureRect" type="TextureRect" parent="."]
+[node name="TextureButton" type="TextureButton" parent="."]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 7.0
 offset_right = 36.0
 offset_bottom = 39.0
-mouse_default_cursor_shape = 2
-expand_mode = 1
+ignore_texture_size = true
+stretch_mode = 0
 
 [node name="GridContainer" type="GridContainer" parent="."]
 layout_mode = 0

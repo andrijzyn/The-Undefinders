@@ -7,7 +7,7 @@ extends Control
 @onready var selection_panel: PanelContainer = $SelectionPanel
 @onready var selection_container: GridContainer = $SelectionMenu/SelectionContainer
 @onready var action_container: GridContainer = $ActionMenu/ActionContainer
-@onready var queue_container: GridContainer = $QueueMenu/QueueContainer
+@onready var queue_container: GridContainer = $QueueMenu/ScrollContainer/QueueContainer
 @onready var button_left: Button = $ButtonLeft
 @onready var button_right: Button = $ButtonRight
 @onready var button_minimap: Button = $ButtonMap
@@ -232,9 +232,10 @@ func update_production_queue():
 		else:
 			producer_ui = preload("res://shared/HUD/queue_producer.tscn").instantiate()
 			producer_ui.set_meta("producer", producer)
+			producer_ui.get_node("TextureButton").connect("pressed", Callable(self, "_on_producer_button_pressed").bind(producer))
 			queue_container.add_child(producer_ui)
 
-		producer_ui.get_node("TextureRect").texture = producer.icon
+		producer_ui.get_node("TextureButton").texture_normal = producer.icon
 		var product_grid = producer_ui.get_node("GridContainer")
 
 		var existing_products = {}
@@ -319,3 +320,14 @@ func complete_production(producer):
 			production_queues.erase(producer)
 
 	update_production_queue()
+
+func _on_producer_button_pressed(producer):
+	if not producer:
+		return
+
+	var camera = get_tree().get_root().get_node("MainScene/Camera3D")
+	if camera and producer.has_method("get_position"):
+		var target_position = producer.get_position() 
+		target_position.y = camera.position.y
+		camera.position = target_position
+		print("Move camera to building:", producer)

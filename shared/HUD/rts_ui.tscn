@@ -88,16 +88,20 @@ theme_override_constants/h_separation = 64
 columns = 3
 
 [node name="QueueMenu" type="PanelContainer" parent="."]
+clip_contents = true
 layout_mode = 2
 offset_left = 645.0
 offset_top = 731.0
 offset_right = 1095.0
 offset_bottom = 846.0
 
-[node name="QueueContainer" type="GridContainer" parent="QueueMenu"]
+[node name="ScrollContainer" type="ScrollContainer" parent="QueueMenu"]
 layout_mode = 2
-theme_override_constants/h_separation = 225
-columns = 3
+horizontal_scroll_mode = 0
+
+[node name="QueueContainer" type="GridContainer" parent="QueueMenu/ScrollContainer"]
+layout_mode = 2
+columns = 2
 
 [node name="MinimapPanel" type="PanelContainer" parent="."]
 layout_mode = 2

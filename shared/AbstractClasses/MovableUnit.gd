@@ -174,7 +174,10 @@ func update_patrol_path():
 	update_path()
 
 #Responsible for unit SPAWN
-func move_to_exit_point(exit_position: Vector3):
+func move_to_exit_point(exit_position: Vector3, target_location_active: bool = false, flag_position: Vector3 = Vector3.ZERO):
 	isLeavingBuilding = true
 	$CollisionPolygon3D2.disabled = true
-	OrderHandler.move_to_exit_point(self, exit_position)
+	if target_location_active:
+		OrderHandler.move_to_exit_point(self, exit_position, target_location_active, flag_position)
+	else:
+		OrderHandler.move_to_exit_point(self, exit_position)

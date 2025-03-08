@@ -50,7 +50,7 @@ static func keepMoving(node: MovableUnit, delta) -> void:
 	handleRotateOrderbyPosition(node, delta, next_position)
 	node.velocity = node.velocity.lerp(next_position.normalized() * node.SPEED, delta)
 	
-	if next_position.length_squared() < 1.0:
+	if next_position.length_squared() < 0.1:
 		if node.currentPath < node.currentPaths.size() - 1:
 			node.currentPath += 1
 		elif node.waypointQueue.size() > 1:
@@ -110,8 +110,10 @@ static func _newPath(node: MovableUnit) -> void:
 	node.currentPath = 0
 
 #Responsible for unit SPAWN
-static func move_to_exit_point(unit: MovableUnit, exit_position: Vector3):
+static func move_to_exit_point(unit: MovableUnit, exit_position: Vector3, target_location_active: bool = false, flag_position: Vector3 = Vector3.ZERO):
 	unit.waypointQueue.clear()
 	unit.waypointQueue.append(exit_position)
+	if target_location_active:
+		unit.waypointQueue.append(flag_position)
 	_newPath(unit)
 	unit.isMoving = true
