@@ -3,11 +3,8 @@ class_name MainCamera
 
 @export var CAMERA_SPEED_MULTPLIER := 0.05
 @export var CAMERA_ROTATION_SPEED := 1
-
 @export var ROTATION_SPEED_MULTIPLIER = 0.005
-
 @export var ZOOM_SPEED_MULTPLIER := 200
-
 @export var EDGE_MARGIN := 120
 @export var EDGE_SCROLL_SPEED := 20
 
@@ -80,6 +77,10 @@ func _input(event):
 				else:
 					rotating_building = false
 				return
+		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			if selected_nodes.size() == 1 and selected_nodes[0] is ProductionBuilding:
+				var ground_pos = get_ground_position(event.position)
+				selected_nodes[0].set_rally_point(ground_pos)
 		# Right mouse button - drag movement
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			if phantom_building:
@@ -102,7 +103,7 @@ func _input(event):
 					finish_building_placement()
 					return
 				# Shift + click selects multiple units
-				if Input.is_action_pressed("shift"):
+				if Input.is_action_pressed("MULTI_SELECT"):
 					var result = RaycastHandler.getRaycastResult(self)
 					if result:
 						selected_nodes = SelectionHandler.handleMultipleSelectionByShift(selected_nodes, result)
@@ -153,6 +154,15 @@ func _input(event):
 			var delta_rotate = (event.position - last_mouse_position) * ROTATION_SPEED_MULTIPLIER
 			rotate_y(-delta_rotate.x)
 			last_mouse_position = event.position
+
+func get_ground_position(mouse_pos: Vector2) -> Vector3:
+	var ray_origin = project_ray_origin(mouse_pos)
+	var ray_dir = project_ray_normal(mouse_pos)
+	var ground_plane = Plane(Vector3.UP, 0)
+	var intersection = ray_plane_intersection(ray_origin, ray_dir, ground_plane)
+	if intersection:
+		intersection.y = 0
+	return intersection
 
 func updateSelectionRectangle():
 	var current_mouse_pos = get_viewport().get_mouse_position()

@@ -1,6 +1,6 @@
 [gd_scene load_steps=31 format=4 uid="uid://cjd68qtn0ujeb"]
 
-[ext_resource type="Script" path="res://entities/Units/USA/Infantry/Soldier/soldier.gd" id="1_e6lx5"]
+[ext_resource type="Script" uid="uid://c6gvq2b040rpa" path="res://entities/Units/USA/Infantry/Soldier/soldier.gd" id="1_e6lx5"]
 [ext_resource type="Texture2D" uid="uid://bbfx4xwagb1dn" path="res://entities/Units/USA/Infantry/Soldier/source/Sketchfab_2021_03_16_23_33_20_0.png" id="1_njsy7"]
 [ext_resource type="Texture2D" uid="uid://ux60qfrp3omq" path="res://entities/Units/USA/Infantry/Soldier/textures/soldier.png" id="2_gih13"]
 [ext_resource type="PackedScene" uid="uid://pvsgtle0ubdj" path="res://shared/HUD/healthBar/health_bar.tscn" id="4_l5f2g"]
@@ -2079,11 +2079,11 @@ tracks/32/keys = PackedFloat32Array(0, 1, -0.203233, -6.16758e-08, -3.017e-08, 0
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_yb8fv"]
 _data = {
-"rig|air ": SubResource("Animation_umsvl"),
-"rig|idle ": SubResource("Animation_nn6ne"),
-"rig|knife_action": SubResource("Animation_p4ir8"),
-"rig|run ": SubResource("Animation_xnj8m"),
-"rig|walk ": SubResource("Animation_byxvm")
+&"rig|air ": SubResource("Animation_umsvl"),
+&"rig|idle ": SubResource("Animation_nn6ne"),
+&"rig|knife_action": SubResource("Animation_p4ir8"),
+&"rig|run ": SubResource("Animation_xnj8m"),
+&"rig|walk ": SubResource("Animation_byxvm")
 }
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_bwrmf"]

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cbv76juler6ym"]
 
-[ext_resource type="Texture2D" uid="uid://bdikmwnugu25f" path="res://Textures/UIButtonDown.png" id="1_k5dew"]
+[ext_resource type="Texture2D" uid="uid://bdikmwnugu25f" path="res://features/GUI/textures/UIButtonDown.png" id="1_k5dew"]
 
 [node name="ButtonDown" type="Button"]
 offset_right = 120.0
@@ -11,5 +11,6 @@ theme_type_variation = &"FlatButton"
 layout_mode = 0
 offset_right = 120.0
 offset_bottom = 17.0
+mouse_default_cursor_shape = 2
 texture = ExtResource("1_k5dew")
 expand_mode = 1

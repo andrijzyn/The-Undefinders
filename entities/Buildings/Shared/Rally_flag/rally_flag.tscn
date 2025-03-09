@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://sdj2l80kkys1"]
+
+[ext_resource type="PackedScene" uid="uid://b4t0g3pmhkqig" path="res://entities/Buildings/Shared/Rally_flag/model/flag.glb" id="1_jfgan"]
+
+[node name="flag" instance=ExtResource("1_jfgan")]

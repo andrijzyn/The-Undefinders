@@ -14,4 +14,5 @@ grow_vertical = 2
 layout_mode = 0
 offset_right = 32.0
 offset_bottom = 32.0
+mouse_default_cursor_shape = 2
 expand_mode = 1

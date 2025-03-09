@@ -2,6 +2,7 @@ extends MovableUnit
 class_name Soldier
 
 var isWalking: bool = false
+var icon: Texture2D = preload("res://entities/Units/USA/Infantry/Soldier/soldier_icon.PNG")
 
 func _init() -> void:
 	super._init()

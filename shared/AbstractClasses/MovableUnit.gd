@@ -8,6 +8,7 @@ var isMoving: bool = false
 var isHealthBarVisible := false
 var isSelected := false
 var isPatrolling := false
+var isLeavingBuilding := false
 var direction: Vector3
 var waypointQueue: PackedVector3Array = []
 var patrolPoints: PackedVector3Array = []
@@ -21,6 +22,7 @@ var unit_config: UnitConfig
 @onready var healthBarSprite :Sprite3D = $HealthBarSprite
 @onready var mainCamera: MainCamera
 @onready var mapRID: RID
+signal reached_exit
 
 func _init() -> void:
 	add_to_group(Constants.selectable)
@@ -78,7 +80,7 @@ func start_rotate_order():
 
 func start_move_order():
 	var targetLocation = RaycastHandler.getRaycastResultPosition(mainCamera)
-	if not Input.is_action_pressed("shift"):
+	if not Input.is_action_pressed("MULTI_SELECT"):
 		waypointQueue.clear()
 		velocity = Vector3.ZERO
 	waypointQueue.append(targetLocation)
@@ -87,7 +89,7 @@ func start_move_order():
 
 func start_patrol_order():
 	var targetLocation = RaycastHandler.getRaycastResultPosition(mainCamera)
-	if Input.is_action_pressed("shift"):
+	if Input.is_action_pressed("MULTI_SELECT"):
 		if patrolPoints.is_empty():
 			patrolPoints.append(global_position)
 		patrolPoints.append(targetLocation)
@@ -123,7 +125,8 @@ func keep_moving(delta: float):
 	handle_rotate_by_position(delta, next_position)
 	velocity = velocity.lerp(next_position.normalized() * unit_config.speed, delta)
 	
-	if next_position.length_squared() < 1.0:
+	#Do not set below 0.1 - causes errors
+	if next_position.length_squared() < 0.1:
 		if currentPath < currentPaths.size() - 1:
 			currentPath += 1
 		elif waypointQueue.size() > 1:
@@ -134,6 +137,10 @@ func keep_moving(delta: float):
 		else:
 			velocity = Vector3.ZERO
 			isMoving = false
+			if isLeavingBuilding:
+				isLeavingBuilding = false
+				$CollisionPolygon3D2.disabled = false
+				reached_exit.emit()
 
 func keep_patrolling(delta: float):
 	var next_position = currentPaths[currentPath] - global_position
@@ -165,3 +172,12 @@ func update_patrol_path():
 		patrolPoints[(currentPatrolPoint + 1) % patrolPoints.size()]
 	]
 	update_path()
+
+#Responsible for unit SPAWN
+func move_to_exit_point(exit_position: Vector3, target_location_active: bool = false, flag_position: Vector3 = Vector3.ZERO):
+	isLeavingBuilding = true
+	$CollisionPolygon3D2.disabled = true
+	if target_location_active:
+		OrderHandler.move_to_exit_point(self, exit_position, target_location_active, flag_position)
+	else:
+		OrderHandler.move_to_exit_point(self, exit_position)

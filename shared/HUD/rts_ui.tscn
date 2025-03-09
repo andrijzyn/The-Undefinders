@@ -1,6 +1,6 @@
 [gd_scene load_steps=14 format=3 uid="uid://hs2mytyqoi4c"]
 
-[ext_resource type="Script" path="res://shared/HandlerClasses/UI.gd" id="1_uapss"]
+[ext_resource type="Script" uid="uid://s0bp2r7tsr40" path="res://shared/HandlerClasses/UI.gd" id="1_uapss"]
 [ext_resource type="Texture2D" uid="uid://drk5dy7nhkavt" path="res://features/GUI/textures/UIBottom_background.png" id="2_f7ndo"]
 [ext_resource type="PackedScene" uid="uid://ba4afwkd8iv77" path="res://shared/HUD/ui_button_up.tscn" id="3_h72wp"]
 [ext_resource type="Texture2D" uid="uid://dy2j46ciwsjmu" path="res://features/GUI/textures/Button_background_right.png" id="3_v6ggh"]
@@ -77,15 +77,31 @@ size_flags_vertical = 0
 
 [node name="ActionMenu" type="PanelContainer" parent="."]
 layout_mode = 0
-offset_left = 192.0
-offset_top = 732.0
-offset_right = 592.0
-offset_bottom = 832.0
+offset_left = 186.0
+offset_top = 731.0
+offset_right = 636.0
+offset_bottom = 846.0
 
 [node name="ActionContainer" type="GridContainer" parent="ActionMenu"]
 layout_mode = 2
 theme_override_constants/h_separation = 64
 columns = 3
+
+[node name="QueueMenu" type="PanelContainer" parent="."]
+clip_contents = true
+layout_mode = 2
+offset_left = 645.0
+offset_top = 731.0
+offset_right = 1095.0
+offset_bottom = 846.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="QueueMenu"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="QueueContainer" type="GridContainer" parent="QueueMenu/ScrollContainer"]
+layout_mode = 2
+columns = 2
 
 [node name="MinimapPanel" type="PanelContainer" parent="."]
 layout_mode = 2

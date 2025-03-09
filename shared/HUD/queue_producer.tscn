@@ -1,0 +1,34 @@
+[gd_scene load_steps=2 format=3 uid="uid://bg8mtoo81y3e7"]
+
+[ext_resource type="Script" uid="uid://biqh8w8uul7km" path="res://shared/HUD/scripts/queue_producer.gd" id="1_kopkb"]
+
+[node name="QueueProduct" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1140.0
+offset_bottom = -674.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_kopkb")
+
+[node name="TextureButton" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 7.0
+offset_right = 36.0
+offset_bottom = 39.0
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="GridContainer" type="GridContainer" parent="."]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 2.0
+offset_right = 140.0
+offset_bottom = 46.0
+pivot_offset = Vector2(20, 22)
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+columns = 5

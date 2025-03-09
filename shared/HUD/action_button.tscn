@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://xmdpp1crgqct"]
 
-[node name="BuildingButton" type="Button"]
+[node name="ActionButton" type="Button"]
 offset_right = 64.0
 offset_bottom = 64.0
 
@@ -8,3 +8,4 @@ offset_bottom = 64.0
 layout_mode = 0
 offset_right = 64.0
 offset_bottom = 64.0
+mouse_default_cursor_shape = 2
