@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://cjd68qtn0ujeb" path="res://entities/Units/USA/Infantry/Soldier/soldier.tscn" id="1_o4col"]
 [ext_resource type="PackedScene" uid="uid://dpetlsrf5pbpe" path="res://entities/Buildings/GLA/garage/garage_imp.tscn" id="1_sn7h3"]
 [ext_resource type="PackedScene" uid="uid://bbsgnge3ole1f" path="res://entities/Maps/ground.tscn" id="2_hvjiq"]
-[ext_resource type="Script" path="res://app/MainCamera.gd" id="3_72cn3"]
+[ext_resource type="Script" uid="uid://bhiln7b3jxnea" path="res://app/MainCamera.gd" id="3_72cn3"]
 [ext_resource type="PackedScene" uid="uid://hs2mytyqoi4c" path="res://shared/HUD/rts_ui.tscn" id="5_pqs64"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_beipy"]

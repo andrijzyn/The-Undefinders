@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dwj48voykx2t5"]
 
 [ext_resource type="Texture2D" uid="uid://fy10my1nfjwv" path="res://features/GUI/textures/gray.png" id="1_2pqvs"]
-[ext_resource type="Script" path="res://shared/HUD/scripts/queue_product.gd" id="1_yypn5"]
+[ext_resource type="Script" uid="uid://dq3a3g8h8tpdy" path="res://shared/HUD/scripts/queue_product.gd" id="1_yypn5"]
 [ext_resource type="Texture2D" uid="uid://dfbnvcaal3287" path="res://features/GUI/textures/light-blue.png" id="2_ilf1r"]
 
 [node name="QueueProduct" type="Button"]
