@@ -1,4 +1,5 @@
 extends Entity
+## Абстрактный класс для юнитов которые могут двигатся
 class_name MovableUnit
 
 var speed: float = 2.0

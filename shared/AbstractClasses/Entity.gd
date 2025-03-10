@@ -2,7 +2,6 @@ extends Node3D
 ## Абстрактный класс, для всех играбельных сущностей игры здания / юниты
 class_name Entity
 
-
 # -------- Health vars ----------
 var max_health: float
 var currentHealth: float
