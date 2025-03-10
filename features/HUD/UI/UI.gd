@@ -108,14 +108,14 @@ func update_selection_display():
 	for object_type in selected_objects.keys():
 		var object_data = selected_objects[object_type]
 		if object_data.count > 1:
-			var group_icon = preload("res://shared/HUD/group_icon.tscn").instantiate()
+			var group_icon = preload("res://features/HUD/UI/group_icon.tscn").instantiate()
 			group_icon.get_node("TextureRect").texture = object_data.icon
 			group_icon.get_node("Label").text = str(object_data.count)
 			selection_container.add_child(group_icon)
 			total_elements += 1
 		else:
 			for i in range(object_data.count):
-				var unit_icon = preload("res://shared/HUD/unit_icon.tscn").instantiate()
+				var unit_icon = preload("res://features/HUD/UI/unit_icon.tscn").instantiate()
 				unit_icon.get_node("TextureRect").texture = object_data.icon
 				selection_container.add_child(unit_icon)
 				total_elements += 1
@@ -151,7 +151,7 @@ func update_action_display():
 
 	if is_selected:
 		for item in available_items.keys():
-			var button = preload("res://shared/HUD/action_button.tscn").instantiate()
+			var button = preload("res://features/HUD/UI/action_button.tscn").instantiate()
 			var texture_rect = button.get_node_or_null("TextureRect")
 			if texture_rect:
 				texture_rect.texture = available_items[item].icon
@@ -160,7 +160,7 @@ func update_action_display():
 			action_container.add_child(button)
 	else:
 		for building in buildings.keys():
-			var building_button = preload("res://shared/HUD/action_button.tscn").instantiate()
+			var building_button = preload("res://features/HUD/UI/action_button.tscn").instantiate()
 			var texture_rect = building_button.get_node_or_null("TextureRect")
 			if texture_rect:
 				texture_rect.texture = buildings[building].icon
@@ -230,7 +230,7 @@ func update_production_queue():
 		if producer in existing_producers:
 			producer_ui = existing_producers[producer]
 		else:
-			producer_ui = preload("res://shared/HUD/queue_producer.tscn").instantiate()
+			producer_ui = preload("res://features/HUD/queueProduce/queue_producer.tscn").instantiate()
 			producer_ui.set_meta("producer", producer)
 			producer_ui.get_node("TextureButton").connect("pressed", Callable(self, "_on_producer_button_pressed").bind(producer))
 			queue_container.add_child(producer_ui)
@@ -251,7 +251,7 @@ func update_production_queue():
 				product_ui.get_node("ProgressBar").value = product_data.progress * 100
 				existing_products.erase(product_data.icon)
 			else:
-				product_ui = preload("res://shared/HUD/queue_product.tscn").instantiate()
+				product_ui = preload("res://features/HUD/queueProduce/queue_product.tscn").instantiate()
 				product_ui.get_node("TextureRect").texture = product_data.icon
 				product_ui.get_node("TextureRect/Label").text = str(product_data.count)
 				product_ui.get_node("ProgressBar").value = product_data.progress * 100

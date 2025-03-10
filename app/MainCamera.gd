@@ -10,7 +10,7 @@ class_name MainCamera
 
 var selected_nodes: Array[Node3D] = []
 const DRAG_THRESHOLD := 5
-var ghost_shader = preload("res://shaders/ghost_shader.gdshader")
+var ghost_shader = preload("res://shared/shaders/ghost_shader.gdshader")
 
 var dragging := false
 var rotating := false
@@ -45,7 +45,7 @@ func _ready():
 	selection_container.add_child(selection_overlay)
 
 func _process(delta:float) -> void:
-	MouseChanger.mouseChange(self)
+	MouseChangeHandler.mouseChange(self)
 	handleEdgeScrolling(delta)
 	cameraZoom(delta)
 	HoverHandler.handleHover(self)

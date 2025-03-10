@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bg8mtoo81y3e7"]
 
-[ext_resource type="Script" uid="uid://biqh8w8uul7km" path="res://shared/HUD/scripts/queue_producer.gd" id="1_kopkb"]
+[ext_resource type="Script" uid="uid://biqh8w8uul7km" path="res://features/HUD/queueProduce/queue_producer.gd" id="1_kopkb"]
 
 [node name="QueueProduct" type="Control"]
 layout_mode = 3

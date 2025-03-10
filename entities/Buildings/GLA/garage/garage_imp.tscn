@@ -531,7 +531,7 @@ skeleton = NodePath("")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
-"": SubResource("AnimationLibrary_2yw8c")
+&"": SubResource("AnimationLibrary_2yw8c")
 }
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
