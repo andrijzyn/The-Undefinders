@@ -39,6 +39,11 @@ func _init() -> void:
 	add_to_group(Constants.movable)
 
 func _process(delta: float) -> void:
+	if isSelected:
+		if (Input.is_action_just_released("MULTI_SELECT") and 
+		mainCamera.isReadytoPatrol): mainCamera.toggleReadyPatrol()
+		elif (Input.is_action_just_released("CONTEXT") 
+		and mainCamera.isReadytoPatrol and not Input.is_action_pressed("MULTI_SELECT")): mainCamera.toggleReadyPatrol()
 	direction = Vector3.ZERO
 	OrderHandler.listen(self, delta)
 	MovementContinuator.listen(self, delta)
@@ -142,14 +147,16 @@ class OrderHandler:
 	static func listen(node: MovableUnit, delta):
 		if node.isSelected:
 			if Input.is_action_just_pressed("CONTEXT"):
-				if Input.is_action_pressed("ROTATE"):
+				if node.mainCamera.isReadytoRotate:
 					handleRotateOrder(node)
-				elif Input.is_action_pressed("PATROL"):
+					node.mainCamera.toggleReadyRotate()
+				elif node.mainCamera.isReadytoPatrol:
 					handlePatrolOrder(node)
 				else:
 					handleMovingOrder(node)
 			if Input.is_action_just_pressed("ABORT"):
 				handleAbortOrder(node)
+
 
 	## Обрабатывает команду поворота юнита в указанном направлении[br]
 	## [param node: MovableUnit] - юнит, который должен начать поворот[br]
@@ -157,6 +164,7 @@ class OrderHandler:
 	static func handleRotateOrder(node: MovableUnit) -> void:
 		var targetLocation = RaycastHandler.getRaycastResultPosition(node.mainCamera)
 		var direction = (targetLocation - node.global_position).normalized()
+		handleAbortOrder(node)
 		direction.y = 0
 		if direction.length() > 0:
 			node.target_angle = atan2(direction.x, direction.z)
@@ -169,7 +177,7 @@ class OrderHandler:
 		var targetLocation = RaycastHandler.getRaycastResultPosition(node.mainCamera)
 		if not Input.is_action_pressed("MULTI_SELECT"):
 			node.waypointQueue.clear()
-			node.velocity = Vector3.ZERO
+			handleAbortOrder(node)
 		node.waypointQueue.append(targetLocation)
 		PathHandler.newPath(node)
 		node.isMoving = true
@@ -185,7 +193,6 @@ class OrderHandler:
 			node.patrolPoints.append(targetLocation)
 		else:
 			node.patrolPoints = [node.global_position, targetLocation]
-		
 		node.currentPatrolPoint = 0
 		node.isPatrolling = true
 		PathHandler.updatePatrolPath(node)

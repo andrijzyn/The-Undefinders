@@ -8,7 +8,8 @@ class_name MainCamera
 @export var EDGE_MARGIN := 120
 @export var EDGE_SCROLL_SPEED := 20
 
-var selected_nodes: Array[Node3D] = []
+
+
 const DRAG_THRESHOLD := 5
 var ghost_shader = preload("res://shared/shaders/ghost_shader.gdshader")
 
@@ -24,6 +25,19 @@ var can_place: bool = true
 var overlapping_bodies_count: int = 0
 
 var selection_overlay: ColorRect
+
+# ----------- Playable Nodes handling vars ----------
+var selected_nodes: Array[Node3D] = []
+var isReadytoRotate:= false
+var isReadytoPatrol:= false
+#var isReadytoAttack:= false
+# -------------- Handling order stand-by -----------
+func toggleReadyPatrol() -> void:
+	isReadytoPatrol = !isReadytoPatrol
+	if isReadytoPatrol: isReadytoRotate = false 
+func toggleReadyRotate() -> void:
+	isReadytoRotate = !isReadytoRotate
+	if isReadytoRotate: isReadytoPatrol = false 
 
 func _init() -> void:
 	add_to_group(Constants.cameras)
@@ -45,10 +59,17 @@ func _ready():
 	selection_container.add_child(selection_overlay)
 
 func _process(delta:float) -> void:
-	MouseChangeHandler.mouseChange(self)
+	CursorChangeHandler.cursorChangebyHover(self)
+	CursorChangeHandler.cursorChangebyOrderStandby(self)
 	handleEdgeScrolling(delta)
 	cameraZoom(delta)
 	HoverHandler.handleHover(self)
+	
+	if selected_nodes.size() > 0:
+		if Input.is_action_just_pressed("ROTATE"):
+			toggleReadyRotate()
+		elif Input.is_action_just_pressed("PATROL"):
+			toggleReadyPatrol()
 
 	if selecting:
 		updateSelectionRectangle()
@@ -387,3 +408,26 @@ func is_mouse_over_ui() -> bool:
 			return true
 	
 	return false
+
+class CursorChangeHandler:
+	static func cursorChangebyHover(camera: MainCamera):
+		var result := RaycastHandler.getRaycastResult(camera)
+		
+		if result and result.is_in_group(Constants.mouseChanger):
+			DisplayServer.cursor_set_shape(DisplayServer.CURSOR_POINTING_HAND)
+		else:
+			DisplayServer.cursor_set_shape(DisplayServer.CURSOR_ARROW)
+	static func cursorChangebyOrderStandby(camera: MainCamera):
+		if camera.isReadytoRotate:
+			DisplayServer.cursor_set_custom_image(Cursors.rotateCursor)
+		elif camera.isReadytoPatrol:
+			DisplayServer.cursor_set_custom_image(Cursors.patrolCursor)
+		else:
+			DisplayServer.cursor_set_custom_image(null)
+			DisplayServer.cursor_set_shape(DisplayServer.CURSOR_ARROW)
+
+
+
+class Cursors:
+	static var rotateCursor := preload("res://shared/Cursors/rotate-left.png")
+	static var patrolCursor := preload("res://shared/Cursors/dog.png")
