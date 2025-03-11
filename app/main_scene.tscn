@@ -1,9 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://ddj7yhyrrg4b8"]
+[gd_scene load_steps=6 format=3 uid="uid://ddj7yhyrrg4b8"]
 
 [ext_resource type="PackedScene" uid="uid://cjd68qtn0ujeb" path="res://entities/Units/USA/Infantry/Soldier/soldier.tscn" id="1_o4col"]
-[ext_resource type="PackedScene" uid="uid://dpetlsrf5pbpe" path="res://entities/Buildings/GLA/garage/garage_imp.tscn" id="1_sn7h3"]
+[ext_resource type="Script" uid="uid://b5x07vifqjwdm" path="res://app/MainScene.gd" id="1_o8hv5"]
 [ext_resource type="PackedScene" uid="uid://bbsgnge3ole1f" path="res://entities/Maps/ground.tscn" id="2_hvjiq"]
-[ext_resource type="Script" uid="uid://bhiln7b3jxnea" path="res://app/MainCamera.gd" id="3_72cn3"]
 [ext_resource type="PackedScene" uid="uid://hs2mytyqoi4c" path="res://features/HUD/UI/rts_ui.tscn" id="5_pqs64"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_beipy"]
@@ -11,12 +10,10 @@ vertices = PackedVector3Array(-8.75, 0.5, -15.75, -1.5, 0.5, -15.75, -1.25, 0.5,
 polygons = [PackedInt32Array(1, 0, 2), PackedInt32Array(2, 0, 3), PackedInt32Array(5, 4, 0), PackedInt32Array(0, 4, 3), PackedInt32Array(7, 6, 8), PackedInt32Array(8, 6, 9), PackedInt32Array(10, 2, 11), PackedInt32Array(11, 2, 12), PackedInt32Array(12, 2, 13), PackedInt32Array(14, 12, 15), PackedInt32Array(15, 12, 13), PackedInt32Array(10, 1, 2), PackedInt32Array(11, 16, 9), PackedInt32Array(11, 9, 6), PackedInt32Array(11, 6, 10), PackedInt32Array(20, 19, 17), PackedInt32Array(17, 19, 18), PackedInt32Array(23, 22, 21), PackedInt32Array(25, 24, 23), PackedInt32Array(25, 23, 26), PackedInt32Array(26, 23, 21), PackedInt32Array(29, 28, 27), PackedInt32Array(27, 31, 30), PackedInt32Array(30, 32, 27), PackedInt32Array(27, 32, 29), PackedInt32Array(8, 34, 7), PackedInt32Array(7, 34, 33), PackedInt32Array(36, 35, 37), PackedInt32Array(37, 35, 38), PackedInt32Array(4, 5, 39), PackedInt32Array(41, 40, 42), PackedInt32Array(42, 40, 43), PackedInt32Array(43, 40, 39), PackedInt32Array(39, 40, 4), PackedInt32Array(45, 44, 46), PackedInt32Array(46, 44, 24), PackedInt32Array(49, 48, 47), PackedInt32Array(49, 47, 11), PackedInt32Array(11, 47, 42), PackedInt32Array(11, 42, 16), PackedInt32Array(16, 42, 43), PackedInt32Array(53, 52, 50), PackedInt32Array(50, 52, 51), PackedInt32Array(55, 14, 56), PackedInt32Array(56, 14, 57), PackedInt32Array(57, 14, 15), PackedInt32Array(57, 15, 54), PackedInt32Array(56, 59, 55), PackedInt32Array(55, 59, 58), PackedInt32Array(62, 61, 60), PackedInt32Array(65, 64, 63), PackedInt32Array(60, 66, 62), PackedInt32Array(62, 66, 65), PackedInt32Array(62, 65, 63), PackedInt32Array(66, 67, 65), PackedInt32Array(69, 68, 70), PackedInt32Array(70, 68, 71), PackedInt32Array(71, 68, 72), PackedInt32Array(72, 68, 73), PackedInt32Array(74, 70, 75), PackedInt32Array(75, 70, 71), PackedInt32Array(79, 78, 76), PackedInt32Array(76, 78, 77), PackedInt32Array(81, 80, 82), PackedInt32Array(82, 80, 67), PackedInt32Array(57, 54, 83), PackedInt32Array(83, 54, 84), PackedInt32Array(86, 85, 48), PackedInt32Array(86, 48, 87), PackedInt32Array(87, 48, 88), PackedInt32Array(88, 48, 49), PackedInt32Array(87, 88, 89), PackedInt32Array(89, 88, 83), PackedInt32Array(89, 83, 84), PackedInt32Array(89, 90, 87), PackedInt32Array(91, 93, 92), PackedInt32Array(40, 41, 94), PackedInt32Array(40, 94, 93), PackedInt32Array(91, 95, 93), PackedInt32Array(93, 95, 40), PackedInt32Array(99, 98, 96), PackedInt32Array(96, 98, 97), PackedInt32Array(101, 100, 102), PackedInt32Array(102, 100, 103), PackedInt32Array(103, 100, 104), PackedInt32Array(104, 100, 105), PackedInt32Array(110, 109, 106), PackedInt32Array(106, 109, 107), PackedInt32Array(107, 109, 108), PackedInt32Array(111, 108, 112), PackedInt32Array(112, 108, 109), PackedInt32Array(112, 109, 114), PackedInt32Array(112, 114, 113), PackedInt32Array(116, 115, 103), PackedInt32Array(103, 115, 117), PackedInt32Array(103, 117, 102), PackedInt32Array(110, 106, 118), PackedInt32Array(118, 106, 119), PackedInt32Array(119, 106, 116), PackedInt32Array(116, 106, 115), PackedInt32Array(86, 121, 85), PackedInt32Array(85, 121, 120), PackedInt32Array(125, 124, 122), PackedInt32Array(122, 124, 123), PackedInt32Array(91, 92, 89), PackedInt32Array(89, 92, 90)]
 
 [node name="MainScene" type="Node3D"]
+script = ExtResource("1_o8hv5")
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="RayCast3D" type="RayCast3D" parent="."]
 transform = Transform3D(-1, 7.71897e-08, -4.10425e-08, -1.95898e-09, 0.449569, 0.893246, 8.74008e-08, 0.893246, -0.449569, -1.48664, 12.5988, -22.3207)
-script = ExtResource("3_72cn3")
-
-[node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -0.873772, 0.486335, 0, -0.486335, -0.873772, 0, 9.89356, -15.9748)
@@ -26,16 +23,13 @@ navigation_mesh = SubResource("NavigationMesh_beipy")
 
 [node name="Ground" parent="NavigationRegion3D" instance=ExtResource("2_hvjiq")]
 
-[node name="GarageImp" parent="NavigationRegion3D" instance=ExtResource("1_sn7h3")]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -1.771, 0, 9.498)
-
-[node name="GarageImp2" parent="NavigationRegion3D" instance=ExtResource("1_sn7h3")]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 13.3159, 0, 0.100148)
-
-[node name="GarageImp3" parent="NavigationRegion3D" instance=ExtResource("1_sn7h3")]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -2.06647, 0, -12.4719)
-
 [node name="Soldier" parent="." instance=ExtResource("1_o4col")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.87615, 0.402707, -9.82027)
 
 [node name="RTS_UI" parent="." instance=ExtResource("5_pqs64")]
+
+[node name="PlayerSpawn0" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.066, 0, -12.472)
+
+[node name="PlayerSpawn1" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.78917, 0.0827103, 9.50742)

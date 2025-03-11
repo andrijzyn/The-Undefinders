@@ -45,7 +45,7 @@ func _process(delta: float) -> void:
 	position += velocity * delta
 
 func _ready() -> void:
-	mainCamera = get_tree().get_nodes_in_group(Constants.cameras)[0]
+	#mainCamera = get_tree().get_nodes_in_group(Constants.cameras)[0]
 	mapRID = get_world_3d().navigation_map
 	currentHealth = max_health
 

@@ -233,7 +233,6 @@ func start_building_placement(building_name: String) -> void:
 	
 		phantom_building = building_scene
 		phantom_building.rotation = Vector3(phantom_building.rotation.x, 0.0, phantom_building.rotation.z)
-		phantom_building.scale = Vector3(0.5, 0.5, 0.5)
 	
 		apply_ghost_shader(phantom_building)
 		disable_colliders(phantom_building)
