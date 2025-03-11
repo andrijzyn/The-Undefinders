@@ -1,4 +1,4 @@
-class_name MouseChanger
+class_name MouseChangeHandler
 
 static func mouseChange(camera: MainCamera):
 	var result := RaycastHandler.getRaycastResult(camera)
