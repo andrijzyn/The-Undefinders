@@ -25,9 +25,10 @@ var overlapping_bodies_count: int = 0
 
 var selection_overlay: ColorRect
 var main_scene #DAMI - Delete after multiplayer implementation
+var ui
 
 #Change main_scene.current_player_index to multiplayer.get_unique_id() after multiplayer implementation
-func multiplayer_checker():
+func multiplayer_ownership_checker():
 	if main_scene.current_player_index != get_multiplayer_authority():
 		return true
 
@@ -36,6 +37,8 @@ func _init() -> void:
 
 func _ready():
 	main_scene = get_tree().current_scene #DAMI
+	var player = main_scene.players[main_scene.current_player_index]
+	ui = player.get_node_or_null("PlayerUI")
 	# Create selection overlay UI
 	var canvas_layer = CanvasLayer.new()
 	get_viewport().add_child.call_deferred(canvas_layer)
@@ -52,7 +55,7 @@ func _ready():
 	selection_container.add_child(selection_overlay)
 
 func _process(delta:float) -> void:
-	if main_scene.current_player_index != get_multiplayer_authority():
+	if multiplayer_ownership_checker():
 		return
 	MouseChangeHandler.mouseChange(self)
 	handleEdgeScrolling(delta)
@@ -75,7 +78,7 @@ func _process(delta:float) -> void:
 				phantom_building.global_transform.origin = intersection
 
 func _input(event):
-	if main_scene.current_player_index != get_multiplayer_authority():
+	if multiplayer_ownership_checker():
 		return
 	# Handle mouse button events
 	if event is InputEventMouseButton:
@@ -141,7 +144,6 @@ func _input(event):
 						var result = RaycastHandler.getRaycastResult(self)
 						if result:
 							selected_nodes = SelectionHandler.handleSingleSelection(selected_nodes, result)
-					var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
 					if ui:
 						ui.update_selected_objects(selected_nodes)
 
@@ -386,7 +388,6 @@ func ray_plane_intersection(origin: Vector3, dir: Vector3, plane: Plane) -> Vect
 	return origin + dir * t
 
 func is_mouse_over_ui() -> bool:
-	var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
 	if not ui:
 		return false
 	

@@ -23,7 +23,8 @@ const MOVE_OFFSET: int = 133
 const MOVE_TIME: float = 0.5
 var production_queues = {}
 var selected_objects = {}
-var main_scene #DAMI - Delete after multiplayer implementation
+var main_scene #DAMI - Delete after multiplayer implementation0
+var player_camera
 var buildings = {
 	"GLA/garage/garage_imp": { "icon": preload("res://features/GUI/textures/barracks.png"), "cost": 200, "size": Vector2(2,2) },
 	"factory": { "icon": preload("res://features/GUI/textures/factory.png"), "cost": 300, "size": Vector2(3,3) },
@@ -31,12 +32,14 @@ var buildings = {
 }
 
 #Change after multiplayer implementation
-func multiplayer_checker():
+func multiplayer_ownership_checker():
 	if main_scene.current_player_index != get_multiplayer_authority():
 		return true
 
 func _ready():
 	main_scene = get_tree().current_scene #DAMI
+	var player = main_scene.players[main_scene.current_player_index]
+	player_camera = player.get_node_or_null("PlayerCamera")
 	update_action_display()
 	button_left.pressed.connect(_on_bottom_button_pressed)
 	button_right.pressed.connect(_on_bottom_button_pressed)
@@ -44,7 +47,7 @@ func _ready():
 	button_selection.pressed.connect(_on_selection_button_pressed)
 
 func _on_selection_button_pressed():
-	if multiplayer_checker():
+	if multiplayer_ownership_checker():
 		return
 	if selection_container.get_child_count() > 0:
 		return
@@ -60,7 +63,7 @@ func _on_selection_button_pressed():
 	selection_is_moved = !selection_is_moved
 
 func _on_minimap_button_pressed():
-	if multiplayer_checker():
+	if multiplayer_ownership_checker():
 		return
 	var target_y_panel = minimap_panel.position.y - MOVE_OFFSET if !minimap_is_moved else minimap_panel.position.y + MOVE_OFFSET
 	var target_y_buttons = button_minimap.position.y - MOVE_OFFSET if !minimap_is_moved else button_minimap.position.y + MOVE_OFFSET
@@ -71,7 +74,7 @@ func _on_minimap_button_pressed():
 	minimap_is_moved = !minimap_is_moved
 
 func _on_bottom_button_pressed():
-	if multiplayer_checker():
+	if multiplayer_ownership_checker():
 		return
 	var target_y_panel = bottom_panel.position.y - MOVE_OFFSET if !bottom_is_moved else bottom_panel.position.y + MOVE_OFFSET
 	var target_y_buttons = button_left.position.y - MOVE_OFFSET if !bottom_is_moved else button_left.position.y + MOVE_OFFSET
@@ -105,7 +108,7 @@ func adjust_selection_panel():
 		button_selection.position.y = selection_panel.position.y + selection_panel.size.y - button_selection.size.y - 10
 
 func _process(_delta:float) -> void:
-	if multiplayer_checker():
+	if multiplayer_ownership_checker():
 		return
 	adjust_selection_panel()
 	update_selection_display()
@@ -184,9 +187,8 @@ func update_action_display():
 
 func on_building_selected(building_name: String):
 	print("Building selected:", building_name)
-	var camera = get_tree().get_root().get_node("MainScene/Camera3D")
-	if camera:
-		camera.start_building_placement(building_name)
+	if player_camera:
+		player_camera.start_building_placement(building_name)
 
 func on_unit_selected(unit_name: String):
 	print("Unit selected:", unit_name)
@@ -289,7 +291,7 @@ func find_existing_product_ui(grid, product_data):
 	return null
 
 func _on_product_clicked(producer, product_data):
-	if multiplayer_checker():
+	if multiplayer_ownership_checker():
 		return
 	if production_queues.has(producer):
 		var queue = production_queues[producer].queue
@@ -339,14 +341,13 @@ func complete_production(producer):
 	update_production_queue()
 
 func _on_producer_button_pressed(producer):
-	if multiplayer_checker():
+	if multiplayer_ownership_checker():
 		return
 	if not producer:
 		return
 
-	var camera = get_tree().get_root().get_node("MainScene/Camera3D")
-	if camera and producer.has_method("get_position"):
+	if player_camera and producer.has_method("get_position"):
 		var target_position = producer.get_position() 
-		target_position.y = camera.position.y
-		camera.position = target_position
+		target_position.y = player_camera.position.y
+		player_camera.position = target_position
 		print("Move camera to building:", producer)

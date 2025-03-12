@@ -113,10 +113,10 @@ class MovementContinuator:
 			else:
 				node.velocity = Vector3.ZERO
 				node.isMoving = false
-				if node.isLeavingBuilding:
-					node.isLeavingBuilding = false
-					node.collider.disabled = false
-					node.reached_exit.emit()
+			if node.isLeavingBuilding:
+				node.isLeavingBuilding = false
+				node.collider.disabled = false
+				node.reached_exit.emit()
 
 	## Обрабатывает движение юнита по маршруту патрулирования[br]
 	## [param node: MovableUnit] - юнит, который должен продолжить патрулирование[br]
