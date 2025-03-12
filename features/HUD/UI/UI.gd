@@ -23,13 +23,20 @@ const MOVE_OFFSET: int = 133
 const MOVE_TIME: float = 0.5
 var production_queues = {}
 var selected_objects = {}
+var main_scene #DAMI - Delete after multiplayer implementation
 var buildings = {
 	"GLA/garage/garage_imp": { "icon": preload("res://features/GUI/textures/barracks.png"), "cost": 200, "size": Vector2(2,2) },
 	"factory": { "icon": preload("res://features/GUI/textures/factory.png"), "cost": 300, "size": Vector2(3,3) },
 	"power_plant": { "icon": preload("res://features/GUI/textures/power_plant.png"), "cost": 150, "size": Vector2(2,2) }
 }
 
+#Change after multiplayer implementation
+func multiplayer_checker():
+	if main_scene.current_player_index != get_multiplayer_authority():
+		return true
+
 func _ready():
+	main_scene = get_tree().current_scene #DAMI
 	update_action_display()
 	button_left.pressed.connect(_on_bottom_button_pressed)
 	button_right.pressed.connect(_on_bottom_button_pressed)
@@ -37,6 +44,8 @@ func _ready():
 	button_selection.pressed.connect(_on_selection_button_pressed)
 
 func _on_selection_button_pressed():
+	if multiplayer_checker():
+		return
 	if selection_container.get_child_count() > 0:
 		return
 
@@ -51,6 +60,8 @@ func _on_selection_button_pressed():
 	selection_is_moved = !selection_is_moved
 
 func _on_minimap_button_pressed():
+	if multiplayer_checker():
+		return
 	var target_y_panel = minimap_panel.position.y - MOVE_OFFSET if !minimap_is_moved else minimap_panel.position.y + MOVE_OFFSET
 	var target_y_buttons = button_minimap.position.y - MOVE_OFFSET if !minimap_is_moved else button_minimap.position.y + MOVE_OFFSET
 	
@@ -60,6 +71,8 @@ func _on_minimap_button_pressed():
 	minimap_is_moved = !minimap_is_moved
 
 func _on_bottom_button_pressed():
+	if multiplayer_checker():
+		return
 	var target_y_panel = bottom_panel.position.y - MOVE_OFFSET if !bottom_is_moved else bottom_panel.position.y + MOVE_OFFSET
 	var target_y_buttons = button_left.position.y - MOVE_OFFSET if !bottom_is_moved else button_left.position.y + MOVE_OFFSET
 	var target_y_inner_panel = action_menu.position.y - MOVE_OFFSET if !bottom_is_moved else action_menu.position.y + MOVE_OFFSET
@@ -92,6 +105,8 @@ func adjust_selection_panel():
 		button_selection.position.y = selection_panel.position.y + selection_panel.size.y - button_selection.size.y - 10
 
 func _process(_delta:float) -> void:
+	if multiplayer_checker():
+		return
 	adjust_selection_panel()
 	update_selection_display()
 
@@ -274,6 +289,8 @@ func find_existing_product_ui(grid, product_data):
 	return null
 
 func _on_product_clicked(producer, product_data):
+	if multiplayer_checker():
+		return
 	if production_queues.has(producer):
 		var queue = production_queues[producer].queue
 		for i in range(queue.size()):
@@ -322,6 +339,8 @@ func complete_production(producer):
 	update_production_queue()
 
 func _on_producer_button_pressed(producer):
+	if multiplayer_checker():
+		return
 	if not producer:
 		return
 

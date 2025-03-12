@@ -43,9 +43,14 @@ func setup_players(player_list: Array):
 			else:
 				new_player = Player.new(player_data.id, player_data.nickname, adjusted_money, player_data.team, player_data.color, player_data.faction)
 			new_player.name = "Player" + str(new_player.id)
+			new_player.set_multiplayer_authority(new_player.id)
 			add_child(new_player)
 			players.append(new_player)
 			
+			var ui = load("res://features/HUD/UI/rts_ui.tscn").instantiate()
+			ui.name = "PlayerUI"
+			ui.set_multiplayer_authority(new_player.id)
+			new_player.add_child(ui)
 			var spawn_point = get_node_or_null("PlayerSpawn" + str(player_data.id))
 			if spawn_point:
 				var camera = Camera3D.new()
@@ -54,27 +59,37 @@ func setup_players(player_list: Array):
 				camera.set_script(load("res://app/MainCamera.gd"))
 				camera.position = spawn_point.position + Vector3(0, 20, 0)
 				camera.rotation_degrees.x = -60
+				camera.set_multiplayer_authority(new_player.id)
 				new_player.add_child(camera)
 
 				var building = preload("res://entities/Buildings/GLA/garage/garage_imp.tscn").instantiate()
 				building.position = spawn_point.position
+				building.set_multiplayer_authority(new_player.id)
 				new_player.add_child(building)
 
 	if players.size() > 0:
-		set_active_camera(players[0].get_node("PlayerCamera"))
+		current_player_index = 0
+		set_active_player(players[0].get_node("PlayerCamera"))
 
-func set_active_camera(new_camera: Camera3D):
+func set_active_player(new_camera: Camera3D):
 	if current_camera:
 		current_camera.current = false
+		var old_player = current_camera.get_parent()
+		if old_player.has_node("PlayerUI"):
+			old_player.get_node("PlayerUI").visible = false  # Hide old GUI
 	current_camera = new_camera
 	current_camera.current = true
+	
+	var new_player = current_camera.get_parent()
+	if new_player.has_node("PlayerUI"):
+		new_player.get_node("PlayerUI").visible = true # Show new GUI
 
 func switch_player():
 	current_player_index = (current_player_index + 1) % players.size()
 	var new_player = players[current_player_index]
 	var new_camera = new_player.get_node_or_null("PlayerCamera")
 	if new_camera:
-		set_active_camera(new_camera)
+		set_active_player(new_camera)
 
 func _input(event):
 	if event.is_action_pressed("SWITCH_PLAYER"):

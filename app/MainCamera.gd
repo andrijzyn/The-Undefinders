@@ -24,11 +24,18 @@ var can_place: bool = true
 var overlapping_bodies_count: int = 0
 
 var selection_overlay: ColorRect
+var main_scene #DAMI - Delete after multiplayer implementation
+
+#Change main_scene.current_player_index to multiplayer.get_unique_id() after multiplayer implementation
+func multiplayer_checker():
+	if main_scene.current_player_index != get_multiplayer_authority():
+		return true
 
 func _init() -> void:
 	add_to_group(Constants.cameras)
 
 func _ready():
+	main_scene = get_tree().current_scene #DAMI
 	# Create selection overlay UI
 	var canvas_layer = CanvasLayer.new()
 	get_viewport().add_child.call_deferred(canvas_layer)
@@ -45,6 +52,8 @@ func _ready():
 	selection_container.add_child(selection_overlay)
 
 func _process(delta:float) -> void:
+	if main_scene.current_player_index != get_multiplayer_authority():
+		return
 	MouseChangeHandler.mouseChange(self)
 	handleEdgeScrolling(delta)
 	cameraZoom(delta)
@@ -66,6 +75,8 @@ func _process(delta:float) -> void:
 				phantom_building.global_transform.origin = intersection
 
 func _input(event):
+	if main_scene.current_player_index != get_multiplayer_authority():
+		return
 	# Handle mouse button events
 	if event is InputEventMouseButton:
 		if phantom_building:
