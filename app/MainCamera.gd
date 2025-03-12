@@ -37,8 +37,7 @@ func _init() -> void:
 
 func _ready():
 	main_scene = get_tree().current_scene #DAMI
-	var player = main_scene.players[main_scene.current_player_index]
-	ui = player.get_node_or_null("PlayerUI")
+	ui = main_scene.players[get_multiplayer_authority()].ui
 	# Create selection overlay UI
 	var canvas_layer = CanvasLayer.new()
 	get_viewport().add_child.call_deferred(canvas_layer)

@@ -50,6 +50,7 @@ func setup_players(player_list: Array):
 			var ui = load("res://features/HUD/UI/rts_ui.tscn").instantiate()
 			ui.name = "PlayerUI"
 			ui.set_multiplayer_authority(new_player.id)
+			new_player.ui = ui
 			new_player.add_child(ui)
 			var spawn_point = get_node_or_null("PlayerSpawn" + str(player_data.id))
 			if spawn_point:
@@ -60,6 +61,7 @@ func setup_players(player_list: Array):
 				camera.position = spawn_point.position + Vector3(0, 20, 0)
 				camera.rotation_degrees.x = -60
 				camera.set_multiplayer_authority(new_player.id)
+				new_player.camera = camera
 				new_player.add_child(camera)
 
 				var building = preload("res://entities/Buildings/GLA/garage/garage_imp.tscn").instantiate()

@@ -38,8 +38,7 @@ func multiplayer_ownership_checker():
 
 func _ready():
 	main_scene = get_tree().current_scene #DAMI
-	var player = main_scene.players[main_scene.current_player_index]
-	player_camera = player.get_node_or_null("PlayerCamera")
+	player_camera = main_scene.players[get_multiplayer_authority()].camera
 	update_action_display()
 	button_left.pressed.connect(_on_bottom_button_pressed)
 	button_right.pressed.connect(_on_bottom_button_pressed)
