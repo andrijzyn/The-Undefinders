@@ -5,15 +5,23 @@ var icon: Texture2D = preload("res://entities/Units/USA/Infantry/Soldier/soldier
 
 func _init() -> void:
 	super._init()
+	
 	max_health = 100
+	currentHealth = max_health
+	
 	speed = 3.0
-	rotation_speed = 5.0
+	rotation_speed = 10.0
 	
 	damage = 15
 	penetrationRate = 3
 	accuracy = 0.9
 	splashRadius = 0
-	reloadTime = 2
+	ignoreCover = false
+	
+	reloadTime = 1
+	isSingleShooting = false
+	shootsAmount = 3
+	fireRate = 0.1
 
 func _process(delta: float) -> void:
 	super._process(delta)

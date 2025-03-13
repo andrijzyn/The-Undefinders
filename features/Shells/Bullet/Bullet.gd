@@ -1,13 +1,13 @@
 extends Node3D
 class_name Bullet
 
-const speed: float = 30.0  
+const speed: float = 100.0  
 
 var specs: ShellDamageSpecs
 var sender: Node3D
 
-func initialize(damage: float, penetrationRate:float, splashRadius: float, accuracy: float):
-	specs = ShellDamageSpecs.new(damage, penetrationRate, splashRadius, accuracy)
+func initialize(damage: float, penetrationRate:float, splashRadius: float, accuracy: float, ignoreCover: bool):
+	specs = ShellDamageSpecs.new(damage, penetrationRate, splashRadius, accuracy, ignoreCover)
 
 func _ready():
 	call_deferred("_delete_after_time")

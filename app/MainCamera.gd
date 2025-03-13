@@ -430,21 +430,28 @@ class CursorChangeHandler:
 		else:
 			DisplayServer.cursor_set_shape(DisplayServer.CURSOR_ARROW)
 	static func cursorChangebyOrderStandby(camera: MainCamera):
+		if Input.is_action_just_pressed("SELECT"):
+			DisplayServer.cursor_set_custom_image(null)
+			DisplayServer.cursor_set_shape(DisplayServer.CURSOR_ARROW)
+			camera.isReadytoRotate = false
+			camera.isReadytoPatrol = false
+			camera.isReadytoAttack = false
+			return
 		if DisplayServer.cursor_get_shape() == DisplayServer.CURSOR_POINTING_HAND:
-			print("hand")
+			#print("hand")
 			return
 		if camera.isReadytoRotate:
 			DisplayServer.cursor_set_custom_image(Cursors.rotateCursor)
-			print("rotate")
+			#print("rotate")
 		elif camera.isReadytoPatrol:
 			DisplayServer.cursor_set_custom_image(Cursors.patrolCursor)
-			print("patrol")
+			#print("patrol")
 		elif camera.isReadytoAttack:
 			DisplayServer.cursor_set_custom_image(Cursors.attackCursor)
-			print("attack")
+			#print("attack")
 		else:
 			DisplayServer.cursor_set_custom_image(null)
-			print("default")
+			#print("default")
 			DisplayServer.cursor_set_shape(DisplayServer.CURSOR_ARROW)
 
 

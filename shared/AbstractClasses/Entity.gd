@@ -17,8 +17,6 @@ var currentHealth: float
 var isHealthBarVisible := false
 var isSelected := false
 
-func _init() -> void:
-	currentHealth = max_health
 
 # --------------- Selection setting ------------
 ## Устанавливает состояние выделения сущности, также вызывает [method Entity.setHealthBarVisibility] передавая входной параметр[br]

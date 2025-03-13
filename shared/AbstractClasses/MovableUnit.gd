@@ -3,7 +3,7 @@ extends Entity
 class_name MovableUnit
 
 # ----- Rotating vars -----
-const threshold: float = 0.01
+const threshold: float = 0.001
 var target_angle: float
 ## [b]Должно быть указано при инициализации конкретной сущностью.[/b][br]
 ## [b]Значение строго больше 0[/b]
@@ -40,7 +40,6 @@ signal reached_exit
 
 # ----------- In-build timeline methods implementation -----------
 func _init() -> void:
-	super._init()
 	add_to_group(Constants.selectable)
 	add_to_group(Constants.movable)
 
@@ -153,13 +152,14 @@ class MovementOrderHandler:
 	static func listen(node: MovableUnit, delta):
 		if node.isSelected:
 			if Input.is_action_just_pressed("CONTEXT"):
+				var targetLocation = RaycastHandler.getRaycastResultPosition(node.mainCamera)
 				if node.mainCamera.isReadytoRotate:
-					handleRotateOrder(node)
+					handleRotateOrder(node, targetLocation)
 					node.mainCamera.toggleReadyRotate()
 				elif node.mainCamera.isReadytoPatrol:
-					handlePatrolOrder(node)
+					handlePatrolOrder(node, targetLocation)
 				elif not node.mainCamera.isReadytoAttack:
-					handleMovingOrder(node)
+					handleMovingOrder(node, targetLocation)
 			if Input.is_action_just_pressed("ABORT"):
 				handleAbortOrder(node)
 
@@ -167,8 +167,7 @@ class MovementOrderHandler:
 	## Обрабатывает команду поворота юнита в указанном направлении[br]
 	## [param node: MovableUnit] - юнит, который должен начать поворот[br]
 	## [method OrderHandler.handleRotateOrder]
-	static func handleRotateOrder(node: MovableUnit) -> void:
-		var targetLocation = RaycastHandler.getRaycastResultPosition(node.mainCamera)
+	static func handleRotateOrder(node: MovableUnit, targetLocation: Vector3) -> void:
 		var direction = (targetLocation - node.global_position).normalized()
 		handleAbortOrder(node)
 		direction.y = 0
@@ -179,8 +178,8 @@ class MovementOrderHandler:
 	## Обрабатывает команду перемещения юнита в указанную точку или массив точек(через shift)[br]
 	## [param node: MovableUnit] - юнит, который должен начать двигаться[br]
 	## [method OrderHandler.handleMovingOrder]
-	static func handleMovingOrder(node: MovableUnit) -> void:
-		var targetLocation = RaycastHandler.getRaycastResultPosition(node.mainCamera)
+	static func handleMovingOrder(node: MovableUnit, targetLocation: Vector3) -> void:
+
 		if not Input.is_action_pressed("MULTI_SELECT"):
 			node.waypointQueue.clear()
 			handleAbortOrder(node)
@@ -191,8 +190,7 @@ class MovementOrderHandler:
 	## Обрабатывает команду патрулирования между текущей позицией и указанной точкой или между массивом точек(через shift)[br]
 	## [param node: MovableUnit] - юнит, который должен начать патрулирование[br]
 	## [method OrderHandler.handlePatrolOrder]
-	static func handlePatrolOrder(node: MovableUnit) -> void:
-		var targetLocation = RaycastHandler.getRaycastResultPosition(node.mainCamera)
+	static func handlePatrolOrder(node: MovableUnit, targetLocation: Vector3) -> void:
 		if Input.is_action_pressed("MULTI_SELECT"):
 			if node.patrolPoints.is_empty():
 				node.patrolPoints.append(node.global_position)
