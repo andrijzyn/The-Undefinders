@@ -38,7 +38,6 @@ func multiplayer_ownership_checker():
 
 func _ready():
 	main_scene = get_tree().current_scene #DAMI
-	player_camera = main_scene.players[get_multiplayer_authority()].camera
 	update_action_display()
 	button_left.pressed.connect(_on_bottom_button_pressed)
 	button_right.pressed.connect(_on_bottom_button_pressed)
@@ -160,11 +159,11 @@ func update_action_display():
 	var is_selected = false
 
 	for obj in selected_objects.keys():
-			if obj.has_method("get_available_items"):
-				is_selected = true
-				available_items = obj.get_available_items()
-				is_builder = obj.is_builder
-				break
+		if obj.has_method("get_available_items"):
+			is_selected = true
+			available_items = obj.get_available_items()
+			is_builder = obj.is_builder
+			break
 
 	if is_selected:
 		for item in available_items.keys():

@@ -37,7 +37,6 @@ func _init() -> void:
 
 func _ready():
 	main_scene = get_tree().current_scene #DAMI
-	ui = main_scene.players[get_multiplayer_authority()].ui
 	# Create selection overlay UI
 	var canvas_layer = CanvasLayer.new()
 	get_viewport().add_child.call_deferred(canvas_layer)
@@ -119,7 +118,7 @@ func _input(event):
 				if Input.is_action_pressed("MULTI_SELECT"):
 					var result = RaycastHandler.getRaycastResult(self)
 					if result:
-						selected_nodes = SelectionHandler.handleMultipleSelectionByShift(selected_nodes, result)
+						selected_nodes = SelectionHandler.handleMultipleSelectionByShift(selected_nodes, result, self)
 				elif event.double_click:
 					# Double-click selects multiple objects of the same type
 					var result = RaycastHandler.getRaycastResult(self)
@@ -142,7 +141,7 @@ func _input(event):
 					else:
 						var result = RaycastHandler.getRaycastResult(self)
 						if result:
-							selected_nodes = SelectionHandler.handleSingleSelection(selected_nodes, result)
+							selected_nodes = SelectionHandler.handleSingleSelection(selected_nodes, result, self)
 					if ui:
 						ui.update_selected_objects(selected_nodes)
 
@@ -240,16 +239,17 @@ func start_building_placement(building_name: String) -> void:
 	var path = "res://entities/Buildings/" + building_name + ".tscn"
 	if ResourceLoader.exists(path):
 		var building_scene = load(path).instantiate()
-		
+
 		duplicate_meshes(building_scene)
-	
+
 		phantom_building = building_scene
 		phantom_building.rotation = Vector3(phantom_building.rotation.x, 0.0, phantom_building.rotation.z)
-	
+		phantom_building.set_multiplayer_authority(get_multiplayer_authority())
+
 		apply_ghost_shader(phantom_building)
 		disable_colliders(phantom_building)
 		setup_phantom_area(phantom_building)
-		get_tree().get_current_scene().add_child(phantom_building)
+		get_parent().add_child(phantom_building)
 	else:
 		print("Error: Scene not found at path:", path)
 
