@@ -37,6 +37,7 @@ func multiplayer_ownership_checker():
 		return true
 
 func _ready():
+	self.visible = false
 	main_scene = get_tree().current_scene #DAMI
 	update_action_display()
 	button_left.pressed.connect(_on_bottom_button_pressed)
