@@ -62,36 +62,37 @@ static func handleSelectionBySelectionRect(camera: MainCamera):
 	var selection_width = bottom_right.x - top_left.x
 	var selection_height = bottom_right.y - top_left.y
 
-	var grid_size_x = int(sqrt(max_rays * (selection_width / selection_height)))
-	var grid_size_y = int(max_rays / grid_size_x)
+	if selection_height > 0 and selection_width > 0:
+		var grid_size_x = int(sqrt(max_rays * (selection_width / selection_height)))
+		var grid_size_y = int(max_rays / grid_size_x)
 
-	grid_size_x = max(grid_size_x, 3)
-	grid_size_y = max(grid_size_y, 3)
+		grid_size_x = max(grid_size_x, 3)
+		grid_size_y = max(grid_size_y, 3)
 
-	for node in camera.selected_nodes:
-		if node.has_method("setSelected"):
-			node.setSelected(false)
-	camera.selected_nodes.clear()
+		for node in camera.selected_nodes:
+			if node.has_method("setSelected"):
+				node.setSelected(false)
+		camera.selected_nodes.clear()
 
-	var selected_objects := {}
-	for i in range(grid_size_x):
-		for j in range(grid_size_y):
-			var t_x = float(i) / (grid_size_x - 1)
-			var t_y = float(j) / (grid_size_y - 1)
-			var screen_pos = top_left.lerp(bottom_right, t_x)
-			var screen_pos_y = top_left.lerp(bottom_right, t_y)
+		var selected_objects := {}
+		for i in range(grid_size_x):
+			for j in range(grid_size_y):
+				var t_x = float(i) / (grid_size_x - 1)
+				var t_y = float(j) / (grid_size_y - 1)
+				var screen_pos = top_left.lerp(bottom_right, t_x)
+				var screen_pos_y = top_left.lerp(bottom_right, t_y)
 
-			screen_pos = Vector2(screen_pos.x, screen_pos_y.y)
+				screen_pos = Vector2(screen_pos.x, screen_pos_y.y)
 
-			var from := camera_3d.project_ray_origin(screen_pos)
-			var to := from + camera_3d.project_ray_normal(screen_pos) * 1000
-			var query := PhysicsRayQueryParameters3D.create(from, to)
-			var result := space_state.intersect_ray(query)
+				var from := camera_3d.project_ray_origin(screen_pos)
+				var to := from + camera_3d.project_ray_normal(screen_pos) * 1000
+				var query := PhysicsRayQueryParameters3D.create(from, to)
+				var result := space_state.intersect_ray(query)
 
-			if result and result.collider:
-				selected_objects[result.collider] = true
+				if result and result.collider:
+					selected_objects[result.collider] = true
 
-	for obj in selected_objects.keys():
-		if obj.has_method("setSelected") and obj.get_multiplayer_authority() == camera.get_multiplayer_authority():
-			obj.setSelected(true)
-			camera.selected_nodes.append(obj)
+		for obj in selected_objects.keys():
+			if obj.has_method("setSelected") and obj.get_multiplayer_authority() == camera.get_multiplayer_authority():
+				obj.setSelected(true)
+				camera.selected_nodes.append(obj)

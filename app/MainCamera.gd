@@ -241,6 +241,7 @@ func start_building_placement(building_name: String) -> void:
 		var building_scene = load(path).instantiate()
 
 		duplicate_meshes(building_scene)
+		change_fraction_color(building_scene, main_scene.players[get_multiplayer_authority()].color)
 
 		phantom_building = building_scene
 		phantom_building.rotation = Vector3(phantom_building.rotation.x, 0.0, phantom_building.rotation.z)
@@ -259,6 +260,18 @@ func duplicate_meshes(node: Node) -> void:
 		node.mesh = node.mesh.duplicate()
 	for child in node.get_children():
 		duplicate_meshes(child)
+
+# Change color of the fraction material
+func change_fraction_color(node: Node, new_color: Color) -> void:
+	if node is MeshInstance3D and node.mesh:
+		for i in range(node.mesh.get_surface_count()):
+			var mat = node.mesh.surface_get_material(i)
+			if mat and mat.resource_name == "Fraction Color":
+				var new_mat = mat.duplicate()
+				new_mat.albedo_color = new_color
+				node.mesh.surface_set_material(i, new_mat)
+	for child in node.get_children():
+		change_fraction_color(child, new_color)
 
 func disable_colliders(node: Node) -> void:
 	if node is CollisionShape3D:
