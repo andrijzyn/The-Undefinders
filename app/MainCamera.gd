@@ -28,16 +28,25 @@ var selection_overlay: ColorRect
 
 # ----------- Playable Nodes handling vars ----------
 var selected_nodes: Array[Node3D] = []
-var isReadytoRotate:= false
-var isReadytoPatrol:= false
-#var isReadytoAttack:= false
+var isReadytoRotate := false
+var isReadytoPatrol := false
+var isReadytoAttack := false
 # -------------- Handling order stand-by -----------
 func toggleReadyPatrol() -> void:
 	isReadytoPatrol = !isReadytoPatrol
-	if isReadytoPatrol: isReadytoRotate = false 
+	if isReadytoPatrol: 
+		isReadytoRotate = false 
+		isReadytoAttack = false
 func toggleReadyRotate() -> void:
 	isReadytoRotate = !isReadytoRotate
-	if isReadytoRotate: isReadytoPatrol = false 
+	if isReadytoRotate: 
+		isReadytoPatrol = false  
+		isReadytoAttack = false
+func toggleReadyAttack() -> void:
+	isReadytoAttack = !isReadytoAttack
+	if isReadytoAttack: 
+		isReadytoPatrol = false  
+		isReadytoRotate = false 
 
 func _init() -> void:
 	add_to_group(Constants.cameras)
@@ -70,6 +79,9 @@ func _process(delta:float) -> void:
 			toggleReadyRotate()
 		elif Input.is_action_just_pressed("PATROL"):
 			toggleReadyPatrol()
+		elif Input.is_action_just_pressed("ATTACK"):
+			toggleReadyAttack()
+			
 
 	if selecting:
 		updateSelectionRectangle()
@@ -418,12 +430,21 @@ class CursorChangeHandler:
 		else:
 			DisplayServer.cursor_set_shape(DisplayServer.CURSOR_ARROW)
 	static func cursorChangebyOrderStandby(camera: MainCamera):
+		if DisplayServer.cursor_get_shape() == DisplayServer.CURSOR_POINTING_HAND:
+			print("hand")
+			return
 		if camera.isReadytoRotate:
 			DisplayServer.cursor_set_custom_image(Cursors.rotateCursor)
+			print("rotate")
 		elif camera.isReadytoPatrol:
 			DisplayServer.cursor_set_custom_image(Cursors.patrolCursor)
+			print("patrol")
+		elif camera.isReadytoAttack:
+			DisplayServer.cursor_set_custom_image(Cursors.attackCursor)
+			print("attack")
 		else:
 			DisplayServer.cursor_set_custom_image(null)
+			print("default")
 			DisplayServer.cursor_set_shape(DisplayServer.CURSOR_ARROW)
 
 
@@ -431,3 +452,4 @@ class CursorChangeHandler:
 class Cursors:
 	static var rotateCursor := preload("res://shared/Cursors/rotate-left.png")
 	static var patrolCursor := preload("res://shared/Cursors/dog.png")
+	static var attackCursor := preload("res://shared/Cursors/attack.png")

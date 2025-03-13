@@ -3,7 +3,10 @@ extends Node3D
 class_name Entity
 
 # -------- Health vars ----------
+## [b]Должно быть указано при инициализации конкретной сущностью.[/b][br]
+## [b]Значение строго больше 0[/b]
 var max_health: float
+## [b]Стартовое значение по умолчанию == [member Entity.max_health][/b]
 var currentHealth: float
 
 # ---------- Nodes-containing vars -----------
@@ -13,6 +16,9 @@ var currentHealth: float
 # ----- Flags --------
 var isHealthBarVisible := false
 var isSelected := false
+
+func _init() -> void:
+	currentHealth = max_health
 
 # --------------- Selection setting ------------
 ## Устанавливает состояние выделения сущности, также вызывает [method Entity.setHealthBarVisibility] передавая входной параметр[br]
@@ -34,6 +40,7 @@ func setHealthBarVisibility(val: bool):
 ## [method Entity.handleHealthChange]
 func handleHealthChange(val: float):
 	currentHealth -= val
+	if currentHealth < 0: queue_free()
 	changeHealthBar()
 
 ## Обновляет отображение полосы здоровья в зависимости от текущего здоровья[br]

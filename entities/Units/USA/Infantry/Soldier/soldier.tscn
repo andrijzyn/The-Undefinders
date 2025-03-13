@@ -2091,6 +2091,7 @@ viewport_path = NodePath("SubViewport")
 
 [node name="Soldier" type="CharacterBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.771701, 0, 1.65239)
+collision_mask = 2
 script = ExtResource("1_e6lx5")
 
 [node name="rig" type="Node3D" parent="."]
@@ -2429,3 +2430,6 @@ transparent_bg = true
 size = Vector2i(140, 16)
 
 [node name="HealthBar" parent="SubViewport" instance=ExtResource("4_l5f2g")]
+
+[node name="FirePoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.892939, 0.257413)

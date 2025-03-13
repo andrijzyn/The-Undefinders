@@ -1,0 +1,27 @@
+extends Node3D
+class_name Bullet
+
+const speed: float = 30.0  
+
+var specs: ShellDamageSpecs
+
+func initialize(damage: float, penetrationRate:float, splashRadius: float, accuracy: float):
+	specs = ShellDamageSpecs.new(damage, penetrationRate, splashRadius, accuracy)
+
+func _ready():
+	call_deferred("_delete_after_time")
+
+func _delete_after_time():
+	await get_tree().create_timer(5.0).timeout
+	queue_free()
+
+func _process(delta: float):
+	position.z += speed * delta
+
+func _on_body_entered(body):
+	print("HIT")
+	if body is Entity:
+		var entity: Entity = body as Entity
+		if randf() <= specs.accuracy:
+			entity.handleHealthChange(specs.damage)
+	queue_free() 

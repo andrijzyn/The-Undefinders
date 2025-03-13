@@ -2,11 +2,13 @@ extends Entity
 ## Абстрактный класс для юнитов которые могут двигатся
 class_name MovableUnit
 
-var speed: float = 2.0
 # ----- Rotating vars -----
-var threshold: float = 0.01
+const threshold: float = 0.01
 var target_angle: float
+## [b]Должно быть указано при инициализации конкретной сущностью.[/b][br]
+## [b]Значение строго больше 0[/b]
 var rotation_speed: float = 5.0
+
 # ----- Flags --------
 var isMoving := false
 var isRotating := false
@@ -23,6 +25,9 @@ var currentPatrolPoint: int = 0
 # ----------- Other vars -------------------
 var direction: Vector3
 var velocity: Vector3
+## [b]Должно быть указано при инициализации конкретной сущностью.[/b][br]
+## [b]Значение строго больше 0[/b]
+var speed: float = 2.0
 
 # ---------- Nodes-containing vars -----------
 @onready var animPlayer := $AnimPlayer
@@ -35,6 +40,7 @@ signal reached_exit
 
 # ----------- In-build timeline methods implementation -----------
 func _init() -> void:
+	super._init()
 	add_to_group(Constants.selectable)
 	add_to_group(Constants.movable)
 
@@ -45,14 +51,14 @@ func _process(delta: float) -> void:
 		elif (Input.is_action_just_released("CONTEXT") 
 		and mainCamera.isReadytoPatrol and not Input.is_action_pressed("MULTI_SELECT")): mainCamera.toggleReadyPatrol()
 	direction = Vector3.ZERO
-	OrderHandler.listen(self, delta)
+	MovementOrderHandler.listen(self, delta)
 	MovementContinuator.listen(self, delta)
 	position += velocity * delta
 
 func _ready() -> void:
 	mainCamera = get_tree().get_nodes_in_group(Constants.cameras)[0]
 	mapRID = get_world_3d().navigation_map
-	currentHealth = max_health
+
 
 # ---------------- Other stuff ------------------ 
 func rotate_by_position(delta: float, move_direction: Vector3):
@@ -140,7 +146,7 @@ class MovementContinuator:
 				PathHandler.updatePatrolPath(node)
 
 ## Отвечает за обработку команд для перемещаемых юнитов[br]
-class OrderHandler:
+class MovementOrderHandler:
 	## Ожидает ввода и вызывает соответствующий обработчик команды[br]
 	## [param node: MovableUnit] - юнит, которому передаются команды[br]
 	## [method OrderHandler.listen]
@@ -152,7 +158,7 @@ class OrderHandler:
 					node.mainCamera.toggleReadyRotate()
 				elif node.mainCamera.isReadytoPatrol:
 					handlePatrolOrder(node)
-				else:
+				elif not node.mainCamera.isReadytoAttack:
 					handleMovingOrder(node)
 			if Input.is_action_just_pressed("ABORT"):
 				handleAbortOrder(node)

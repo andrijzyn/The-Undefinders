@@ -1,4 +1,4 @@
-extends MovableUnit
+extends AttackUnit
 class_name Soldier
 
 var icon: Texture2D = preload("res://entities/Units/USA/Infantry/Soldier/soldier_icon.PNG")
@@ -8,6 +8,12 @@ func _init() -> void:
 	max_health = 100
 	speed = 3.0
 	rotation_speed = 5.0
+	
+	damage = 15
+	penetrationRate = 3
+	accuracy = 0.9
+	splashRadius = 0
+	reloadTime = 2
 
 func _process(delta: float) -> void:
 	super._process(delta)
