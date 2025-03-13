@@ -87,3 +87,5 @@ skeleton = NodePath("")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0338218, 0.00416031, 0.105509)
 shape = SubResource("CapsuleShape3D_8jp5y")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

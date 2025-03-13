@@ -4,6 +4,7 @@ class_name Bullet
 const speed: float = 30.0  
 
 var specs: ShellDamageSpecs
+var sender: Node3D
 
 func initialize(damage: float, penetrationRate:float, splashRadius: float, accuracy: float):
 	specs = ShellDamageSpecs.new(damage, penetrationRate, splashRadius, accuracy)
@@ -20,8 +21,8 @@ func _process(delta: float):
 
 func _on_body_entered(body):
 	print("HIT")
-	if body is Entity:
+	if body is Entity and body != sender:
 		var entity: Entity = body as Entity
 		if randf() <= specs.accuracy:
 			entity.handleHealthChange(specs.damage)
-	queue_free() 
+		queue_free() 

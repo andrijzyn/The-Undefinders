@@ -37,6 +37,7 @@ func _process(delta: float) -> void:
 		var bulletInstance = bullet.instantiate() as Bullet
 		add_child(bulletInstance)
 		bulletInstance.initialize(damage, penetrationRate, splashRadius, accuracy)
+		bulletInstance.sender = self
 		bulletInstance.global_transform = firePoint.global_transform
 		#bulletInstance.scale = Vector3(0.05, 0.05, 0.05)
 		isAttacking = false
