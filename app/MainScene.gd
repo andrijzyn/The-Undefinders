@@ -29,9 +29,16 @@ var loaded_players = [
 var players = []
 var current_camera: Camera3D = null
 var current_player_index: int = 0
+var grid = Grid.new(40, 40, 1.0)  # Map size 20x20, cell size 1.0
+var pathfinder = Pathfinding.new()
 
 func _ready() -> void:
 	setup_players(loaded_players)
+	add_child(grid)
+	grid.set_walkable(5, 5, false)
+	pathfinder.grid = grid
+	PathHandler.grid = grid
+	PathHandler.pathfinder = pathfinder
 
 func setup_players(player_list: Array):
 	for player_data in player_list:
