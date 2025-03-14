@@ -94,13 +94,23 @@ class MovementContinuator:
 		elif node.isRotating:
 			keep_rotating(node, delta)
 
+	## Вычисляет минимальную разницу между двумя углами в радианах.[br]
+	## Гарантирует, что разница всегда находится в диапазоне [0, 2π].[br]
+	## [param a: float] - первый угол в радианах[br]
+	## [param b: float] - второй угол в радианах[br]
+	## [return float] - минимальная разница между углами в радианах[br]
+	## [method angle_diff]
+
+	static func angle_diff(a: float, b: float) -> float:
+		return fmod(abs(fmod(a - b + PI, 2 * PI) - PI), 2 * PI)
+
+
 	## Плавно поворачивает юнит в направлении целевого угла[br]
 	## [param node: MovableUnit] - юнит, который должен продолжить поворот[br]
 	## [method MovementContinuator.keep_rotating]
 	static func keep_rotating(node: MovableUnit, delta: float):
-		if Utils.angle_diff(node.rotation.y, node.target_angle) > node.threshold:
-			node.rotation.y = lerp_angle(node.rotation.y, node.target_angle, node.rotation_speed * delta)
-		else:
+		node.rotation.y = lerp_angle(node.rotation.y, node.target_angle, node.rotation_speed * delta)
+		if angle_diff(node.rotation.y, node.target_angle) < 0.05:
 			node.isRotating = false
 
 	## Обрабатывает движение юнита к следующей точке маршрута[br]
@@ -116,8 +126,7 @@ class MovementContinuator:
 			if node.currentPath < node.currentPaths.size() - 1:
 				node.currentPath += 1
 			elif node.waypointQueue.size() > 1:
-				if node.waypointQueue.size() > 0:
-					node.waypointQueue.remove_at(0)
+				node.waypointQueue.remove_at(0)
 				node.velocity = Vector3.ZERO
 				PathHandler.newPath(node)
 			else:
@@ -128,12 +137,14 @@ class MovementContinuator:
 					node.collider.disabled = false
 					node.reached_exit.emit()
 
+
 	## Обрабатывает движение юнита по маршруту патрулирования[br]
 	## [param node: MovableUnit] - юнит, который должен продолжить патрулирование[br]
 	## [method MovementContinuator.keep_patrolling]
 	static func keep_patrolling(node: MovableUnit, delta: float):
 		var next_position = node.currentPaths[node.currentPath] - node.global_position
-		node.rotate_by_position(delta, next_position)
+		if not node.isRotating:
+			node.rotate_by_position(delta, next_position)
 		node.velocity = node.velocity.lerp(next_position.normalized() * node.speed, delta)
 		
 		if next_position.length_squared() < 1.0:
@@ -169,11 +180,13 @@ class MovementOrderHandler:
 	## [method OrderHandler.handleRotateOrder]
 	static func handleRotateOrder(node: MovableUnit, targetLocation: Vector3) -> void:
 		var direction = (targetLocation - node.global_position).normalized()
-		handleAbortOrder(node)
 		direction.y = 0
 		if direction.length() > 0:
 			node.target_angle = atan2(direction.x, direction.z)
+			if not node.isRotating:
+				handleAbortOrder(node)
 			node.isRotating = true
+
 
 	## Обрабатывает команду перемещения юнита в указанную точку или массив точек(через shift)[br]
 	## [param node: MovableUnit] - юнит, который должен начать двигаться[br]
