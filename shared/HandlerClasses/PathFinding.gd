@@ -2,6 +2,7 @@ extends Node
 class_name Pathfinding
 
 var grid: Grid
+const SEGMENT_SIZE = 50
 
 # A* node for working with paths
 class AStarNode:
@@ -25,11 +26,44 @@ func heuristic(a: Grid.GridCell, b: Grid.GridCell) -> float:
 	var dy = abs(a.y - b.y)
 	return sqrt(dx * dx + dy * dy)
 
-# A* pathfinding
 func find_path(start: Vector2, end: Vector2) -> Array:
 	if not grid.is_within_bounds(start.x, start.y) or not grid.is_within_bounds(end.x, end.y):
-		return []  # Start or end point outside the grid
+		return []  # Points are out of bounds
 
+	# Check the distance
+	var distance = heuristic(grid.cells[start.x][start.y], grid.cells[end.x][end.y])
+	if distance > 200:
+		return find_segmented_path(start, end)  # Use segmentation
+
+	return find_full_path(start, end)  # Use standard A*
+
+# Function for pathfinding with segmentation
+func find_segmented_path(start: Vector2, end: Vector2) -> Array:
+	var full_path = []
+	var current_start = start
+	var max_attempts = 100  # Limit attempts to prevent infinite loops
+	var attempts = 0
+
+	while current_start != end and attempts < max_attempts:
+		var segment = find_path_segment(current_start, end, SEGMENT_SIZE)
+		if segment.is_empty():
+			break  # If no further path is found, exit
+
+		full_path.append_array(segment)
+		current_start = segment[-1]  # Last point of the segment becomes the new start
+		attempts += 1  # Increment attempt counter
+
+	return full_path
+
+# Function for finding a SINGLE path segment
+func find_path_segment(start: Vector2, end: Vector2, segment_length: int) -> Array:
+	var path = find_path(start, end)
+	if path.size() > segment_length:
+		path = path.slice(0, segment_length)  # Trim the path to the required length
+	return path
+
+# A* pathfinding
+func find_full_path(start: Vector2, end: Vector2) -> Array:
 	var start_cell = grid.cells[start.x][start.y]
 	var end_cell = grid.cells[end.x][end.y]
 
