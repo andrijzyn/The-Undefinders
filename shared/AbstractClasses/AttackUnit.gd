@@ -31,68 +31,79 @@ var shootsAmount: int
 ## [b]Значение строго больше 0[/b]
 var fireRate: float
 
-
 # --------- Flags ----------
 var isAttacking := false
-var canShoot:= true
+var canShoot := true
+
 # ----------- Nodes-containing vars ----------
 @onready var firePoint: Marker3D = $FirePoint
 var bullet: PackedScene = preload("res://features/Shells/Bullet/bullet.tscn")
 #var explosion: PackedScene = preload("")
 var currentAttackGoal: Node3D = null
 
+# ----------- Helper Functions ----------
+# Create bullets
+func create_bullets() -> void:
+	var shoot_count = 1 if isSingleShooting else shootsAmount  # Corrected logic with if-else
+	for i in range(shoot_count):
+		var bulletInstance = bullet.instantiate() as Bullet
+		add_child(bulletInstance)
+		bulletInstance.initialize(damage, penetrationRate, splashRadius, accuracy, ignoreCover)
+		bulletInstance.sender = self
+		bulletInstance.global_transform = firePoint.global_transform
 
+# Rotate towards the target
+func rotate_towards_target(targetLocation: Vector3) -> void:
+	if not is_facing_target(targetLocation):
+		MovementOrderHandler.handleRotateOrder(self, targetLocation)
+
+# ----------- Main Process ----------
 func _process(delta: float) -> void:
 	super._process(delta)
-	if Input.is_action_just_pressed("ABORT"):
-		currentAttackGoal = null
-		mainCamera.isReadytoAttack = false
-		isAttacking = false
-		
-	if Input.is_action_just_pressed("CONTEXT") and mainCamera.isReadytoAttack and isSelected:
-		var targetLocation = RaycastHandler.getRaycastResultPosition(mainCamera)
-		MovementOrderHandler.handleRotateOrder(self, targetLocation)
-		currentAttackGoal = RaycastHandler.getRaycastResult(mainCamera)
-		print(currentAttackGoal)
-		isAttacking = true
-		mainCamera.toggleReadyAttack()
-	# Если цель изменила позицию и юнит уже атакует — проверяем, нужно ли повернуться
-	if isAttacking and not isRotating and currentAttackGoal and is_instance_valid(currentAttackGoal):
-		var targetLocation = currentAttackGoal.global_position
-		# Проверяем, нужно ли повернуться к цели
-		if not is_facing_target(targetLocation):
-			MovementOrderHandler.handleRotateOrder(self, targetLocation)
-	# Если атака активна и поворот завершён — стреляем
-	if isAttacking and not isRotating:
-		shoot()
 
-# Функция проверки, смотрит ли юнит на цель
+	if Input.is_action_just_pressed("ABORT"):
+		stop_attack()
+
+	if Input.is_action_just_pressed("CONTEXT") and mainCamera.isReadytoAttack and isSelected:
+		start_attack()
+
+	if isAttacking and not isRotating:
+		if currentAttackGoal and is_instance_valid(currentAttackGoal):
+			var targetLocation = currentAttackGoal.global_position
+			rotate_towards_target(targetLocation)
+			shoot()
+
+# ----------- Attack Handling ----------
+func start_attack() -> void:
+	var targetLocation = RaycastHandler.getRaycastResultPosition(mainCamera)
+	MovementOrderHandler.handleRotateOrder(self, targetLocation)
+	currentAttackGoal = RaycastHandler.getRaycastResult(mainCamera)
+	isAttacking = true
+	mainCamera.toggleReadyAttack()
+
+func stop_attack() -> void:
+	currentAttackGoal = null
+	mainCamera.isReadytoAttack = false
+	isAttacking = false
+
+# ----------- Shooting ----------
+func shoot() -> void:
+	if currentAttackGoal and is_instance_valid(currentAttackGoal):
+		if canShoot:
+			canShoot = false
+			create_bullets()
+
+			if not isSingleShooting:
+				await get_tree().create_timer(fireRate).timeout
+
+			await get_tree().create_timer(reloadTime).timeout
+			canShoot = true
+		else:
+			isAttacking = false
+
+# ----------- Helper for facing target ----------
 func is_facing_target(targetLocation: Vector3) -> bool:
 	var direction_to_target = (targetLocation - global_position).normalized()
 	direction_to_target.y = 0
 	var forward = global_transform.basis.z.normalized()
 	return direction_to_target.dot(forward) > 0.98  # Почти смотрит на цель
-
-func shoot():
-	if currentAttackGoal and is_instance_valid(currentAttackGoal):
-		if canShoot:
-			canShoot = false  # Блокируем стрельбу
-			if isSingleShooting:
-				var bulletInstance = bullet.instantiate() as Bullet
-				add_child(bulletInstance)
-				bulletInstance.initialize(damage, penetrationRate, splashRadius, accuracy, ignoreCover)
-				bulletInstance.sender = self
-				bulletInstance.global_transform = firePoint.global_transform
-				#bulletInstance.scale = Vector3(0.05, 0.05, 0.05)
-			else:
-				for i in range(shootsAmount):
-					var bulletInstance = bullet.instantiate() as Bullet
-					add_child(bulletInstance)
-					bulletInstance.initialize(damage, penetrationRate, splashRadius, accuracy, ignoreCover)
-					bulletInstance.sender = self
-					bulletInstance.global_transform = firePoint.global_transform
-					#bulletInstance.scale = Vector3(0.05, 0.05, 0.05)
-					await get_tree().create_timer(fireRate).timeout
-			await get_tree().create_timer(reloadTime).timeout  # Ждём reloadTime
-			canShoot = true  # Разрешаем стрельбу снова
-	else :isAttacking = false
