@@ -22,7 +22,6 @@ script = ExtResource("3_72cn3")
 transform = Transform3D(1, 0, 0, 0, -0.873772, 0.486335, 0, -0.486335, -0.873772, 0, 9.89356, -15.9748)
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 navigation_mesh = SubResource("NavigationMesh_beipy")
 
 [node name="Ground" parent="NavigationRegion3D" instance=ExtResource("2_hvjiq")]
@@ -39,7 +38,6 @@ transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -2.06647, 0, -12.4719)
 [node name="RTS_UI" parent="." instance=ExtResource("5_pqs64")]
 
 [node name="Soldier2" parent="." instance=ExtResource("5_tnkp6")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.772, 0, -5.09)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.771701, 0, -5.08992)
 
 [node name="Soldier" parent="." instance=ExtResource("5_tnkp6")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.772, 0, 1.652)
