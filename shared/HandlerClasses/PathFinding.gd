@@ -21,12 +21,14 @@ class AStarNode:
 
 # Euclidean distance
 func heuristic(a: Grid.GridCell, b: Grid.GridCell) -> float:
-	return abs(a.x - b.x) + abs(a.y - b.y)
+	var dx = abs(a.x - b.x)
+	var dy = abs(a.y - b.y)
+	return sqrt(dx * dx + dy * dy)
 
 # A* pathfinding
 func find_path(start: Vector2, end: Vector2) -> Array:
 	if not grid.is_within_bounds(start.x, start.y) or not grid.is_within_bounds(end.x, end.y):
-		return [] # Start or end point outside the grid
+		return []  # Start or end point outside the grid
 	
 	var start_cell = grid.cells[start.x][start.y]
 	var end_cell = grid.cells[end.x][end.y]
@@ -46,11 +48,13 @@ func find_path(start: Vector2, end: Vector2) -> Array:
 
 		closed_list[current_node.cell] = true
 
-		for neighbor in grid.get_neighbors(current_node.cell):
+		for neighbor in get_neighbors_with_diagonals(current_node.cell):
 			if neighbor in closed_list:
 				continue
 
-			var g_cost = current_node.g_cost + 1  # Cost of movement
+			var is_diagonal = abs(neighbor.x - current_node.cell.x) == 1 and abs(neighbor.y - current_node.cell.y) == 1
+			var move_cost = 1.41 if is_diagonal else 1  # 1.41 ~ sqrt(2) for diagonals
+			var g_cost = current_node.g_cost + move_cost
 			var h_cost = heuristic(neighbor, end_cell)
 			var neighbor_node = AStarNode.new(neighbor, g_cost, h_cost, current_node)
 
@@ -59,6 +63,28 @@ func find_path(start: Vector2, end: Vector2) -> Array:
 				open_list.append(neighbor_node)
 
 	return []  # No path
+
+# Get neighbors with diagonal movement (prevent diagonal clipping)
+func get_neighbors_with_diagonals(cell: Grid.GridCell) -> Array:
+	var neighbors = []
+	var directions = [
+		Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1),  # Cardinal directions
+		Vector2(1, 1), Vector2(1, -1), Vector2(-1, 1), Vector2(-1, -1) # Diagonal directions
+	]
+
+	for dir in directions:
+		var nx = cell.x + dir.x
+		var ny = cell.y + dir.y
+
+		if grid.is_within_bounds(nx, ny) and grid.cells[nx][ny].walkable:
+			# Prevent diagonal corner clipping
+			if abs(dir.x) == 1 and abs(dir.y) == 1:  # Diagonal move
+				if not (grid.cells[cell.x + dir.x][cell.y].walkable and grid.cells[cell.x][cell.y + dir.y].walkable):
+					continue
+
+			neighbors.append(grid.cells[nx][ny])
+
+	return neighbors
 
 # Recovering the path from nodes
 func reconstruct_path(node: AStarNode) -> Array:

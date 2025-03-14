@@ -29,7 +29,7 @@ var loaded_players = [
 var players = []
 var current_camera: Camera3D = null
 var current_player_index: int = 0
-var grid = Grid.new(40, 40, 1.0)  # Map size 20x20, cell size 1.0
+var grid = Grid.new(80, 80, 0.25)  # Map size 20x20, cell size 1.0
 var pathfinder = Pathfinding.new()
 
 func _ready() -> void:

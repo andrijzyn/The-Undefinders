@@ -60,7 +60,6 @@ func _ready():
 	add_child(debug_instance)
 	debug_instance.mesh = debug_mesh
 	debug_instance.cast_shadow = false
-	debug_instance.set_surface_override_material(0, StandardMaterial3D.new())
 	update_debug_mesh()
 
 func update_debug_mesh():
@@ -85,13 +84,16 @@ func update_debug_mesh():
 	debug_mesh.surface_end()
 
 func get_nearest_walkable(grid_pos: Vector2) -> Vector2:
+	if is_within_bounds(grid_pos.x, grid_pos.y) and cells[grid_pos.x][grid_pos.y].walkable:
+		return grid_pos
+
 	var min_dist = INF
 	var nearest_pos = grid_pos
 
 	for x in range(width):
 		for y in range(height):
-			var pos = Vector2(x, y)
 			if cells[x][y].walkable:
+				var pos = Vector2(x, y)
 				var dist = pos.distance_squared_to(grid_pos)
 				if dist < min_dist:
 					min_dist = dist
