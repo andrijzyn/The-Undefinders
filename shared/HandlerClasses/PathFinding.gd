@@ -29,19 +29,21 @@ func heuristic(a: Grid.GridCell, b: Grid.GridCell) -> float:
 func find_path(start: Vector2, end: Vector2) -> Array:
 	if not grid.is_within_bounds(start.x, start.y) or not grid.is_within_bounds(end.x, end.y):
 		return []  # Start or end point outside the grid
-	
+
 	var start_cell = grid.cells[start.x][start.y]
 	var end_cell = grid.cells[end.x][end.y]
 
-	var open_list = []
+	var open_list = PriorityQueue.new()
 	var closed_list = {}
 
 	var start_node = AStarNode.new(start_cell, 0, heuristic(start_cell, end_cell))
-	open_list.append(start_node)
+	open_list.push(start_node, start_node.f_cost())
+
+	var node_map = {}  # Store nodes to update paths
+	node_map[start_cell] = start_node
 
 	while not open_list.is_empty():
-		open_list.sort_custom(func(a, b): return a.f_cost() < b.f_cost())
-		var current_node = open_list.pop_front()
+		var current_node = open_list.pop()  # Extract min (fastest node)
 
 		if current_node.cell == end_cell:
 			return reconstruct_path(current_node)  # Found the way
@@ -55,12 +57,15 @@ func find_path(start: Vector2, end: Vector2) -> Array:
 			var is_diagonal = abs(neighbor.x - current_node.cell.x) == 1 and abs(neighbor.y - current_node.cell.y) == 1
 			var move_cost = 1.41 if is_diagonal else 1  # 1.41 ~ sqrt(2) for diagonals
 			var g_cost = current_node.g_cost + move_cost
+
+			if neighbor in node_map and g_cost >= node_map[neighbor].g_cost:
+				continue  # If there is already a better way
+
 			var h_cost = heuristic(neighbor, end_cell)
 			var neighbor_node = AStarNode.new(neighbor, g_cost, h_cost, current_node)
 
-			var existing_node = open_list.filter(func(n): return n.cell == neighbor)
-			if existing_node.is_empty() or g_cost < existing_node[0].g_cost:
-				open_list.append(neighbor_node)
+			node_map[neighbor] = neighbor_node
+			open_list.push(neighbor_node, neighbor_node.f_cost())
 
 	return []  # No path
 
@@ -94,3 +99,54 @@ func reconstruct_path(node: AStarNode) -> Array:
 		node = node.parent
 	path.reverse()
 	return path
+
+# Binary Heap (Priority Queue) Implementation
+class PriorityQueue:
+	var heap = []
+
+	func push(item, priority):
+		heap.append([priority, item])
+		_heapify_up(heap.size() - 1)
+
+	func pop():
+		if heap.is_empty():
+			return null
+		var min_item = heap[0][1]
+		if heap.size() == 1:
+			heap.pop_back()
+		else:
+			heap[0] = heap[heap.size() - 1]
+			heap.pop_back()
+			_heapify_down(0)
+		return min_item
+
+	func is_empty() -> bool:
+		return heap.is_empty()
+
+	func _heapify_up(index):
+		while index > 0:
+			var parent_index = (index - 1) / 2
+			if heap[index][0] >= heap[parent_index][0]:
+				break
+			var temp = heap[index]
+			heap[index] = heap[parent_index]
+			heap[parent_index] = temp
+			index = parent_index
+
+	func _heapify_down(index):
+		while true:
+			var left = 2 * index + 1
+			var right = 2 * index + 2
+			var smallest = index
+
+			if left < heap.size() and heap[left][0] < heap[smallest][0]:
+				smallest = left
+			if right < heap.size() and heap[right][0] < heap[smallest][0]:
+				smallest = right
+			if smallest == index:
+				break
+
+			var temp = heap[index]
+			heap[index] = heap[smallest]
+			heap[smallest] = temp
+			index = smallest
