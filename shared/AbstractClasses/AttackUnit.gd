@@ -67,26 +67,25 @@ func _process(delta: float) -> void:
 			currentAttackGoal = enemies_in_range[0]
 		if not enemies_in_range.is_empty():
 			isAttacking = true
-		if Input.is_action_just_pressed("CONTEXT") and mainCamera.isReadytoAttack and isSelected:
-			var targetLocation = RaycastHandler.getRaycastResultPosition(mainCamera)
+	if Input.is_action_just_pressed("CONTEXT") and mainCamera.isReadytoAttack and isSelected:
+		var targetLocation = RaycastHandler.getRaycastResultPosition(mainCamera)
+		MovementOrderHandler.handleRotateOrder(self, targetLocation)
+		currentAttackGoal = RaycastHandler.getRaycastResult(mainCamera)
+		print(currentAttackGoal)
+		isAttacking = true
+		mainCamera.toggleReadyAttack()
+	elif isSelected and  (Input.is_action_just_pressed("ABORT") or Input.is_action_just_pressed("CONTEXT")):
+		currentAttackGoal = null
+		isAttacking = false
+	# Если цель изменила позицию и юнит уже атакует — проверяем, нужно ли повернуться
+	if isAttacking and not isRotating and currentAttackGoal and is_instance_valid(currentAttackGoal):
+		var targetLocation = currentAttackGoal.global_position
+		# Проверяем, нужно ли повернуться к цели
+		if not is_facing_target(targetLocation):
 			MovementOrderHandler.handleRotateOrder(self, targetLocation)
-			currentAttackGoal = RaycastHandler.getRaycastResult(mainCamera)
-			print(currentAttackGoal)
-			isAttacking = true
-			mainCamera.toggleReadyAttack()
-		elif isSelected and  (Input.is_action_just_pressed("ABORT") or Input.is_action_just_pressed("CONTEXT")):
-			currentAttackGoal = null
-			mainCamera.isReadytoAttack = false
-			isAttacking = false
-		# Если цель изменила позицию и юнит уже атакует — проверяем, нужно ли повернуться
-		if isAttacking and not isRotating and currentAttackGoal and is_instance_valid(currentAttackGoal):
-			var targetLocation = currentAttackGoal.global_position
-			# Проверяем, нужно ли повернуться к цели
-			if not is_facing_target(targetLocation):
-				MovementOrderHandler.handleRotateOrder(self, targetLocation)
-		# Если атака активна и поворот завершён — стреляем
-		if isAttacking and not isRotating:
-			shoot()
+	# Если атака активна и поворот завершён — стреляем
+	if isAttacking and not isRotating:
+		shoot()
 
 # Функция проверки, смотрит ли юнит на цель
 func is_facing_target(targetLocation: Vector3) -> bool:

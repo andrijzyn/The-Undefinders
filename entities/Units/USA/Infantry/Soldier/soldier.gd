@@ -23,6 +23,7 @@ func _init() -> void:
 	shootsAmount = 3
 	fireRate = 0.1
 	attack_radius = 30
+	isAutoAttackEnabled = true
 
 func _process(delta: float) -> void:
 	super._process(delta)
