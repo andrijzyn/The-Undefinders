@@ -179,8 +179,7 @@ class MovementOrderHandler:
 	## [param node: MovableUnit] - юнит, который должен начать поворот[br]
 	## [method OrderHandler.handleRotateOrder]
 	static func handleRotateOrder(node: MovableUnit, targetLocation: Vector3) -> void:
-		var direction = (targetLocation - node.global_position).normalized()
-		direction.y = 0
+		var direction = Vector3(targetLocation.x - node.global_position.x, 0, targetLocation.z - node.global_position.z).normalized()
 		if direction.length() > 0:
 			node.target_angle = atan2(direction.x, direction.z)
 			if not node.isRotating:
