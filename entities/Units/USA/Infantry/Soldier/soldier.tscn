@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=4 uid="uid://cjd68qtn0ujeb"]
+[gd_scene load_steps=32 format=4 uid="uid://cjd68qtn0ujeb"]
 
 [ext_resource type="Script" uid="uid://c6gvq2b040rpa" path="res://entities/Units/USA/Infantry/Soldier/soldier.gd" id="1_e6lx5"]
 [ext_resource type="Texture2D" uid="uid://bbfx4xwagb1dn" path="res://entities/Units/USA/Infantry/Soldier/source/Sketchfab_2021_03_16_23_33_20_0.png" id="1_njsy7"]
@@ -2089,9 +2089,11 @@ _data = {
 [sub_resource type="ViewportTexture" id="ViewportTexture_bwrmf"]
 viewport_path = NodePath("SubViewport")
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_dcxes"]
+
 [node name="Soldier" type="CharacterBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.771701, 0, 1.65239)
-collision_mask = 2
+collision_mask = 3
 script = ExtResource("1_e6lx5")
 
 [node name="rig" type="Node3D" parent="."]
@@ -2433,3 +2435,9 @@ size = Vector2i(140, 16)
 
 [node name="FirePoint" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.892939, 0.257413)
+
+[node name="DetectionArea" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.01954, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea"]
+shape = SubResource("SphereShape3D_dcxes")
