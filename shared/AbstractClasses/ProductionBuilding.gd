@@ -18,7 +18,7 @@ func _init():
 	add_to_group(Constants.mouseChanger)
 
 func _ready():
-	ui = get_tree().get_root().get_node("MainScene/RTS_UI")
+	ui = get_tree().current_scene.players[get_multiplayer_authority()].get_node_or_null("PlayerUI")
 
 func setSelected(val: bool):
 	isSelected = val

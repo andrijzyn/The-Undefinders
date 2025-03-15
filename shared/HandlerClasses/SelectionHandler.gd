@@ -1,13 +1,15 @@
 class_name SelectionHandler
 
-static func handleSingleSelection(oldSelections: Array[Node3D], newSelection: Node3D) -> Array[Node3D]:
-	if oldSelections.size() > 1:
-		for select in oldSelections:
-			if select:
-				select.setSelected(false)
-		oldSelections.clear()
-		handleSingleSelection(oldSelections, newSelection)
+static func handleSingleSelection(oldSelections: Array[Node3D], newSelection: Node3D, caller: Node3D) -> Array[Node3D]:
 	if newSelection and newSelection.is_in_group(Constants.selectable):
+		if newSelection.get_multiplayer_authority() != caller.get_multiplayer_authority():
+			return oldSelections
+		if oldSelections.size() > 1:
+			for select in oldSelections:
+				if select:
+					select.setSelected(false)
+			oldSelections.clear()
+			handleSingleSelection(oldSelections, newSelection, caller)
 		if oldSelections.size() > 0 and oldSelections[0] and oldSelections[0] != newSelection:
 			oldSelections[0].setSelected(false)
 		oldSelections.clear()
@@ -21,10 +23,11 @@ static func handleSingleSelection(oldSelections: Array[Node3D], newSelection: No
 	oldSelections.clear()
 	return oldSelections
 
-static func handleMultipleSelectionByShift(oldSelections: Array[Node3D], newSelection: Node3D) -> Array[Node3D]:
+static func handleMultipleSelectionByShift(oldSelections: Array[Node3D], newSelection: Node3D, caller: Node3D) -> Array[Node3D]:
 	if newSelection and newSelection.is_in_group(Constants.selectable):
-		newSelection.setSelected(true)
-		oldSelections.append(newSelection)
+		if newSelection.get_multiplayer_authority() == caller.get_multiplayer_authority():
+			newSelection.setSelected(true)
+			oldSelections.append(newSelection)
 	return oldSelections
 	
 static func handleMultipleSelectionByDoubleClick(oldSelections: Array[Node3D], newSelection: Node3D, camera: MainCamera) -> Array[Node3D]:
@@ -32,7 +35,7 @@ static func handleMultipleSelectionByDoubleClick(oldSelections: Array[Node3D], n
 		var selectableNodes := camera.get_tree().get_nodes_in_group(Constants.selectable)
 		var viewport_size: Vector2 = camera.get_viewport().size
 		for node in selectableNodes:
-			if node.get_class() == newSelection.get_class():
+			if node.get_class() == newSelection.get_class() and node.get_multiplayer_authority() == camera.get_multiplayer_authority():
 				var world_pos: Vector3 = node.global_transform.origin
 				var to_object: Vector3 = world_pos - camera.global_transform.origin
 				var camera_forward: Vector3 = -camera.global_transform.basis.z
@@ -59,36 +62,37 @@ static func handleSelectionBySelectionRect(camera: MainCamera):
 	var selection_width = bottom_right.x - top_left.x
 	var selection_height = bottom_right.y - top_left.y
 
-	var grid_size_x = int(sqrt(max_rays * (selection_width / selection_height)))
-	var grid_size_y = int(max_rays / grid_size_x)
+	if selection_height > 0 and selection_width > 0:
+		var grid_size_x = int(sqrt(max_rays * (selection_width / selection_height)))
+		var grid_size_y = int(max_rays / grid_size_x)
 
-	grid_size_x = max(grid_size_x, 3)
-	grid_size_y = max(grid_size_y, 3)
+		grid_size_x = max(grid_size_x, 3)
+		grid_size_y = max(grid_size_y, 3)
 
-	for node in camera.selected_nodes:
-		if node.has_method("setSelected"):
-			node.setSelected(false)
-	camera.selected_nodes.clear()
+		for node in camera.selected_nodes:
+			if node.has_method("setSelected"):
+				node.setSelected(false)
+		camera.selected_nodes.clear()
 
-	var selected_objects := {}
-	for i in range(grid_size_x):
-		for j in range(grid_size_y):
-			var t_x = float(i) / (grid_size_x - 1)
-			var t_y = float(j) / (grid_size_y - 1)
-			var screen_pos = top_left.lerp(bottom_right, t_x)
-			var screen_pos_y = top_left.lerp(bottom_right, t_y)
+		var selected_objects := {}
+		for i in range(grid_size_x):
+			for j in range(grid_size_y):
+				var t_x = float(i) / (grid_size_x - 1)
+				var t_y = float(j) / (grid_size_y - 1)
+				var screen_pos = top_left.lerp(bottom_right, t_x)
+				var screen_pos_y = top_left.lerp(bottom_right, t_y)
 
-			screen_pos = Vector2(screen_pos.x, screen_pos_y.y)
+				screen_pos = Vector2(screen_pos.x, screen_pos_y.y)
 
-			var from := camera_3d.project_ray_origin(screen_pos)
-			var to := from + camera_3d.project_ray_normal(screen_pos) * 1000
-			var query := PhysicsRayQueryParameters3D.create(from, to)
-			var result := space_state.intersect_ray(query)
+				var from := camera_3d.project_ray_origin(screen_pos)
+				var to := from + camera_3d.project_ray_normal(screen_pos) * 1000
+				var query := PhysicsRayQueryParameters3D.create(from, to)
+				var result := space_state.intersect_ray(query)
 
-			if result and result.collider:
-				selected_objects[result.collider] = true
+				if result and result.collider:
+					selected_objects[result.collider] = true
 
-	for obj in selected_objects.keys():
-		if obj.has_method("setSelected"):
-			obj.setSelected(true)
-			camera.selected_nodes.append(obj)
+		for obj in selected_objects.keys():
+			if obj.has_method("setSelected") and obj.get_multiplayer_authority() == camera.get_multiplayer_authority():
+				obj.setSelected(true)
+				camera.selected_nodes.append(obj)

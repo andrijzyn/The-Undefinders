@@ -24,11 +24,19 @@ var can_place: bool = true
 var overlapping_bodies_count: int = 0
 
 var selection_overlay: ColorRect
+var main_scene #DAMI - Delete after multiplayer implementation
+var ui
+
+#Change main_scene.current_player_index to multiplayer.get_unique_id() after multiplayer implementation
+func multiplayer_ownership_checker():
+	if main_scene.current_player_index != get_multiplayer_authority():
+		return true
 
 func _init() -> void:
 	add_to_group(Constants.cameras)
 
 func _ready():
+	main_scene = get_tree().current_scene #DAMI
 	# Create selection overlay UI
 	var canvas_layer = CanvasLayer.new()
 	get_viewport().add_child.call_deferred(canvas_layer)
@@ -45,6 +53,8 @@ func _ready():
 	selection_container.add_child(selection_overlay)
 
 func _process(delta:float) -> void:
+	if multiplayer_ownership_checker():
+		return
 	MouseChangeHandler.mouseChange(self)
 	handleEdgeScrolling(delta)
 	cameraZoom(delta)
@@ -66,6 +76,8 @@ func _process(delta:float) -> void:
 				phantom_building.global_transform.origin = intersection
 
 func _input(event):
+	if multiplayer_ownership_checker():
+		return
 	# Handle mouse button events
 	if event is InputEventMouseButton:
 		if phantom_building:
@@ -106,7 +118,7 @@ func _input(event):
 				if Input.is_action_pressed("MULTI_SELECT"):
 					var result = RaycastHandler.getRaycastResult(self)
 					if result:
-						selected_nodes = SelectionHandler.handleMultipleSelectionByShift(selected_nodes, result)
+						selected_nodes = SelectionHandler.handleMultipleSelectionByShift(selected_nodes, result, self)
 				elif event.double_click:
 					# Double-click selects multiple objects of the same type
 					var result = RaycastHandler.getRaycastResult(self)
@@ -129,8 +141,7 @@ func _input(event):
 					else:
 						var result = RaycastHandler.getRaycastResult(self)
 						if result:
-							selected_nodes = SelectionHandler.handleSingleSelection(selected_nodes, result)
-					var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
+							selected_nodes = SelectionHandler.handleSingleSelection(selected_nodes, result, self)
 					if ui:
 						ui.update_selected_objects(selected_nodes)
 
@@ -228,17 +239,18 @@ func start_building_placement(building_name: String) -> void:
 	var path = "res://entities/Buildings/" + building_name + ".tscn"
 	if ResourceLoader.exists(path):
 		var building_scene = load(path).instantiate()
-		
+
 		duplicate_meshes(building_scene)
-	
+		change_fraction_color(building_scene, main_scene.players[get_multiplayer_authority()].color)
+
 		phantom_building = building_scene
 		phantom_building.rotation = Vector3(phantom_building.rotation.x, 0.0, phantom_building.rotation.z)
-		phantom_building.scale = Vector3(0.5, 0.5, 0.5)
-	
+		phantom_building.set_multiplayer_authority(get_multiplayer_authority())
+
 		apply_ghost_shader(phantom_building)
 		disable_colliders(phantom_building)
 		setup_phantom_area(phantom_building)
-		get_tree().get_current_scene().add_child(phantom_building)
+		get_parent().add_child(phantom_building)
 	else:
 		print("Error: Scene not found at path:", path)
 
@@ -248,6 +260,18 @@ func duplicate_meshes(node: Node) -> void:
 		node.mesh = node.mesh.duplicate()
 	for child in node.get_children():
 		duplicate_meshes(child)
+
+# Change color of the fraction material
+func change_fraction_color(node: Node, new_color: Color) -> void:
+	if node is MeshInstance3D and node.mesh:
+		for i in range(node.mesh.get_surface_count()):
+			var mat = node.mesh.surface_get_material(i)
+			if mat and mat.resource_name == "Fraction Color":
+				var new_mat = mat.duplicate()
+				new_mat.albedo_color = new_color
+				node.mesh.surface_set_material(i, new_mat)
+	for child in node.get_children():
+		change_fraction_color(child, new_color)
 
 func disable_colliders(node: Node) -> void:
 	if node is CollisionShape3D:
@@ -376,7 +400,6 @@ func ray_plane_intersection(origin: Vector3, dir: Vector3, plane: Plane) -> Vect
 	return origin + dir * t
 
 func is_mouse_over_ui() -> bool:
-	var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
 	if not ui:
 		return false
 	
