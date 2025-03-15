@@ -26,11 +26,19 @@ static func newPath(node: MovableUnit) -> void:
 
 	if not grid.is_within_bounds(start_grid_pos.x, start_grid_pos.y):
 		print("Unit out of grid! Searching for nearest available point...")
-		start_grid_pos = grid.get_nearest_walkable(start_grid_pos)
+		start_grid_pos = grid.get_nearest_walkable(start_grid_pos, target_grid_pos)
+
+	if not grid.is_walkable(start_grid_pos.x, start_grid_pos.y):
+			print("Start position is blocked! Searching for nearest walkable point...")
+			start_grid_pos = grid.get_nearest_walkable(start_grid_pos, target_grid_pos)
 
 	if not grid.is_within_bounds(target_grid_pos.x, target_grid_pos.y):
 		print("Target point outside grid boundary! Searching for nearest available point...")
-		target_grid_pos = grid.get_nearest_walkable(target_grid_pos)
+		target_grid_pos = grid.get_nearest_walkable(target_grid_pos, start_grid_pos)
+
+	if not grid.is_walkable(target_grid_pos.x, target_grid_pos.y):
+			print("Target position is blocked! Searching for nearest walkable point...")
+			target_grid_pos = grid.get_nearest_walkable(target_grid_pos, start_grid_pos)
 
 	var path = pathfinder.find_path(start_grid_pos, target_grid_pos)
 	if path.is_empty():

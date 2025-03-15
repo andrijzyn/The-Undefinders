@@ -13,6 +13,7 @@ transform = Transform3D(-1, 7.71897e-08, -4.10425e-08, -1.95898e-09, 0.449569, 0
 transform = Transform3D(1, 0, 0, 0, -0.873772, 0.486335, 0, -0.486335, -0.873772, 0, 9.89356, -15.9748)
 
 [node name="Ground" parent="." instance=ExtResource("2_hvjiq")]
+collision_layer = 16
 
 [node name="PlayerSpawn0" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.066, 0, -12.472)

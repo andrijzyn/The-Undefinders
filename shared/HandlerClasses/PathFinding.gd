@@ -21,7 +21,7 @@ class AStarNode:
 		return g_cost + h_cost
 
 # Euclidean distance
-func heuristic(a: Grid.GridCell, b: Grid.GridCell) -> float:
+static func heuristic(a: Grid.GridCell, b: Grid.GridCell) -> float:
 	var dx = abs(a.x - b.x)
 	var dy = abs(a.y - b.y)
 	return sqrt(dx * dx + dy * dy)

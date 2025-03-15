@@ -25,15 +25,39 @@ func _init(w: int, h: int, size: float):
 	width = w
 	height = h
 	cell_size = size
-	generate_grid()
 
 func generate_grid():
 	cells.clear()
+	var space_state = get_world_3d().direct_space_state  # Get the collision space
+	
 	for x in range(width):
 		var row = []
 		for y in range(height):
-			row.append(GridCell.new(x, y, true, 0))  # By default all cells are passable
+			var cell_world_pos = get_world_position(x, y)
+			var is_walkable = detect_obstacles(space_state, cell_world_pos)  # Check for obstacles
+			row.append(GridCell.new(x, y, is_walkable, 0))
 		cells.append(row)
+
+	update_debug_mesh()  # Update the visual display
+
+func detect_obstacles(space_state, position: Vector3) -> bool:
+	var query = PhysicsShapeQueryParameters3D.new()
+	var shape = BoxShape3D.new()
+	shape.size = Vector3(cell_size * 0.9, 1, cell_size * 0.9)  # Size slightly smaller than the cell
+
+	# Use a position slightly above the cell for the check
+	query.shape = shape
+	query.transform = Transform3D(Basis(), position + Vector3(0, 0.5, 0))  # Raise by 0.5 for the check
+
+	# Set it to check only objects that don't belong to the landscape (layer 1)
+	query.collide_with_bodies = true
+	query.collision_mask = 1 << 1
+
+	var result = space_state.intersect_shape(query)
+	return result.is_empty()  # If there are no intersections, the cell is walkable
+
+func get_world_position(x: int, y: int) -> Vector3:
+	return global_transform.origin + Vector3(x * cell_size, 0, y * cell_size)
 
 func is_within_bounds(x: int, y: int) -> bool:
 	return x >= 0 and y >= 0 and x < width and y < height
@@ -43,21 +67,11 @@ func set_walkable(x: int, y: int, walkable: bool):
 		cells[x][y].walkable = walkable
 		update_debug_mesh()
 
-# Getting Neighbors
-func get_neighbors(cell: GridCell) -> Array:
-	var neighbors = []
-	var directions = [[1,0], [-1,0], [0,1], [0,-1]]  # 4 directions (no diagonals)
-	
-	for dir in directions:
-		var nx = cell.x + dir[0]
-		var ny = cell.y + dir[1]
-		
-		if is_within_bounds(nx, ny) and cells[nx][ny].walkable:
-			neighbors.append(cells[nx][ny])
-	
-	return neighbors
+func is_walkable(x: int, y: int) -> bool:
+	if x < 0 or y < 0 or x >= width or y >= height:
+		return false
+	return cells[x][y].walkable
 
-# Display grid
 func _ready():
 	add_child(debug_instance)
 	debug_instance.mesh = debug_mesh
@@ -66,6 +80,7 @@ func _ready():
 	stretch_to_ground()
 	update_debug_mesh()
 
+# Display grid
 func update_debug_mesh():
 	debug_mesh.clear_surfaces()
 	debug_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
@@ -75,7 +90,7 @@ func update_debug_mesh():
 		for y in range(height):
 			var pos = Vector3(x * cell_size, 0, y * cell_size)
 			var color = Color(0, 1, 0) if cells[x][y].walkable else Color(1, 0, 0)
-
+			print("Cell[", x, "][", y, "] Walkable: ", cells[x][y].walkable)
 			# Draw the cell borders
 			debug_mesh.surface_set_color(color)
 			debug_mesh.surface_add_vertex(pos)
@@ -87,23 +102,36 @@ func update_debug_mesh():
 
 	debug_mesh.surface_end()
 
-func get_nearest_walkable(grid_pos: Vector2) -> Vector2:
-	if is_within_bounds(grid_pos.x, grid_pos.y) and cells[grid_pos.x][grid_pos.y].walkable:
-		return grid_pos
+# Function to find the optimal cell or the nearest walkable cell
+func get_nearest_walkable(start_pos: Vector2, target_pos: Vector2) -> Vector2:
+	var nearest = Vector2.ZERO
+	var min_distance = INF
 
-	var min_dist = INF
-	var nearest_pos = grid_pos
+	# Check cells within a 40x40 range around the starting position for optimal cell
+	for x in range(max(0, int(start_pos.x - 20)), min(width, int(start_pos.x + 20))):
+		for y in range(max(0, int(start_pos.y - 20)), min(height, int(start_pos.y + 20))):
+			if is_walkable(x, y):
+				# Calculate the distance from the cell to the target
+				var dist = Pathfinding.heuristic(cells[x][y], cells[int(target_pos.x)][int(target_pos.y)])
 
-	for x in range(width):
-		for y in range(height):
-			if cells[x][y].walkable:
-				var pos = Vector2(x, y)
-				var dist = pos.distance_squared_to(grid_pos)
-				if dist < min_dist:
-					min_dist = dist
-					nearest_pos = pos
+				if dist < min_distance:
+					min_distance = dist
+					nearest = Vector2(x, y)
 
-	return nearest_pos
+	# If no suitable cell is found within the 40x40 range (e.g., all cells are occupied),
+	# then search for the nearest walkable cell
+	if nearest == Vector2.ZERO:
+		min_distance = INF
+		for x in range(width):
+			for y in range(height):
+				if is_walkable(x, y):
+					var pos = Vector2(x, y)
+					var dist = pos.distance_squared_to(start_pos)
+					if dist < min_distance:
+						min_distance = dist
+						nearest = pos
+
+	return nearest
 
 func stretch_to_ground():
 	var ground = get_parent().find_child("Ground", true, false)
