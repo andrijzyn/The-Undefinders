@@ -2,54 +2,64 @@ extends Entity
 ## Абстрактный класс для юнитов которые могут двигатся
 class_name MovableUnit
 
-var speed: float = 2.0
-# ----- Rotating vars -----
-var threshold: float = 0.01
+# ----- ROTATING VARS -----
+const threshold: float = 0.001
 var target_angle: float
+## [b]Должно быть указано при инициализации конкретной сущностью.[/b][br]
+## [b]Значение строго больше 0[/b]
 var rotation_speed: float = 5.0
-# ----- Flags --------
+
+# ----- FLAGS --------
 var isMoving := false
 var isRotating := false
 var isPatrolling := false
 var isLeavingBuilding := false
 
-# ----- PathFinding vars --------
+# ----- PATHFINDING VARS --------
 var waypointQueue: PackedVector3Array = []
 var patrolPoints: PackedVector3Array = []
 var currentPaths: PackedVector3Array = []
 var currentPath: int = 0
 var currentPatrolPoint: int = 0
 
-# ----------- Other vars -------------------
+# ----------- OTHER VARS -------------------
 var direction: Vector3
 var velocity: Vector3
+## [b]Должно быть указано при инициализации конкретной сущностью.[/b][br]
+## [b]Значение строго больше 0[/b]
+var speed: float = 2.0
 
-# ---------- Nodes-containing vars -----------
+# ---------- NODES-CONTAINING VARS -----------
 @onready var animPlayer := $AnimPlayer
 @onready var collider := $CollisionPolygon3D2
 @onready var mainCamera: MainCamera
 @onready var mapRID: RID
 
-# ------------ Signals -----------
+# ------------ SIGNALS -----------
 signal reached_exit
 
-# ----------- In-build timeline methods implementation -----------
+# ----------- IN-BUILD TIMELINE METHODS IMPLEMENTATION -----------
 func _init() -> void:
 	add_to_group(Constants.selectable)
 	add_to_group(Constants.movable)
 
 func _process(delta: float) -> void:
+	if isSelected:
+		if (Input.is_action_just_released("MULTI_SELECT") and 
+		mainCamera.isReadytoPatrol): mainCamera.toggleReadyPatrol()
+		elif (Input.is_action_just_released("CONTEXT") 
+		and mainCamera.isReadytoPatrol and not Input.is_action_pressed("MULTI_SELECT")): mainCamera.toggleReadyPatrol()
 	direction = Vector3.ZERO
-	OrderHandler.listen(self, delta)
+	MovementOrderHandler.listen(self, delta)
 	MovementContinuator.listen(self, delta)
 	position += velocity * delta
 
 func _ready() -> void:
 	mainCamera = get_tree().get_nodes_in_group(Constants.cameras)[0]
 	mapRID = get_world_3d().navigation_map
-	currentHealth = max_health
 
-# ---------------- Other stuff ------------------ 
+
+# ---------------- OTHER STUFF ------------------ 
 func rotate_by_position(delta: float, move_direction: Vector3):
 	if move_direction.length_squared() > threshold:
 		target_angle = atan2(move_direction.x, move_direction.z)
@@ -84,13 +94,23 @@ class MovementContinuator:
 		elif node.isRotating:
 			keep_rotating(node, delta)
 
+	## Вычисляет минимальную разницу между двумя углами в радианах.[br]
+	## Гарантирует, что разница всегда находится в диапазоне [0, 2π].[br]
+	## [param a: float] - первый угол в радианах[br]
+	## [param b: float] - второй угол в радианах[br]
+	## [return float] - минимальная разница между углами в радианах[br]
+	## [method angle_diff]
+
+	static func angle_diff(a: float, b: float) -> float:
+		return fmod(abs(fmod(a - b + PI, 2 * PI) - PI), 2 * PI)
+
+
 	## Плавно поворачивает юнит в направлении целевого угла[br]
 	## [param node: MovableUnit] - юнит, который должен продолжить поворот[br]
 	## [method MovementContinuator.keep_rotating]
 	static func keep_rotating(node: MovableUnit, delta: float):
-		if Utils.angle_diff(node.rotation.y, node.target_angle) > node.threshold:
-			node.rotation.y = lerp_angle(node.rotation.y, node.target_angle, node.rotation_speed * delta)
-		else:
+		node.rotation.y = lerp_angle(node.rotation.y, node.target_angle, node.rotation_speed * delta)
+		if angle_diff(node.rotation.y, node.target_angle) < 0.05:
 			node.isRotating = false
 
 	## Обрабатывает движение юнита к следующей точке маршрута[br]
@@ -106,8 +126,7 @@ class MovementContinuator:
 			if node.currentPath < node.currentPaths.size() - 1:
 				node.currentPath += 1
 			elif node.waypointQueue.size() > 1:
-				if node.waypointQueue.size() > 0:
-					node.waypointQueue.remove_at(0)
+				node.waypointQueue.remove_at(0)
 				node.velocity = Vector3.ZERO
 				PathHandler.newPath(node)
 			else:
@@ -118,12 +137,14 @@ class MovementContinuator:
 					node.collider.disabled = false
 					node.reached_exit.emit()
 
+
 	## Обрабатывает движение юнита по маршруту патрулирования[br]
 	## [param node: MovableUnit] - юнит, который должен продолжить патрулирование[br]
 	## [method MovementContinuator.keep_patrolling]
 	static func keep_patrolling(node: MovableUnit, delta: float):
 		var next_position = node.currentPaths[node.currentPath] - node.global_position
-		node.rotate_by_position(delta, next_position)
+		if not node.isRotating:
+			node.rotate_by_position(delta, next_position)
 		node.velocity = node.velocity.lerp(next_position.normalized() * node.speed, delta)
 		
 		if next_position.length_squared() < 1.0:
@@ -135,41 +156,45 @@ class MovementContinuator:
 				PathHandler.updatePatrolPath(node)
 
 ## Отвечает за обработку команд для перемещаемых юнитов[br]
-class OrderHandler:
+class MovementOrderHandler:
 	## Ожидает ввода и вызывает соответствующий обработчик команды[br]
 	## [param node: MovableUnit] - юнит, которому передаются команды[br]
 	## [method OrderHandler.listen]
 	static func listen(node: MovableUnit, delta):
 		if node.isSelected:
 			if Input.is_action_just_pressed("CONTEXT"):
-				if Input.is_action_pressed("ROTATE"):
-					handleRotateOrder(node)
-				elif Input.is_action_pressed("PATROL"):
-					handlePatrolOrder(node)
-				else:
-					handleMovingOrder(node)
+				var targetLocation = RaycastHandler.getRaycastResultPosition(node.mainCamera)
+				if node.mainCamera.isReadytoRotate:
+					handleRotateOrder(node, targetLocation)
+					node.mainCamera.toggleReadyRotate()
+				elif node.mainCamera.isReadytoPatrol:
+					handlePatrolOrder(node, targetLocation)
+				elif not node.mainCamera.isReadytoAttack:
+					handleMovingOrder(node, targetLocation)
 			if Input.is_action_just_pressed("ABORT"):
 				handleAbortOrder(node)
+
 
 	## Обрабатывает команду поворота юнита в указанном направлении[br]
 	## [param node: MovableUnit] - юнит, который должен начать поворот[br]
 	## [method OrderHandler.handleRotateOrder]
-	static func handleRotateOrder(node: MovableUnit) -> void:
-		var targetLocation = RaycastHandler.getRaycastResultPosition(node.mainCamera)
-		var direction = (targetLocation - node.global_position).normalized()
-		direction.y = 0
+	static func handleRotateOrder(node: MovableUnit, targetLocation: Vector3) -> void:
+		var direction = Vector3(targetLocation.x - node.global_position.x, 0, targetLocation.z - node.global_position.z).normalized()
 		if direction.length() > 0:
 			node.target_angle = atan2(direction.x, direction.z)
+			if not node.isRotating:
+				handleAbortOrder(node)
 			node.isRotating = true
+
 
 	## Обрабатывает команду перемещения юнита в указанную точку или массив точек(через shift)[br]
 	## [param node: MovableUnit] - юнит, который должен начать двигаться[br]
 	## [method OrderHandler.handleMovingOrder]
-	static func handleMovingOrder(node: MovableUnit) -> void:
-		var targetLocation = RaycastHandler.getRaycastResultPosition(node.mainCamera)
+	static func handleMovingOrder(node: MovableUnit, targetLocation: Vector3) -> void:
+
 		if not Input.is_action_pressed("MULTI_SELECT"):
 			node.waypointQueue.clear()
-			node.velocity = Vector3.ZERO
+			handleAbortOrder(node)
 		node.waypointQueue.append(targetLocation)
 		PathHandler.newPath(node)
 		node.isMoving = true
@@ -177,15 +202,13 @@ class OrderHandler:
 	## Обрабатывает команду патрулирования между текущей позицией и указанной точкой или между массивом точек(через shift)[br]
 	## [param node: MovableUnit] - юнит, который должен начать патрулирование[br]
 	## [method OrderHandler.handlePatrolOrder]
-	static func handlePatrolOrder(node: MovableUnit) -> void:
-		var targetLocation = RaycastHandler.getRaycastResultPosition(node.mainCamera)
+	static func handlePatrolOrder(node: MovableUnit, targetLocation: Vector3) -> void:
 		if Input.is_action_pressed("MULTI_SELECT"):
 			if node.patrolPoints.is_empty():
 				node.patrolPoints.append(node.global_position)
 			node.patrolPoints.append(targetLocation)
 		else:
 			node.patrolPoints = [node.global_position, targetLocation]
-		
 		node.currentPatrolPoint = 0
 		node.isPatrolling = true
 		PathHandler.updatePatrolPath(node)

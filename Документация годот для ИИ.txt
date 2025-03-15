@@ -1,0 +1,78 @@
+Используя эти теги, исправь и улучши документацию методов и класса. Сделай её более информативной и читабельной. 
+
+[Class]
+Link to class
+
+[annotation Class.name]
+Link to annotation
+
+[constant Class.name]
+Link to constant
+
+[enum Class.name]
+Link to enum
+
+[member Class.name]
+Link to member (property)
+
+[method Class.name]
+Link to method
+
+[constructor Class.name]
+Link to built-in constructor
+
+[operator Class.name]
+Link to built-in operator
+
+[signal Class.name]
+Link to signal
+
+[theme_item Class.name]
+Link to theme item
+
+[param name]
+Parameter name (as code)
+
+
+[br]
+Line break
+
+[b] [/b]
+Bold
+
+[i] [/i]
+Italic
+
+[u] [/u]
+Underline
+
+[s] [/s]
+Strikethrough
+
+[color] [/color]
+Color
+[color=red]Error![/color]
+
+[img] [/img]
+Image
+[img width=32]res://icon.svg[/img]
+
+[url] [/url]
+Hyperlink
+[url]https://example.com[/url]
+[url=https://example.com]Website[/url]
+
+[center] [/center]
+Horizontal centering
+[center]2 + 2 = 4[/center]
+
+[kbd] [/kbd]
+Keyboard/mouse shortcut
+Press [kbd]Ctrl + C[/kbd].
+
+[code] [/code]
+Inline code fragment
+Returns [code]true[/code].
+
+[codeblock] [/codeblock]
+Multiline code block
