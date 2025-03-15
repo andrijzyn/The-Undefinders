@@ -1,22 +1,34 @@
-# Proprietary Software License Agreement
+Proprietary Software License Agreement
 
-**Last Updated:** 2025 - Wed Feb 19
+**Last Updated:** 2025 - Sat Mar 15
 
 ## 1. License Grant
-The developers of **"The-Undefinders"** (“Developers”) retain all rights to the Software. **You are NOT granted permission to use, copy, distribute, modify, or reverse-engineer the Software unless explicitly authorized in writing by the Developers.**
+The developers of **"The-Undefinders"** (“Developers”), specifically **Andrii Zyniuk, Egor Kuzynko, Artem Stepanov**, retain all rights to the Software. You are NOT granted permission to use, copy, distribute, modify, or reverse-engineer the Software unless explicitly authorized in writing by the Developers, except as outlined in Section 6 (Forking Policy).
 
 ## 2. Restricted Use
-Without prior written consent from the Developers, you may **NOT**:
+Without prior written consent from the Developers, you may NOT:
 - Install, execute, or access the Software.
 - Share, sell, rent, or distribute the Software in any form.
 - Modify, decompile, reverse-engineer, or create derivative works based on the Software.
+- Change the license of any part of the Software or any permitted fork.
+- Use the Software as a foundation for an independent or competing project.
 
 ## 3. Ownership
 The Software remains the exclusive property of the Developers. No ownership rights are transferred by this agreement.
 
 ## 4. No Warranty
-The Software is provided **“as is”** without any warranties. The Developers are not responsible for any damages arising from unauthorized use.
+The Software is provided “as is” without any warranties. The Developers are not responsible for any damages arising from unauthorized use.
 
 ## 5. Violation Consequences
 Any unauthorized use of the Software may result in legal action.
 
+## 6. Forking Policy
+Forking the Software is permitted only for the purpose of contributing to the main project and under the following conditions:
+ - The fork must not alter the Software’s original license.
+ - The fork must not be used to create a separate, independent, or competing project.
+ - All modifications must be submitted as pull requests (PRs) to the main repository for review and possible inclusion.
+ - Fork maintainers may be recognized as patrons or contributors in the project acknowledgments.
+ - The Developers retain the right to revoke fork permissions if the terms of this agreement are violated.
+ - Changes made in a fork before this license update remain valid but still require approval from the Developers to be merged into the main project.
+
+Unauthorized forks, modifications, or license changes will be considered a violation of this agreement and may lead to legal consequences.
