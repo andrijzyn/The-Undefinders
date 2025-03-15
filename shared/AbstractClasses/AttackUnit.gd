@@ -2,7 +2,7 @@ extends MovableUnit
 ## Абстрактный класс для юнитов имеющих способность атаковать
 class_name AttackUnit
 
-# --------- Attack Specs ----------
+# --------- ATTACK SPECS ----------
 ## [b]Должно быть указано при инициализации конкретной сущностью.[/b][br]
 ## [b]Значение строго больше 0[/b]
 var damage: float
@@ -34,18 +34,18 @@ var fireRate: float
 ## [b]Значение строго больше 0[/b]
 var attack_radius: float
 
-# --------- Flags ----------
+# --------- FLAGS ----------
 var isAttacking := false
 var canShoot := true
 var isAutoAttackEnabled: bool
 
-# ----------- AutoAttack vars ------------
+# ----------- AUTOATTACK VARS ------------
 @onready var detection_area: Area3D = $DetectionArea  # Узел зоны обнаружения
 @onready var detection_shape: CollisionShape3D = $DetectionArea/CollisionShape3D  # Коллизия зоны
 var enemies_in_range: Array[Entity] = []
 var currentAttackGoal: Entity = null
 
-# ----------- Nodes-containing vars ----------
+# ----------- NODES-CONTAINING VARS ----------
 @onready var firePoint: Marker3D = $FirePoint
 var bullet: PackedScene = preload("res://features/Shells/Bullet/bullet.tscn")
 #var explosion: PackedScene = preload("")
@@ -75,7 +75,7 @@ func _process(delta: float) -> void:
 			rotate_towards_target(targetLocation)
 			shoot()
 
-# ----------- Attack Handling ----------
+# ----------- ATTACK HANDLING ----------
 func start_attack() -> void:
 	var targetLocation = RaycastHandler.getRaycastResultPosition(mainCamera)
 	MovementOrderHandler.handleRotateOrder(self, targetLocation)
@@ -99,7 +99,7 @@ func shoot() -> void:
 	else:
 		isAttacking = false
 
-# ----------- Helper Functions ----------
+# ----------- HELPER FUNCTIONS ----------
 # Create bullets
 func create_bullets() -> void:
 	var shoot_count = 1 if isSingleShooting else shootsAmount  # Corrected logic with if-else
@@ -123,7 +123,7 @@ func rotate_towards_target(targetLocation: Vector3) -> void:
 	if not is_facing_target(targetLocation):
 		MovementOrderHandler.handleRotateOrder(self, targetLocation)
 
-# --------- Signals ---------
+# --------- SIGNALS ---------
 func _on_enemy_entered(body):
 	if body is Entity and body != self:  # Проверяем, что это враг и не сам юнит
 		enemies_in_range.append(body)

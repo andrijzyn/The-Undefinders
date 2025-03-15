@@ -2,23 +2,23 @@ extends Node3D
 ## Абстрактный класс, для всех играбельных сущностей игры здания / юниты
 class_name Entity
 
-# -------- Health vars ----------
+# -------- HEALTH VARS ----------
 ## [b]Должно быть указано при инициализации конкретной сущностью.[/b][br]
 ## [b]Значение строго больше 0[/b]
 var max_health: float
 ## [b]Стартовое значение по умолчанию == [member Entity.max_health][/b]
 var currentHealth: float
 
-# ---------- Nodes-containing vars -----------
+# ---------- NODES-CONTAINING VARS -----------
 @onready var healthBar :HealthBar = $SubViewport.get_child(0)
 @onready var healthBarSprite :Sprite3D = $HealthBarSprite
 
-# ----- Flags --------
+# ----- FLAGS --------
 var isHealthBarVisible := false
 var isSelected := false
 
 
-# --------------- Selection setting ------------
+# --------------- SELECTION SETTING ------------
 ## Устанавливает состояние выделения сущности, также вызывает [method Entity.setHealthBarVisibility] передавая входной параметр[br]
 ## [param val: bool] - true, если сущность выбрана, иначе false[br]
 ## [method Entity.setSelected]
@@ -26,7 +26,7 @@ func setSelected(val: bool) -> void:
 	isSelected = val
 	setHealthBarVisibility(val)
 
-# ------------- Обработка здоровья и отображения полосы здоровья ---------------
+# ------------- ОБРАБОТКА ЗДОРОВЬЯ И ОТОБРАЖЕНИЯ ПОЛОСЫ ЗДОРОВЬЯ ---------------
 ## Устанавливает видимость полосы здоровья[br]
 ## [param val: bool] - true, если полоса здоровья должна отображаться, иначе false[br]
 ## [method Entity.setHealthBarVisibility]

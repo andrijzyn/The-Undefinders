@@ -2,43 +2,43 @@ extends Entity
 ## Абстрактный класс для юнитов которые могут двигатся
 class_name MovableUnit
 
-# ----- Rotating vars -----
+# ----- ROTATING VARS -----
 const threshold: float = 0.001
 var target_angle: float
 ## [b]Должно быть указано при инициализации конкретной сущностью.[/b][br]
 ## [b]Значение строго больше 0[/b]
 var rotation_speed: float = 5.0
 
-# ----- Flags --------
+# ----- FLAGS --------
 var isMoving := false
 var isRotating := false
 var isPatrolling := false
 var isLeavingBuilding := false
 
-# ----- PathFinding vars --------
+# ----- PATHFINDING VARS --------
 var waypointQueue: PackedVector3Array = []
 var patrolPoints: PackedVector3Array = []
 var currentPaths: PackedVector3Array = []
 var currentPath: int = 0
 var currentPatrolPoint: int = 0
 
-# ----------- Other vars -------------------
+# ----------- OTHER VARS -------------------
 var direction: Vector3
 var velocity: Vector3
 ## [b]Должно быть указано при инициализации конкретной сущностью.[/b][br]
 ## [b]Значение строго больше 0[/b]
 var speed: float = 2.0
 
-# ---------- Nodes-containing vars -----------
+# ---------- NODES-CONTAINING VARS -----------
 @onready var animPlayer := $AnimPlayer
 @onready var collider := $CollisionPolygon3D2
 @onready var mainCamera: MainCamera
 @onready var mapRID: RID
 
-# ------------ Signals -----------
+# ------------ SIGNALS -----------
 signal reached_exit
 
-# ----------- In-build timeline methods implementation -----------
+# ----------- IN-BUILD TIMELINE METHODS IMPLEMENTATION -----------
 func _init() -> void:
 	add_to_group(Constants.selectable)
 	add_to_group(Constants.movable)
@@ -59,7 +59,7 @@ func _ready() -> void:
 	mapRID = get_world_3d().navigation_map
 
 
-# ---------------- Other stuff ------------------ 
+# ---------------- OTHER STUFF ------------------ 
 func rotate_by_position(delta: float, move_direction: Vector3):
 	if move_direction.length_squared() > threshold:
 		target_angle = atan2(move_direction.x, move_direction.z)

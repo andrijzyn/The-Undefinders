@@ -1,37 +1,40 @@
 extends Camera3D
 class_name MainCamera
 
-@export var CAMERA_SPEED_MULTPLIER := 0.05
-@export var CAMERA_ROTATION_SPEED := 1
-@export var ROTATION_SPEED_MULTIPLIER = 0.005
-@export var ZOOM_SPEED_MULTPLIER := 200
-@export var EDGE_MARGIN := 120
-@export var EDGE_SCROLL_SPEED := 20
-
-
-
+# ----- CAMERA MOVEMENT VARS -------
+var CAMERA_SPEED_MULTPLIER := 0.05
+var CAMERA_ROTATION_SPEED := 1
+var ROTATION_SPEED_MULTIPLIER = 0.005
+var ZOOM_SPEED_MULTPLIER := 200
+var EDGE_MARGIN := 120
+var EDGE_SCROLL_SPEED := 20
 const DRAG_THRESHOLD := 5
-var ghost_shader = preload("res://shared/shaders/ghost_shader.gdshader")
 
+# ------- FLAGS ----------
 var dragging := false
 var rotating := false
 var selecting := false
+var rotating_building := false
+var can_place := true
+
+# ------- SELECTION RECT VARS -------
 var selection_start := Vector2()
 var selection_rect := Rect2().abs()
+
+# ------- UNINDENTIFIED SHIT -------
 var last_mouse_position := Vector2()
 var phantom_building: Node3D = null
-var rotating_building: bool = false
-var can_place: bool = true
 var overlapping_bodies_count: int = 0
-
 var selection_overlay: ColorRect
+var ghost_shader = preload("res://shared/shaders/ghost_shader.gdshader")
 
-# ----------- Playable Nodes handling vars ----------
+# ----------- PLAYABLE NODES HANDLING VARS ----------
 var selected_nodes: Array[Node3D] = []
 var isReadytoRotate := false
 var isReadytoPatrol := false
 var isReadytoAttack := false
-# -------------- Handling order stand-by -----------
+
+# -------------- HANDLING ORDER STAND-BY -----------
 func toggleReadyPatrol() -> void:
 	isReadytoPatrol = !isReadytoPatrol
 	if isReadytoPatrol: 
@@ -48,6 +51,7 @@ func toggleReadyAttack() -> void:
 		isReadytoPatrol = false  
 		isReadytoRotate = false 
 
+# ----------- IN-BUILD TIMELINE METHODS IMPLEMENTATION -----------
 func _init() -> void:
 	add_to_group(Constants.cameras)
 
@@ -98,6 +102,7 @@ func _process(delta:float) -> void:
 				intersection.y = 0
 				phantom_building.global_transform.origin = intersection
 
+# --------- INPUT HANDLING ----------
 func _input(event):
 	# Handle mouse button events
 	if event is InputEventMouseButton:
@@ -189,21 +194,7 @@ func _input(event):
 			rotate_y(-delta_rotate.x)
 			last_mouse_position = event.position
 
-func get_ground_position(mouse_pos: Vector2) -> Vector3:
-	var ray_origin = project_ray_origin(mouse_pos)
-	var ray_dir = project_ray_normal(mouse_pos)
-	var ground_plane = Plane(Vector3.UP, 0)
-	var intersection = ray_plane_intersection(ray_origin, ray_dir, ground_plane)
-	if intersection:
-		intersection.y = 0
-	return intersection
-
-func updateSelectionRectangle():
-	var current_mouse_pos = get_viewport().get_mouse_position()
-	selection_rect = Rect2(selection_start, current_mouse_pos - selection_start).abs()
-	selection_overlay.position = selection_rect.position
-	selection_overlay.size = selection_rect.size
-
+# -------- CAMERA MOVEMENT METHODS --------
 func cameraZoom(delta:float)-> void:
 	if position.y >= 10 and Input.is_action_just_pressed("ZOOM_IN"):
 		# -transform.basis.z дает локальный вектор "вперед" камеры
@@ -214,7 +205,6 @@ func cameraZoom(delta:float)-> void:
 		var zoom_offset: Vector3 = -transform.basis.z * -1 * ZOOM_SPEED_MULTPLIER * delta
 		print("Zoom offset: ", zoom_offset)
 		position += zoom_offset
-
 func handleEdgeScrolling(delta: float) -> void:
 	if is_mouse_over_ui():
 		return  # Блокировать ввод, если курсор над UI
@@ -251,6 +241,24 @@ func handleEdgeScrolling(delta: float) -> void:
 	if move_dir.length() > 0:
 		position += move_dir.normalized() * EDGE_SCROLL_SPEED * abs(speed_x + speed_z) * delta
 
+# ----------- SELECTION RECT METHODS --------
+func updateSelectionRectangle():
+	var current_mouse_pos = get_viewport().get_mouse_position()
+	selection_rect = Rect2(selection_start, current_mouse_pos - selection_start).abs()
+	selection_overlay.position = selection_rect.position
+	selection_overlay.size = selection_rect.size
+
+func get_ground_position(mouse_pos: Vector2) -> Vector3:
+	var ray_origin = project_ray_origin(mouse_pos)
+	var ray_dir = project_ray_normal(mouse_pos)
+	var ground_plane = Plane(Vector3.UP, 0)
+	var intersection = ray_plane_intersection(ray_origin, ray_dir, ground_plane)
+	if intersection:
+		intersection.y = 0
+	return intersection
+	
+
+# --------- BUILDING PLACEMENT & RELATED METHODS ----------
 func start_building_placement(building_name: String) -> void:
 	# If there is an old phantom object, delete and restore the materials
 	if phantom_building:
@@ -275,36 +283,21 @@ func start_building_placement(building_name: String) -> void:
 		get_tree().get_current_scene().add_child(phantom_building)
 	else:
 		print("Error: Scene not found at path:", path)
-
-# Duplicate the mesh so that its materials are not shared
 func duplicate_meshes(node: Node) -> void:
 	if node is MeshInstance3D and node.mesh:
 		node.mesh = node.mesh.duplicate()
 	for child in node.get_children():
 		duplicate_meshes(child)
-
 func disable_colliders(node: Node) -> void:
 	if node is CollisionShape3D:
 		node.disabled = true
 	for child in node.get_children():
 		disable_colliders(child)
-
 func enable_colliders(node: Node) -> void:
 	if node is CollisionShape3D:
 		node.disabled = false
 	for child in node.get_children():
 		enable_colliders(child)
-
-func find_first_collision_shape(node: Node) -> CollisionShape3D:
-	if node is CollisionShape3D:
-		return node
-	for child in node.get_children():
-		var collider = find_first_collision_shape(child)
-		if collider:
-			return collider
-	return null
-
-# Add Area3D for intersection detection
 func setup_phantom_area(node: Node) -> void:
 	var area = Area3D.new()
 	var new_collision_shape = CollisionShape3D.new()
@@ -322,21 +315,17 @@ func setup_phantom_area(node: Node) -> void:
 	node.add_child(area)
 	area.connect("body_entered", Callable(self,"_on_phantom_area_body_entered"))
 	area.connect("body_exited", Callable(self, "_on_phantom_area_body_exited"))
-
 func _on_phantom_area_body_entered(body: Node) -> void:
 	overlapping_bodies_count += 1
 	set_phantom_collision_state(true)
-
 func _on_phantom_area_body_exited(body: Node) -> void:
 	overlapping_bodies_count -= 1
 	if overlapping_bodies_count <= 0:
 		overlapping_bodies_count = 0
 		set_phantom_collision_state(false)
-
 func set_phantom_collision_state(is_colliding: bool) -> void:
 	can_place = not is_colliding
 	update_phantom_material_color(phantom_building, is_colliding)
-
 func update_phantom_material_color(node: Node, is_colliding: bool) -> void:
 	if node is MeshInstance3D and node.mesh:
 		for i in range(node.mesh.get_surface_count()):
@@ -351,7 +340,6 @@ func update_phantom_material_color(node: Node, is_colliding: bool) -> void:
 	if node:
 		for child in node.get_children():
 				update_phantom_material_color(child, is_colliding)
-
 func apply_ghost_shader(node: Node) -> void:
 	if node is MeshInstance3D and node.mesh:
 		var surface_count = node.mesh.get_surface_count()
@@ -371,7 +359,6 @@ func apply_ghost_shader(node: Node) -> void:
 
 	for child in node.get_children():
 		apply_ghost_shader(child)
-
 func fix_building_transparency(node: Node) -> void:
 	if node is MeshInstance3D and node.mesh:
 		var surface_count = node.mesh.get_surface_count()
@@ -384,13 +371,11 @@ func fix_building_transparency(node: Node) -> void:
 
 	for child in node.get_children():
 		fix_building_transparency(child)
-
 func cancel_building_placement() -> void:
 	if phantom_building:
 		fix_building_transparency(phantom_building)
 		phantom_building.queue_free()
 		phantom_building = null
-
 func finish_building_placement() -> void:
 	if phantom_building and can_place:
 		for child in phantom_building.get_children():
@@ -400,28 +385,7 @@ func finish_building_placement() -> void:
 		fix_building_transparency(phantom_building)
 		phantom_building = null
 
-func ray_plane_intersection(origin: Vector3, dir: Vector3, plane: Plane) -> Vector3:
-	var denom = plane.normal.dot(dir)
-	if abs(denom) < 0.001:
-		return Vector3.ZERO
-	var t = -(plane.normal.dot(origin) + plane.d) / denom
-	if t < 0:
-		return Vector3.ZERO
-	return origin + dir * t
-
-func is_mouse_over_ui() -> bool:
-	var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
-	if not ui:
-		return false
-	
-	var mouse_pos = get_viewport().get_mouse_position()
-	
-	for node in ui.find_children("", "Control", true):
-		if node.visible and node.get_global_rect().has_point(mouse_pos):
-			return true
-	
-	return false
-
+# ---------- CURSOR CHANGE PART ---------
 class CursorChangeHandler:
 	static func cursorChangebyHover(camera: MainCamera):
 		var result := RaycastHandler.getRaycastResult(camera)
@@ -454,10 +418,37 @@ class CursorChangeHandler:
 			DisplayServer.cursor_set_custom_image(null)
 			#print("default")
 			DisplayServer.cursor_set_shape(DisplayServer.CURSOR_ARROW)
-
-
-
 class Cursors:
 	static var rotateCursor := preload("res://shared/Cursors/rotate-left.png")
 	static var patrolCursor := preload("res://shared/Cursors/dog.png")
 	static var attackCursor := preload("res://shared/Cursors/attack.png")
+	
+# ------- UNINDENTIFIED SHIT -------
+func find_first_collision_shape(node: Node) -> CollisionShape3D:
+	if node is CollisionShape3D:
+		return node
+	for child in node.get_children():
+		var collider = find_first_collision_shape(child)
+		if collider:
+			return collider
+	return null
+func ray_plane_intersection(origin: Vector3, dir: Vector3, plane: Plane) -> Vector3:
+	var denom = plane.normal.dot(dir)
+	if abs(denom) < 0.001:
+		return Vector3.ZERO
+	var t = -(plane.normal.dot(origin) + plane.d) / denom
+	if t < 0:
+		return Vector3.ZERO
+	return origin + dir * t
+func is_mouse_over_ui() -> bool:
+	var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
+	if not ui:
+		return false
+	
+	var mouse_pos = get_viewport().get_mouse_position()
+	
+	for node in ui.find_children("", "Control", true):
+		if node.visible and node.get_global_rect().has_point(mouse_pos):
+			return true
+	
+	return false
