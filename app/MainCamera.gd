@@ -119,8 +119,9 @@ func _input(event):
 			if phantom_building:
 				cancel_building_placement()
 				return
-			dragging = event.pressed
-			last_mouse_position = event.position
+			if selected_nodes.is_empty():
+				dragging = event.pressed
+				last_mouse_position = event.position
 
 		# Middle mouse button - camera rotation
 		elif event.button_index == MOUSE_BUTTON_MIDDLE:
