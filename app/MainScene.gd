@@ -30,15 +30,12 @@ var players = []
 var current_camera: Camera3D = null
 var current_player_index: int = 0
 var grid = Grid.new(80, 80, 0.25)  # Map size 20x20, cell size 1.0
-var pathfinder = Pathfinding.new()
+var pathfinder
 
 func _ready() -> void:
 	setup_players(loaded_players)
 	add_child(grid)
 	grid.set_walkable(5, 5, false)
-	pathfinder.grid = grid
-	PathHandler.grid = grid
-	PathHandler.pathfinder = pathfinder
 
 func setup_players(player_list: Array):
 	for player_data in player_list:
@@ -110,3 +107,10 @@ func switch_player():
 func _input(event):
 	if event.is_action_pressed("SWITCH_PLAYER"):
 		switch_player()
+
+func init_path_finder():
+	print(1)
+	pathfinder = Pathfinding.new()
+	pathfinder.grid = grid
+	PathHandler.grid = grid
+	PathHandler.pathfinder = pathfinder

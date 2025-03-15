@@ -134,6 +134,9 @@ func reconstruct_path(node: AStarNode) -> Array:
 	path.reverse()
 	return path
 
+func update_grid(new_grid: Grid):
+	grid = new_grid
+
 # Binary Heap (Priority Queue) Implementation
 class PriorityQueue:
 	var heap = []

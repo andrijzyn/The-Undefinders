@@ -15,8 +15,14 @@ static func newPath(node: MovableUnit) -> void:
 	var start = node.global_position
 	var target = node.waypointQueue[0]
 
-	var start_grid_pos = Vector2(round(start.x / grid.cell_size), round(start.z / grid.cell_size))
-	var target_grid_pos = Vector2(round(target.x / grid.cell_size), round(target.z / grid.cell_size))
+	var start_grid_pos = Vector2(
+		round((start.x - grid.position.x) / grid.cell_size),
+		round((start.z - grid.position.z) / grid.cell_size)
+	)
+	var target_grid_pos = Vector2(
+		round((target.x - grid.position.x) / grid.cell_size),
+		round((target.z - grid.position.z) / grid.cell_size)
+	)
 
 	if not grid.is_within_bounds(start_grid_pos.x, start_grid_pos.y):
 		print("Unit out of grid! Searching for nearest available point...")
@@ -34,9 +40,9 @@ static func newPath(node: MovableUnit) -> void:
 	var world_path = []
 	for point in path:
 		var world_pos = Vector3(
-			(point.x + 0.5) * grid.cell_size, 
+			(point.x + 0.5) * grid.cell_size + grid.position.x, 
 			start.y, 
-			(point.y + 0.5) * grid.cell_size
+			(point.y + 0.5) * grid.cell_size + grid.position.z
 		)
 		world_path.append(world_pos)
 

@@ -25,8 +25,10 @@ func _init(w: int, h: int, size: float):
 	width = w
 	height = h
 	cell_size = size
-	cells = []
-	
+	generate_grid()
+
+func generate_grid():
+	cells.clear()
 	for x in range(width):
 		var row = []
 		for y in range(height):
@@ -60,6 +62,8 @@ func _ready():
 	add_child(debug_instance)
 	debug_instance.mesh = debug_mesh
 	debug_instance.cast_shadow = false
+
+	stretch_to_ground()
 	update_debug_mesh()
 
 func update_debug_mesh():
@@ -100,3 +104,32 @@ func get_nearest_walkable(grid_pos: Vector2) -> Vector2:
 					nearest_pos = pos
 
 	return nearest_pos
+
+func stretch_to_ground():
+	var ground = get_parent().find_child("Ground", true, false)
+	if ground and ground is StaticBody3D:
+		var mesh_instance = ground.find_child("Mesh", true, false)
+		var ground_scale = ground.scale  # Get the scale from StaticBody3D
+
+		if mesh_instance and mesh_instance.mesh:
+			var aabb: AABB = mesh_instance.mesh.get_aabb()
+			var full_size = aabb.size * ground_scale  # Consider the scale of StaticBody3D
+			var ground_position = ground.global_transform.origin  # Consider the position of Ground
+
+			# Determine the bottom-left corner of the grid
+			var grid_origin = ground_position + (aabb.position * ground_scale)
+
+			# Round up to cover the entire area
+			var new_width = ceil(full_size.x / cell_size)
+			var new_height = ceil(full_size.z / cell_size)
+
+			# Update grid size and position
+			width = new_width
+			height = new_height
+			global_transform.origin = Vector3(grid_origin.x, ground_position.y, grid_origin.z)  # Adjust position
+
+			# Rebuild the grid
+			generate_grid()
+			update_debug_mesh()
+			get_parent().grid = self
+			get_parent().init_path_finder()
