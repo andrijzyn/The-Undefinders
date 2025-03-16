@@ -28,7 +28,7 @@ func _init(w: int, h: int, size: float):
 
 func generate_grid():
 	cells.clear()
-	var space_state = get_world_3d().direct_space_state  # Get the collision space
+	var space_state = get_world_3d().direct_space_state
 	
 	for x in range(width):
 		var row = []
@@ -37,6 +37,16 @@ func generate_grid():
 			var is_walkable = detect_obstacles(space_state, cell_world_pos)  # Check for obstacles
 			row.append(GridCell.new(x, y, is_walkable, 0))
 		cells.append(row)
+
+	update_debug_mesh()
+
+func update_walkability():
+	var space_state = get_world_3d().direct_space_state  # Get the collision space
+
+	for x in range(width):
+		for y in range(height):
+			var cell_world_pos = get_world_position(x, y)
+			cells[x][y].walkable = detect_obstacles(space_state, cell_world_pos)  # Update walkability
 
 	update_debug_mesh()  # Update the visual display
 

@@ -389,6 +389,7 @@ func finish_building_placement() -> void:
 		enable_colliders(phantom_building)
 		fix_building_transparency(phantom_building)
 		phantom_building = null
+		main_scene.grid.update_walkability()
 
 func ray_plane_intersection(origin: Vector3, dir: Vector3, plane: Plane) -> Vector3:
 	var denom = plane.normal.dot(dir)
