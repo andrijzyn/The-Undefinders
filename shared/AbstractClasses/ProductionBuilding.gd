@@ -33,7 +33,7 @@ func on_production_complete(item_name: String):
 
 func start_production(item_name: String, item_icon: Texture2D):
 	if production_queue.size() < MAX_QUEUE_SIZE:
-		var production_time = available_items[item_name].get("time", 5.0)
+		var production_time = 0.5 if Global.is_debugging else available_items[item_name].get("time", 5.0)
 		production_queue.append({
 			"name": item_name,
 			"icon": item_icon,

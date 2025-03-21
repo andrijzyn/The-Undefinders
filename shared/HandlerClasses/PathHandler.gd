@@ -9,7 +9,7 @@ static var pathfinder: Pathfinding
 ## [method PathHandler.newPath]
 static func newPath(node: MovableUnit) -> void:
 	if node.waypointQueue.is_empty():
-		print("Error: Empty waypoint queue!")
+		if Global.is_debugging: print("Error: Empty waypoint queue!")
 		return
 
 	var start = node.global_position
@@ -25,37 +25,26 @@ static func newPath(node: MovableUnit) -> void:
 	)
 
 	if not grid.is_within_bounds(start_grid_pos.x, start_grid_pos.y):
-		print("Unit out of grid! Searching for nearest available point...")
+		if Global.is_debugging:
+			print("Start position outside grid boundary! Searching for nearest available point...")
 		start_grid_pos = grid.get_nearest_walkable(start_grid_pos, target_grid_pos)
 
 	if not grid.is_walkable(start_grid_pos.x, start_grid_pos.y):
+		if Global.is_debugging:
 			print("Start position is blocked! Searching for nearest walkable point...")
-			start_grid_pos = grid.get_nearest_walkable(start_grid_pos, target_grid_pos)
+		start_grid_pos = grid.get_nearest_walkable(start_grid_pos, target_grid_pos)
 
 	if not grid.is_within_bounds(target_grid_pos.x, target_grid_pos.y):
-		print("Target point outside grid boundary! Searching for nearest available point...")
+		if Global.is_debugging:
+			print("Target point outside grid boundary! Searching for nearest available point...")
 		target_grid_pos = grid.get_nearest_walkable(target_grid_pos, start_grid_pos)
 
 	if not grid.is_walkable(target_grid_pos.x, target_grid_pos.y):
+		if Global.is_debugging:
 			print("Target position is blocked! Searching for nearest walkable point...")
-			target_grid_pos = grid.get_nearest_walkable(target_grid_pos, start_grid_pos)
+		target_grid_pos = grid.get_nearest_walkable(target_grid_pos, start_grid_pos)
 
-	var path = pathfinder.find_path(start_grid_pos, target_grid_pos)
-	if path.is_empty():
-		print("Error: Unable to find path from ", start_grid_pos, " to ", target_grid_pos)
-		return
-
-	var world_path = []
-	for point in path:
-		var world_pos = Vector3(
-			(point.x + 0.5) * grid.cell_size + grid.position.x, 
-			start.y, 
-			(point.y + 0.5) * grid.cell_size + grid.position.z
-		)
-		world_path.append(world_pos)
-
-	node.currentPaths = world_path
-	node.currentPath = 0
+	pathfinder.request_path(node, start_grid_pos, target_grid_pos)
 
 ## Обновляет маршрут патрулирования юнита, переключая его между точками патруля[br]
 ## [param node: MovableUnit] - юнит, выполняющий патрулирование[br]

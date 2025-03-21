@@ -96,6 +96,8 @@ class MovementContinuator:
 	## [param node: MovableUnit] - юнит, который должен продолжать двигаться[br]
 	## [method MovementContinuator.keep_moving]
 	static func keep_moving(node: MovableUnit, delta: float):
+		if node.currentPaths.is_empty() or node.currentPath >= node.currentPaths.size():
+			return
 		var next_position = node.currentPaths[node.currentPath] - node.global_position
 		node.rotate_by_position(delta, next_position)
 		node.velocity = node.velocity.lerp(next_position.normalized() * node.speed, delta)
