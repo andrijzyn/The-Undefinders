@@ -259,7 +259,6 @@ func handleEdgeScrolling(delta: float) -> void:
 #Checks if the cursor is over a visible element inside the ui. If yes, then returns true, if not, then false.
 #Used to block movement from the screen border when the user is in the interface, as well as for some other functions
 func is_mouse_over_ui() -> bool:
-	var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
 	if not ui:
 		return false
 	
@@ -487,24 +486,3 @@ class Cursors:
 	static var rotateCursor := preload("res://shared/Cursors/rotate-left.png")
 	static var patrolCursor := preload("res://shared/Cursors/dog.png")
 	static var attackCursor := preload("res://shared/Cursors/attack.png")
-
-func ray_plane_intersection(origin: Vector3, dir: Vector3, plane: Plane) -> Vector3:
-	var denom = plane.normal.dot(dir)
-	if abs(denom) < 0.001:
-		return Vector3.ZERO
-	var t = -(plane.normal.dot(origin) + plane.d) / denom
-	if t < 0:
-		return Vector3.ZERO
-	return origin + dir * t
-
-func is_mouse_over_ui() -> bool:
-	if not ui:
-		return false
-	
-	var mouse_pos = get_viewport().get_mouse_position()
-	
-	for node in ui.find_children("", "Control", true):
-		if node.visible and node.get_global_rect().has_point(mouse_pos):
-			return true
-	
-	return false
