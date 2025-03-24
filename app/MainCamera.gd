@@ -24,6 +24,13 @@ var can_place := true
 var selection_start := Vector2()
 var selection_rect := Rect2().abs()
 var selection_overlay: ColorRect
+var main_scene #DAMI - Delete after multiplayer implementation
+var ui
+
+#Change main_scene.current_player_index to multiplayer.get_unique_id() after multiplayer implementation
+func multiplayer_ownership_checker():
+	if main_scene.current_player_index != get_multiplayer_authority():
+		return true
 
 # ------- BUILDING ASSOCIATED VARIABLES
 var phantom_building: Node3D = null
@@ -58,6 +65,7 @@ func _init() -> void:
 	add_to_group(Constants.cameras)
 
 func _ready():
+	main_scene = get_tree().current_scene #DAMI
 	# Create selection overlay UI
 	var canvas_layer = CanvasLayer.new()
 	get_viewport().add_child.call_deferred(canvas_layer)
@@ -74,8 +82,12 @@ func _ready():
 	selection_container.add_child(selection_overlay)
 
 func _process(delta:float) -> void:
+	if multiplayer_ownership_checker():
+		return
+	
 	CursorChangeHandler.cursorChangebyHover(self)
 	CursorChangeHandler.cursorChangebyOrderStandby(self)
+
 	handleEdgeScrolling(delta)
 	cameraZoom(delta)
 	HoverHandler.handleHover(self)
@@ -106,6 +118,8 @@ func _process(delta:float) -> void:
 
 # --------- INPUT HANDLING ----------
 func _input(event):
+	if multiplayer_ownership_checker():
+		return
 	# Handle mouse button events
 	if event is InputEventMouseButton:
 		if phantom_building:
@@ -147,7 +161,7 @@ func _input(event):
 				if Input.is_action_pressed("MULTI_SELECT"):
 					var result = RaycastHandler.getRaycastResult(self)
 					if result:
-						selected_nodes = SelectionHandler.handleMultipleSelectionByShift(selected_nodes, result)
+						selected_nodes = SelectionHandler.handleMultipleSelectionByShift(selected_nodes, result, self)
 				elif event.double_click:
 					# Double-click selects multiple objects of the same type
 					var result = RaycastHandler.getRaycastResult(self)
@@ -170,8 +184,7 @@ func _input(event):
 					else:
 						var result = RaycastHandler.getRaycastResult(self)
 						if result:
-							selected_nodes = SelectionHandler.handleSingleSelection(selected_nodes, result)
-					var ui = get_tree().get_root().get_node("MainScene/RTS_UI")
+							selected_nodes = SelectionHandler.handleSingleSelection(selected_nodes, result, self)
 					if ui:
 						ui.update_selected_objects(selected_nodes)
 
@@ -296,17 +309,18 @@ func start_building_placement(building_name: String) -> void:
 	var path = "res://entities/Buildings/" + building_name + ".tscn"
 	if ResourceLoader.exists(path):
 		var building_scene = load(path).instantiate()
-		
+
 		duplicate_meshes(building_scene)
-	
+		change_fraction_color(building_scene, main_scene.players[get_multiplayer_authority()].color)
+
 		phantom_building = building_scene
 		phantom_building.rotation = Vector3(phantom_building.rotation.x, 0.0, phantom_building.rotation.z)
-		phantom_building.scale = Vector3(0.5, 0.5, 0.5)
-	
+		phantom_building.set_multiplayer_authority(get_multiplayer_authority())
+
 		apply_ghost_shader(phantom_building)
 		disable_colliders(phantom_building)
 		setup_phantom_area(phantom_building)
-		get_tree().get_current_scene().add_child(phantom_building)
+		get_parent().add_child(phantom_building)
 	else:
 		print("Error: Scene not found at path:", path)
 func duplicate_meshes(node: Node) -> void:
@@ -314,6 +328,19 @@ func duplicate_meshes(node: Node) -> void:
 		node.mesh = node.mesh.duplicate()
 	for child in node.get_children():
 		duplicate_meshes(child)
+
+# Change color of the fraction material
+func change_fraction_color(node: Node, new_color: Color) -> void:
+	if node is MeshInstance3D and node.mesh:
+		for i in range(node.mesh.get_surface_count()):
+			var mat = node.mesh.surface_get_material(i)
+			if mat and mat.resource_name == "Fraction Color":
+				var new_mat = mat.duplicate()
+				new_mat.albedo_color = new_color
+				node.mesh.surface_set_material(i, new_mat)
+	for child in node.get_children():
+		change_fraction_color(child, new_color)
+
 func disable_colliders(node: Node) -> void:
 	if node is CollisionShape3D:
 		node.disabled = true
@@ -410,6 +437,8 @@ func finish_building_placement() -> void:
 		enable_colliders(phantom_building)
 		fix_building_transparency(phantom_building)
 		phantom_building = null
+		main_scene.grid.update_walkability()
+
 #Func find_first_colliusion_shape
 #Finds the first collision found on an object and returns it
 #For example, to use it in the future to create an area that units should not enter.
@@ -458,3 +487,24 @@ class Cursors:
 	static var rotateCursor := preload("res://shared/Cursors/rotate-left.png")
 	static var patrolCursor := preload("res://shared/Cursors/dog.png")
 	static var attackCursor := preload("res://shared/Cursors/attack.png")
+
+func ray_plane_intersection(origin: Vector3, dir: Vector3, plane: Plane) -> Vector3:
+	var denom = plane.normal.dot(dir)
+	if abs(denom) < 0.001:
+		return Vector3.ZERO
+	var t = -(plane.normal.dot(origin) + plane.d) / denom
+	if t < 0:
+		return Vector3.ZERO
+	return origin + dir * t
+
+func is_mouse_over_ui() -> bool:
+	if not ui:
+		return false
+	
+	var mouse_pos = get_viewport().get_mouse_position()
+	
+	for node in ui.find_children("", "Control", true):
+		if node.visible and node.get_global_rect().has_point(mouse_pos):
+			return true
+	
+	return false

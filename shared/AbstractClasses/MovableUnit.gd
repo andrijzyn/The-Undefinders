@@ -55,7 +55,6 @@ func _process(delta: float) -> void:
 	position += velocity * delta
 
 func _ready() -> void:
-	mainCamera = get_tree().get_nodes_in_group(Constants.cameras)[0]
 	mapRID = get_world_3d().navigation_map
 
 
@@ -117,6 +116,8 @@ class MovementContinuator:
 	## [param node: MovableUnit] - юнит, который должен продолжать двигаться[br]
 	## [method MovementContinuator.keep_moving]
 	static func keep_moving(node: MovableUnit, delta: float):
+		if node.currentPaths.is_empty() or node.currentPath >= node.currentPaths.size():
+			return
 		var next_position = node.currentPaths[node.currentPath] - node.global_position
 		node.rotate_by_position(delta, next_position)
 		node.velocity = node.velocity.lerp(next_position.normalized() * node.speed, delta)
@@ -132,10 +133,10 @@ class MovementContinuator:
 			else:
 				node.velocity = Vector3.ZERO
 				node.isMoving = false
-				if node.isLeavingBuilding:
-					node.isLeavingBuilding = false
-					node.collider.disabled = false
-					node.reached_exit.emit()
+			if node.isLeavingBuilding:
+				node.isLeavingBuilding = false
+				node.collider.disabled = false
+				node.reached_exit.emit()
 
 
 	## Обрабатывает движение юнита по маршруту патрулирования[br]

@@ -30,6 +30,10 @@ func on_production_complete(unit_name: String):
 
 	var path = "res://entities/Units/USA/Infantry/" + unit_name + ".tscn"
 	var unit_instance = load(path).instantiate()
+
+	unit_instance.mainCamera = get_parent().camera
+	unit_instance.set_multiplayer_authority(get_multiplayer_authority())
+
 	get_parent().add_child(unit_instance)
 	unit_instance.global_transform.origin = spawn_point.global_transform.origin
 	if target_location_active:
