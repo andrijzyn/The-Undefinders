@@ -2090,6 +2090,7 @@ _data = {
 viewport_path = NodePath("SubViewport")
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_dcxes"]
+radius = 4.104
 
 [node name="Soldier" type="CharacterBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.771701, 0, 1.65239)

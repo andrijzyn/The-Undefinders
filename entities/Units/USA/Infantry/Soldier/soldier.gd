@@ -22,7 +22,7 @@ func _init() -> void:
 	isSingleShooting = false
 	shootsAmount = 3
 	fireRate = 0.1
-	attack_radius = 30
+	attack_radius = 15
 	isAutoAttackEnabled = true
 
 func _process(delta: float) -> void:

@@ -9,6 +9,7 @@ var max_health: float
 ## [b]Стартовое значение по умолчанию == [member Entity.max_health][/b]
 var currentHealth: float
 
+
 # ---------- NODES-CONTAINING VARS -----------
 @onready var healthBar :HealthBar = $SubViewport.get_child(0)
 @onready var healthBarSprite :Sprite3D = $HealthBarSprite

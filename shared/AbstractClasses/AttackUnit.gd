@@ -62,10 +62,11 @@ func _ready():
 func _process(delta: float) -> void:
 	super._process(delta)
 	if isAutoAttackEnabled:
-		if currentAttackGoal == null and not enemies_in_range.is_empty() and not isMoving:
+		if currentAttackGoal == null and not enemies_in_range.is_empty():
 			currentAttackGoal = enemies_in_range[0]
 		if not enemies_in_range.is_empty():
 			isAttacking = true
+			MovementOrderHandler.handleAbortOrder(self)
 	if Input.is_action_just_pressed("CONTEXT") and mainCamera.isReadytoAttack and isSelected:
 		start_attack()
 	elif isSelected and  (Input.is_action_just_pressed("ABORT") or Input.is_action_just_pressed("CONTEXT")):
@@ -80,9 +81,12 @@ func _process(delta: float) -> void:
 func start_attack() -> void:
 	var targetLocation = RaycastHandler.getRaycastResultPosition(mainCamera)
 	MovementOrderHandler.handleRotateOrder(self, targetLocation)
-	currentAttackGoal = RaycastHandler.getRaycastResult(mainCamera)
-	isAttacking = true
-	mainCamera.toggleReadyAttack()
+	var target = RaycastHandler.getRaycastResult(mainCamera)
+	if target is Entity and target.get_multiplayer_authority() != self.get_multiplayer_authority():
+		currentAttackGoal = target
+		isAttacking = true
+		MovementOrderHandler.handleAbortOrder(self)
+		mainCamera.toggleReadyAttack()
 
 func stop_attack() -> void:
 	currentAttackGoal = null
@@ -133,7 +137,7 @@ func rotate_towards_target(targetLocation: Vector3) -> void:
 
 # --------- SIGNALS ---------
 func _on_enemy_entered(body):
-	if body is MovableUnit and body != self:  # Проверяем, что это враг и не сам юнит
+	if body is MovableUnit and body != self and self.get_multiplayer_authority() != body.get_multiplayer_authority():  # Проверяем, что это враг и не сам юнит
 		enemies_in_range.append(body)
 		if currentAttackGoal == null:
 			currentAttackGoal = body  # Если цели нет, выбираем нового врага

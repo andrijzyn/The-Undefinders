@@ -6,8 +6,7 @@ static func handleSingleSelection(oldSelections: Array[Node3D], newSelection: No
 			return oldSelections
 		if oldSelections.size() > 1:
 			for select in oldSelections:
-				if select:
-					select.setSelected(false)
+				select.setSelected(false)
 			oldSelections.clear()
 			handleSingleSelection(oldSelections, newSelection, caller)
 		if oldSelections.size() > 0 and oldSelections[0] and oldSelections[0] != newSelection:
@@ -16,12 +15,13 @@ static func handleSingleSelection(oldSelections: Array[Node3D], newSelection: No
 		newSelection.setSelected(true)
 		oldSelections.append(newSelection)
 		return oldSelections
-	elif oldSelections.size() > 0 and oldSelections[0]:
-		oldSelections[0].setSelected(false)
+	elif oldSelections.size() > 0:
+		for select in oldSelections:
+			select.setSelected(false)
 		oldSelections.clear()
 		return oldSelections
-	oldSelections.clear()
 	return oldSelections
+
 
 static func handleMultipleSelectionByShift(oldSelections: Array[Node3D], newSelection: Node3D, caller: Node3D) -> Array[Node3D]:
 	if newSelection and newSelection.is_in_group(Constants.selectable):
