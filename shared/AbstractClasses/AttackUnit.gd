@@ -64,6 +64,7 @@ func _process(delta: float) -> void:
 	if isAutoAttackEnabled:
 		if currentAttackGoal == null and not enemies_in_range.is_empty() and not isMoving:
 			currentAttackGoal = enemies_in_range[0]
+		if not enemies_in_range.is_empty():
 			isAttacking = true
 	if Input.is_action_just_pressed("CONTEXT") and mainCamera.isReadytoAttack and isSelected:
 		start_attack()
@@ -92,8 +93,15 @@ func shoot() -> void:
 	if currentAttackGoal and is_instance_valid(currentAttackGoal):
 		if canShoot:
 			canShoot = false
-			create_bullets()
-
+			#create_bullets()
+			if isSingleShooting:
+				currentAttackGoal.handleHealthChange(damage)
+			else:
+				for i in range(shootsAmount):
+					if not (currentAttackGoal and is_instance_valid(currentAttackGoal)):
+						break
+					currentAttackGoal.handleHealthChange(damage)
+					await get_tree().create_timer(fireRate).timeout
 			await get_tree().create_timer(reloadTime).timeout
 			canShoot = true
 	else:
@@ -125,7 +133,7 @@ func rotate_towards_target(targetLocation: Vector3) -> void:
 
 # --------- SIGNALS ---------
 func _on_enemy_entered(body):
-	if body is Entity and body != self:  # Проверяем, что это враг и не сам юнит
+	if body is MovableUnit and body != self:  # Проверяем, что это враг и не сам юнит
 		enemies_in_range.append(body)
 		if currentAttackGoal == null:
 			currentAttackGoal = body  # Если цели нет, выбираем нового врага
