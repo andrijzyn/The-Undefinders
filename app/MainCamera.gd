@@ -1,7 +1,7 @@
 extends Camera3D
 class_name MainCamera
 
-var player:Player 
+var player:PlayerHuman 
 
 # ----- CAMERA MOVEMENT VARS -------
 var CAMERA_SPEED_MULTPLIER := 0.05
@@ -51,7 +51,7 @@ func _ready():
 	var canvas_layer = CanvasLayer.new()
 	get_viewport().add_child.call_deferred(canvas_layer)
 	
-	player = get_tree().current_scene.players[get_multiplayer_authority()] as Player
+	player = get_tree().current_scene.players[get_multiplayer_authority()] as PlayerHuman
 
 	var selection_container = Control.new()
 	selection_container.name = "SelectionContainer"

@@ -67,10 +67,6 @@ func _process(delta: float) -> void:
 		if not enemies_in_range.is_empty():
 			isAttacking = true
 			MovementOrderHandler.handleAbortOrder(self)
-	if Input.is_action_just_pressed("CONTEXT") and mainCamera.player.isReadytoAttack and isSelected:
-		start_attack()
-	elif isSelected and  (Input.is_action_just_pressed("ABORT") or Input.is_action_just_pressed("CONTEXT")):
-		stop_attack()
 	if isAttacking and not isRotating:
 		if currentAttackGoal and is_instance_valid(currentAttackGoal):
 			var targetLocation = currentAttackGoal.global_position

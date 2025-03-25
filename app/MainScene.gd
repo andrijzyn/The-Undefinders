@@ -26,7 +26,7 @@ var loaded_players = [
 	PlayerData.new(0, false, 0, 1000, 1, 1, "Player1", Color.RED, "Test"),
 	PlayerData.new(1, true, 2, 1000, -1, 2, "", Color.BLUE, "Test")
 ]
-var players = []
+var players: Array[Player]
 var current_camera: Camera3D = null
 var current_player_index: int = 0
 var grid = Grid.new(80, 80, 0.25)  # Map size 20x20, cell size 1.0
@@ -43,9 +43,9 @@ func setup_players(player_list: Array):
 			var adjusted_money = player_data.base_money * (1 + player_data.handicap * 0.1)
 			var new_player
 			if player_data.is_ai:
-				new_player = AIPlayer.new(player_data.id, adjusted_money, player_data.team, player_data.color, player_data.ai_mode, player_data.faction)
+				new_player = PlayerAI.new(player_data.id, adjusted_money, player_data.team, player_data.color, player_data.ai_mode, player_data.faction)
 			else:
-				new_player = Player.new(player_data.id, player_data.nickname, adjusted_money, player_data.team, player_data.color, player_data.faction)
+				new_player = PlayerHuman.new(player_data.id, player_data.nickname, adjusted_money, player_data.team, player_data.color, player_data.faction)
 			new_player.name = "Player" + str(new_player.id)
 			new_player.set_multiplayer_authority(new_player.id)
 			add_child(new_player)

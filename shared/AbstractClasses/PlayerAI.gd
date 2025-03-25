@@ -1,5 +1,5 @@
 extends Player
-class_name AIPlayer
+class_name PlayerAI
 
 var ai_mode: int # 0 - Peaceful, 1 - Easy, 2 - Medium, 3 - Hard, 4 - Adaptive
 
