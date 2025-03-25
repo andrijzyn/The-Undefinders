@@ -69,10 +69,10 @@ static func handleSelectionBySelectionRect(camera: MainCamera):
 		grid_size_x = max(grid_size_x, 3)
 		grid_size_y = max(grid_size_y, 3)
 
-		for node in camera.selected_nodes:
+		for node in camera.player.selected_nodes:
 			if node.has_method("setSelected"):
 				node.setSelected(false)
-		camera.selected_nodes.clear()
+		camera.player.selected_nodes.clear()
 
 		var selected_objects := {}
 		for i in range(grid_size_x):
@@ -95,4 +95,4 @@ static func handleSelectionBySelectionRect(camera: MainCamera):
 		for obj in selected_objects.keys():
 			if obj.has_method("setSelected") and obj.get_multiplayer_authority() == camera.get_multiplayer_authority():
 				obj.setSelected(true)
-				camera.selected_nodes.append(obj)
+				camera.player.selected_nodes.append(obj)

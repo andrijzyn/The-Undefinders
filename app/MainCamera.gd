@@ -1,6 +1,8 @@
 extends Camera3D
 class_name MainCamera
 
+var player:Player 
+
 # ----- CAMERA MOVEMENT VARS -------
 var CAMERA_SPEED_MULTPLIER := 0.05
 var CAMERA_ROTATION_SPEED := 1
@@ -37,28 +39,7 @@ var phantom_building: Node3D = null
 var overlapping_bodies_count: int = 0
 var ghost_shader = preload("res://shared/shaders/ghost_shader.gdshader")
 
-# ----------- PLAYABLE NODES HANDLING VARS ----------
-var selected_nodes: Array[Node3D] = []
-var isReadytoRotate := false
-var isReadytoPatrol := false
-var isReadytoAttack := false
 
-# -------------- HANDLING ORDER STAND-BY -----------
-func toggleReadyPatrol() -> void:
-	isReadytoPatrol = !isReadytoPatrol
-	if isReadytoPatrol: 
-		isReadytoRotate = false 
-		isReadytoAttack = false
-func toggleReadyRotate() -> void:
-	isReadytoRotate = !isReadytoRotate
-	if isReadytoRotate: 
-		isReadytoPatrol = false  
-		isReadytoAttack = false
-func toggleReadyAttack() -> void:
-	isReadytoAttack = !isReadytoAttack
-	if isReadytoAttack: 
-		isReadytoPatrol = false  
-		isReadytoRotate = false 
 
 # ----------- IN-BUILD TIMELINE METHODS IMPLEMENTATION -----------
 func _init() -> void:
@@ -69,6 +50,8 @@ func _ready():
 	# Create selection overlay UI
 	var canvas_layer = CanvasLayer.new()
 	get_viewport().add_child.call_deferred(canvas_layer)
+	
+	player = get_tree().current_scene.players[get_multiplayer_authority()] as Player
 
 	var selection_container = Control.new()
 	selection_container.name = "SelectionContainer"
@@ -91,15 +74,7 @@ func _process(delta:float) -> void:
 	handleEdgeScrolling(delta)
 	cameraZoom(delta)
 	HoverHandler.handleHover(self)
-	
-	if selected_nodes.size() > 0:
-		if Input.is_action_just_pressed("ROTATE"):
-			toggleReadyRotate()
-		elif Input.is_action_just_pressed("PATROL"):
-			toggleReadyPatrol()
-		elif Input.is_action_just_pressed("ATTACK"):
-			toggleReadyAttack()
-			
+
 
 	if selecting:
 		updateSelectionRectangle()
@@ -132,15 +107,15 @@ func _input(event):
 					rotating_building = false
 				return
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-			if selected_nodes.size() == 1 and selected_nodes[0] is ProductionBuilding:
+			if player.selected_nodes.size() == 1 and player.selected_nodes[0] is ProductionBuilding:
 				var ground_pos = get_ground_position(event.position)
-				selected_nodes[0].set_rally_point(ground_pos)
+				player.selected_nodes[0].set_rally_point(ground_pos)
 		# Right mouse button - drag movement
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			if phantom_building:
 				cancel_building_placement()
 				return
-			if selected_nodes.is_empty():
+			if player.selected_nodes.is_empty():
 				dragging = event.pressed
 				last_mouse_position = event.position
 
@@ -161,12 +136,12 @@ func _input(event):
 				if Input.is_action_pressed("MULTI_SELECT"):
 					var result = RaycastHandler.getRaycastResult(self)
 					if result:
-						selected_nodes = SelectionHandler.handleMultipleSelectionByShift(selected_nodes, result, self)
+						player.selected_nodes = SelectionHandler.handleMultipleSelectionByShift(player.selected_nodes, result, self)
 				elif event.double_click:
 					# Double-click selects multiple objects of the same type
 					var result = RaycastHandler.getRaycastResult(self)
 					if result:
-						selected_nodes = SelectionHandler.handleMultipleSelectionByDoubleClick(selected_nodes, result, self)
+						player.selected_nodes = SelectionHandler.handleMultipleSelectionByDoubleClick(player.selected_nodes, result, self)
 				else:
 					# Start selection box
 					selecting = true
@@ -184,9 +159,9 @@ func _input(event):
 					else:
 						var result = RaycastHandler.getRaycastResult(self)
 						if result:
-							selected_nodes = SelectionHandler.handleSingleSelection(selected_nodes, result, self)
+							player.selected_nodes = SelectionHandler.handleSingleSelection(player.selected_nodes, result, self)
 					if ui:
-						ui.update_selected_objects(selected_nodes)
+						ui.update_selected_objects(player.selected_nodes)
 
 	# Handle mouse movement (drag and rotate)
 	elif event is InputEventMouseMotion:
@@ -462,20 +437,20 @@ class CursorChangeHandler:
 		if Input.is_action_just_pressed("SELECT"):
 			DisplayServer.cursor_set_custom_image(null)
 			DisplayServer.cursor_set_shape(DisplayServer.CURSOR_ARROW)
-			camera.isReadytoRotate = false
-			camera.isReadytoPatrol = false
-			camera.isReadytoAttack = false
+			camera.player.isReadytoRotate = false
+			camera.player.isReadytoPatrol = false
+			camera.player.isReadytoAttack = false
 			return
 		if DisplayServer.cursor_get_shape() == DisplayServer.CURSOR_POINTING_HAND:
 			#print("hand")
 			return
-		if camera.isReadytoRotate:
+		if camera.player.isReadytoRotate:
 			DisplayServer.cursor_set_custom_image(Cursors.rotateCursor)
 			#print("rotate")
-		elif camera.isReadytoPatrol:
+		elif camera.player.isReadytoPatrol:
 			DisplayServer.cursor_set_custom_image(Cursors.patrolCursor)
 			#print("patrol")
-		elif camera.isReadytoAttack:
+		elif camera.player.isReadytoAttack:
 			DisplayServer.cursor_set_custom_image(Cursors.attackCursor)
 			#print("attack")
 		else:

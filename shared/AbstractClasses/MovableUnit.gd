@@ -44,13 +44,7 @@ func _init() -> void:
 	add_to_group(Constants.movable)
 
 func _process(delta: float) -> void:
-	if isSelected:
-		if (Input.is_action_just_released("MULTI_SELECT") and 
-		mainCamera.isReadytoPatrol): mainCamera.toggleReadyPatrol()
-		elif (Input.is_action_just_released("CONTEXT") 
-		and mainCamera.isReadytoPatrol and not Input.is_action_pressed("MULTI_SELECT")): mainCamera.toggleReadyPatrol()
 	direction = Vector3.ZERO
-	MovementOrderHandler.listen(self, delta)
 	MovementContinuator.listen(self, delta)
 	position += velocity * delta
 

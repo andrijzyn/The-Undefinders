@@ -67,7 +67,7 @@ func _process(delta: float) -> void:
 		if not enemies_in_range.is_empty():
 			isAttacking = true
 			MovementOrderHandler.handleAbortOrder(self)
-	if Input.is_action_just_pressed("CONTEXT") and mainCamera.isReadytoAttack and isSelected:
+	if Input.is_action_just_pressed("CONTEXT") and mainCamera.player.isReadytoAttack and isSelected:
 		start_attack()
 	elif isSelected and  (Input.is_action_just_pressed("ABORT") or Input.is_action_just_pressed("CONTEXT")):
 		stop_attack()
@@ -86,11 +86,11 @@ func start_attack() -> void:
 		currentAttackGoal = target
 		isAttacking = true
 		MovementOrderHandler.handleAbortOrder(self)
-		mainCamera.toggleReadyAttack()
+		mainCamera.player.toggleReadyAttack()
 
 func stop_attack() -> void:
 	currentAttackGoal = null
-	mainCamera.isReadytoAttack = false
+	mainCamera.player.isReadytoAttack = false
 	isAttacking = false
 
 func shoot() -> void:
