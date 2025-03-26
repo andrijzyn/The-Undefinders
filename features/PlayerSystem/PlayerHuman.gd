@@ -2,19 +2,19 @@ extends Player
 class_name PlayerHuman
 
 func _process(delta: float) -> void:
-	if selected_nodes.size() > 0 and selected_nodes[0] is not ProductionBuilding:
+	if selected_nodes.size() > 0 and selected_nodes[0] and selected_nodes[0] is not ProductionBuilding:
 		if Input.is_action_just_pressed("ROTATE"):
 			toggleReadyRotate()
 		elif Input.is_action_just_pressed("PATROL"):
 			toggleReadyPatrol()
 		elif Input.is_action_just_pressed("ATTACK"):
 			toggleReadyAttack()
-	if selected_nodes.size() > 0 and selected_nodes[0] is not ProductionBuilding:
+
 		if (Input.is_action_just_released("MULTI_SELECT") and 
 		isReadytoPatrol): toggleReadyPatrol()
 		elif (Input.is_action_just_released("CONTEXT") 
 		and isReadytoPatrol and not Input.is_action_pressed("MULTI_SELECT")): toggleReadyPatrol()
-	if selected_nodes.size() > 0 and selected_nodes[0] is not ProductionBuilding:
+		
 		if Input.is_action_just_pressed("CONTEXT") and isReadytoAttack:
 			for node in selected_nodes:
 				node.start_attack()

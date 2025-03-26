@@ -37,7 +37,12 @@ var attack_radius: float
 # --------- FLAGS ----------
 var isAttacking := false
 var canShoot := true
+var isReachingTarget := false
 var isAutoAttackEnabled: bool
+
+# ------------------------------------
+
+var targetForReaching: Entity = null
 
 # ----------- AUTOATTACK VARS ------------
 @onready var detection_area: Area3D = $DetectionArea  # Узел зоны обнаружения
@@ -51,7 +56,6 @@ var bullet: PackedScene = preload("res://features/Shells/Bullet/bullet.tscn")
 #var explosion: PackedScene = preload("")
 
 func _ready():
-	super._ready()
 	# Устанавливаем радиус зоны атаки
 	var sphere_shape = detection_shape.shape as SphereShape3D
 	if sphere_shape:
@@ -63,10 +67,22 @@ func _process(delta: float) -> void:
 	super._process(delta)
 	if isAutoAttackEnabled:
 		if currentAttackGoal == null and not enemies_in_range.is_empty():
-			currentAttackGoal = enemies_in_range[0]
-		if not enemies_in_range.is_empty():
+			if check_line_of_sigth(enemies_in_range[0]):
+				currentAttackGoal = enemies_in_range[0]
+			elif not isReachingTarget: 
+				isReachingTarget = true
+				MovementOrderHandler.handleMovingOrder(self, enemies_in_range[0].global_position)
+				targetForReaching = enemies_in_range[0]
+		if not enemies_in_range.is_empty() and currentAttackGoal:
 			isAttacking = true
 			MovementOrderHandler.handleAbortOrder(self)
+	if isReachingTarget:
+		if (check_line_of_sigth(targetForReaching) and enemies_in_range.has(targetForReaching)):
+			MovementOrderHandler.handleAbortOrder(self)
+			isAttacking = true
+			currentAttackGoal = targetForReaching
+			targetForReaching = null
+			isReachingTarget = false
 	if isAttacking and not isRotating:
 		if currentAttackGoal and is_instance_valid(currentAttackGoal):
 			var targetLocation = currentAttackGoal.global_position
@@ -79,9 +95,19 @@ func start_attack() -> void:
 	MovementOrderHandler.handleRotateOrder(self, targetLocation)
 	var target = RaycastHandler.getRaycastResult(mainCamera)
 	if target is Entity and target.get_multiplayer_authority() != self.get_multiplayer_authority():
-		currentAttackGoal = target
-		isAttacking = true
-		MovementOrderHandler.handleAbortOrder(self)
+		if check_line_of_sigth(target):
+			if enemies_in_range.has(target):
+				currentAttackGoal = target
+				isAttacking = true
+				MovementOrderHandler.handleAbortOrder(self)
+			else: 
+				isReachingTarget = true
+				MovementOrderHandler.handleMovingOrder(self, target.global_position)
+				targetForReaching = target
+		else:
+			isReachingTarget = true
+			MovementOrderHandler.handleMovingOrder(self, target.global_position)
+			targetForReaching = target
 		mainCamera.player.toggleReadyAttack()
 
 func stop_attack() -> void:
@@ -90,22 +116,20 @@ func stop_attack() -> void:
 	isAttacking = false
 
 func shoot() -> void:
-	if currentAttackGoal and is_instance_valid(currentAttackGoal):
-		if canShoot:
-			canShoot = false
-			#create_bullets()
-			if isSingleShooting:
+	if canShoot:
+		canShoot = false
+		#create_bullets()
+		if isSingleShooting:
+			currentAttackGoal.handleHealthChange(damage)
+		else:
+			for i in range(shootsAmount):
+				if not (currentAttackGoal and is_instance_valid(currentAttackGoal)):
+					break
 				currentAttackGoal.handleHealthChange(damage)
-			else:
-				for i in range(shootsAmount):
-					if not (currentAttackGoal and is_instance_valid(currentAttackGoal)):
-						break
-					currentAttackGoal.handleHealthChange(damage)
-					await get_tree().create_timer(fireRate).timeout
-			await get_tree().create_timer(reloadTime).timeout
-			canShoot = true
-	else:
-		isAttacking = false
+				await get_tree().create_timer(fireRate).timeout
+		await get_tree().create_timer(reloadTime).timeout
+		canShoot = true
+
 
 # ----------- HELPER FUNCTIONS ----------
 # Create bullets
@@ -135,10 +159,16 @@ func rotate_towards_target(targetLocation: Vector3) -> void:
 func _on_enemy_entered(body):
 	if body is MovableUnit and body != self and self.get_multiplayer_authority() != body.get_multiplayer_authority():  # Проверяем, что это враг и не сам юнит
 		enemies_in_range.append(body)
-		if currentAttackGoal == null:
-			currentAttackGoal = body  # Если цели нет, выбираем нового врага
+		#if currentAttackGoal == null:
+			#currentAttackGoal = body  # Если цели нет, выбираем нового врага
 
 func _on_enemy_exited(body):
 	enemies_in_range.erase(body)
-	if currentAttackGoal == body:
-		currentAttackGoal = enemies_in_range.front() if enemies_in_range.size() > 0 else null  # Меняем цель
+	#if currentAttackGoal == body:
+		#currentAttackGoal = enemies_in_range.front() if enemies_in_range.size() > 0 else null  # Меняем цель
+
+func check_line_of_sigth(target: Entity) -> bool:
+	var grid = PathHandler.grid
+	var selfPos = PathHandler.normalizeByGrid(global_position.x, grid.position.x, global_position.z, grid.position.z, grid.cell_size)
+	var targetPos = PathHandler.normalizeByGrid(target.global_position.x, grid.position.x, target.global_position.z, grid.position.z, grid.cell_size)
+	return PathHandler.pathfinder.has_line_of_sight(selfPos, targetPos)

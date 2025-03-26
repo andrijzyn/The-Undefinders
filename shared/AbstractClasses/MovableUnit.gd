@@ -33,7 +33,6 @@ var speed: float = 2.0
 @onready var animPlayer := $AnimPlayer
 @onready var collider := $CollisionPolygon3D2
 @onready var mainCamera: MainCamera
-@onready var mapRID: RID
 
 # ------------ SIGNALS -----------
 signal reached_exit
@@ -47,10 +46,6 @@ func _process(delta: float) -> void:
 	direction = Vector3.ZERO
 	MovementContinuator.listen(self, delta)
 	position += velocity * delta
-
-func _ready() -> void:
-	mapRID = get_world_3d().navigation_map
-
 
 # ---------------- OTHER STUFF ------------------ 
 func rotate_by_position(delta: float, move_direction: Vector3):

@@ -15,14 +15,9 @@ static func newPath(node: MovableUnit) -> void:
 	var start = node.global_position
 	var target = node.waypointQueue[0]
 
-	var start_grid_pos = Vector2(
-		round((start.x - grid.position.x) / grid.cell_size),
-		round((start.z - grid.position.z) / grid.cell_size)
-	)
-	var target_grid_pos = Vector2(
-		round((target.x - grid.position.x) / grid.cell_size),
-		round((target.z - grid.position.z) / grid.cell_size)
-	)
+	var start_grid_pos = normalizeByGrid(start.x, grid.position.x, start.z, grid.position.z, grid.cell_size)
+	var target_grid_pos = normalizeByGrid(target.x, grid.position.x, target.z, grid.position.z, grid.cell_size)
+	
 
 	if not grid.is_within_bounds(start_grid_pos.x, start_grid_pos.y):
 		if Global.is_debugging:
@@ -55,3 +50,9 @@ static func updatePatrolPath(node: MovableUnit) -> void:
 		node.patrolPoints[(node.currentPatrolPoint + 1) % node.patrolPoints.size()]
 	]
 	newPath(node)
+static func normalizeByGrid(targetX: float, gridX: float, targetZ: float, gridZ:float, cell_size) -> Vector2:
+	return Vector2(
+	round((targetX - gridX) / cell_size),
+	round((targetZ - gridZ) / cell_size)
+	)
+	
