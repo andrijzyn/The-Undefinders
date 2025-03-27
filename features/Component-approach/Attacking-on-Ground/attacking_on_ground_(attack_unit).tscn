@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://is6rng0xm2y8"]
+
+[ext_resource type="Script" uid="uid://b8eecemejggrs" path="res://features/Component-approach/Attacking-on-Ground/AttackUnit.gd" id="1_g8o28"]
+
+[node name="Attacking-on-Ground_(attackUnit)" type="Node3D"]
+script = ExtResource("1_g8o28")

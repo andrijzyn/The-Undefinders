@@ -1,6 +1,8 @@
-extends MovableUnit
+extends Node3D
 ## Абстрактный класс для юнитов имеющих способность атаковать
-class_name AttackUnit
+class_name Component_Attack
+
+var PARENT: Unit
 
 # --------- ATTACK SPECS ----------
 ## [b]Должно быть указано при инициализации конкретной сущностью.[/b][br]
@@ -42,20 +44,21 @@ var isAutoAttackEnabled: bool
 
 # ------------------------------------
 
-var targetForReaching: Entity = null
+var targetForReaching: Unit = null
 
 # ----------- AUTOATTACK VARS ------------
-@onready var detection_area: Area3D = $DetectionArea  # Узел зоны обнаружения
-@onready var detection_shape: CollisionShape3D = $DetectionArea/CollisionShape3D  # Коллизия зоны
-var enemies_in_range: Array[Entity] = []
-var currentAttackGoal: Entity = null
+@onready var detection_area: Area3D = $"../DetectionArea"  # Узел зоны обнаружения
+@onready var detection_shape: CollisionShape3D = $"../DetectionArea/CollisionShape3D"# Коллизия зоны
+var enemies_in_range: Array[Unit] = []
+var currentAttackGoal: Unit = null
 
 # ----------- NODES-CONTAINING VARS ----------
-@onready var firePoint: Marker3D = $FirePoint
+@onready var firePoint: Marker3D = $"../FirePoint"
 var bullet: PackedScene = preload("res://features/Shells/Bullet/bullet.tscn")
 #var explosion: PackedScene = preload("")
 
 func _ready():
+	PARENT = get_parent()
 	# Устанавливаем радиус зоны атаки
 	var sphere_shape = detection_shape.shape as SphereShape3D
 	if sphere_shape:
@@ -64,26 +67,26 @@ func _ready():
 	detection_area.connect("body_exited", Callable(self, "_on_enemy_exited"))
 
 func _process(delta: float) -> void:
-	super._process(delta)
+	#super._process(delta)
 	if isAutoAttackEnabled:
 		if currentAttackGoal == null and not enemies_in_range.is_empty():
 			if check_line_of_sigth(enemies_in_range[0]):
 				currentAttackGoal = enemies_in_range[0]
 			elif not isReachingTarget: 
 				isReachingTarget = true
-				MovementOrderHandler.handleMovingOrder(self, enemies_in_range[0].global_position)
+				PARENT.Component_Moving.MovementOrderHandler.handleMovingOrder(PARENT.Component_Moving, enemies_in_range[0].global_position)
 				targetForReaching = enemies_in_range[0]
 		if not enemies_in_range.is_empty() and currentAttackGoal:
 			isAttacking = true
-			MovementOrderHandler.handleAbortOrder(self)
+			PARENT.Component_Moving.MovementOrderHandler.handleAbortOrder(PARENT.Component_Moving)
 	if isReachingTarget:
 		if (check_line_of_sigth(targetForReaching) and enemies_in_range.has(targetForReaching)):
-			MovementOrderHandler.handleAbortOrder(self)
+			PARENT.Component_Moving.MovementOrderHandler.handleAbortOrder(PARENT.Component_Moving)
 			isAttacking = true
 			currentAttackGoal = targetForReaching
 			targetForReaching = null
 			isReachingTarget = false
-	if isAttacking and not isRotating:
+	if isAttacking and not PARENT.Component_Moving.isRotating:
 		if currentAttackGoal and is_instance_valid(currentAttackGoal):
 			var targetLocation = currentAttackGoal.global_position
 			rotate_towards_target(targetLocation)
@@ -91,28 +94,28 @@ func _process(delta: float) -> void:
 
 # ----------- ATTACK HANDLING ----------
 func start_attack() -> void:
-	var targetLocation = RaycastHandler.getRaycastResultPosition(mainCamera)
-	MovementOrderHandler.handleRotateOrder(self, targetLocation)
-	var target = RaycastHandler.getRaycastResult(mainCamera)
-	if target is Entity and target.get_multiplayer_authority() != self.get_multiplayer_authority():
+	var targetLocation = RaycastHandler.getRaycastResultPosition(PARENT.Component_Moving.mainCamera)
+	PARENT.Component_Moving.MovementOrderHandler.handleRotateOrder(PARENT.Component_Moving, targetLocation)
+	var target = RaycastHandler.getRaycastResult(PARENT.Component_Moving.mainCamera)
+	if target is Unit and target.get_multiplayer_authority() != self.get_multiplayer_authority():
 		if check_line_of_sigth(target):
 			if enemies_in_range.has(target):
 				currentAttackGoal = target
 				isAttacking = true
-				MovementOrderHandler.handleAbortOrder(self)
+				PARENT.Component_Moving.MovementOrderHandler.handleAbortOrder(PARENT.Component_Moving)
 			else: 
 				isReachingTarget = true
-				MovementOrderHandler.handleMovingOrder(self, target.global_position)
+				PARENT.Component_Moving.MovementOrderHandler.handleMovingOrder(PARENT.Component_Moving, target.global_position)
 				targetForReaching = target
 		else:
 			isReachingTarget = true
-			MovementOrderHandler.handleMovingOrder(self, target.global_position)
+			PARENT.Component_Moving.MovementOrderHandler.handleMovingOrder(PARENT.Component_Moving, target.global_position)
 			targetForReaching = target
-		mainCamera.player.toggleReadyAttack()
+		PARENT.Component_Moving.mainCamera.player.toggleReadyAttack()
 
 func stop_attack() -> void:
 	currentAttackGoal = null
-	mainCamera.player.isReadytoAttack = false
+	PARENT.Component_Moving.mainCamera.player.isReadytoAttack = false
 	isAttacking = false
 
 func shoot() -> void:
@@ -120,12 +123,12 @@ func shoot() -> void:
 		canShoot = false
 		#create_bullets()
 		if isSingleShooting:
-			currentAttackGoal.handleHealthChange(damage)
+			currentAttackGoal.Component_Basic.handleHealthChange(damage)
 		else:
 			for i in range(shootsAmount):
 				if not (currentAttackGoal and is_instance_valid(currentAttackGoal)):
 					break
-				currentAttackGoal.handleHealthChange(damage)
+				currentAttackGoal.Component_Basic.handleHealthChange(damage)
 				await get_tree().create_timer(fireRate).timeout
 		await get_tree().create_timer(reloadTime).timeout
 		canShoot = true
@@ -153,11 +156,11 @@ func is_facing_target(targetLocation: Vector3) -> bool:
 # Rotate towards the target
 func rotate_towards_target(targetLocation: Vector3) -> void:
 	if not is_facing_target(targetLocation):
-		MovementOrderHandler.handleRotateOrder(self, targetLocation)
+		PARENT.Component_Moving.MovementOrderHandler.handleRotateOrder(PARENT.Component_Moving, targetLocation)
 
 # --------- SIGNALS ---------
 func _on_enemy_entered(body):
-	if body is MovableUnit and body != self and self.get_multiplayer_authority() != body.get_multiplayer_authority():  # Проверяем, что это враг и не сам юнит
+	if body is Unit and body != self and self.get_multiplayer_authority() != body.get_multiplayer_authority():  # Проверяем, что это враг и не сам юнит
 		enemies_in_range.append(body)
 		#if currentAttackGoal == null:
 			#currentAttackGoal = body  # Если цели нет, выбираем нового врага
@@ -167,7 +170,7 @@ func _on_enemy_exited(body):
 	#if currentAttackGoal == body:
 		#currentAttackGoal = enemies_in_range.front() if enemies_in_range.size() > 0 else null  # Меняем цель
 
-func check_line_of_sigth(target: Entity) -> bool:
+func check_line_of_sigth(target: Unit) -> bool:
 	var grid = PathHandler.grid
 	var selfPos = PathHandler.normalizeByGrid(global_position.x, grid.position.x, global_position.z, grid.position.z, grid.cell_size)
 	var targetPos = PathHandler.normalizeByGrid(target.global_position.x, grid.position.x, target.global_position.z, grid.position.z, grid.cell_size)

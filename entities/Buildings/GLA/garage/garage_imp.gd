@@ -29,19 +29,19 @@ func on_production_complete(unit_name: String):
 	await animPlayer.animation_finished
 
 	var path = "res://entities/Units/USA/Infantry/" + unit_name + ".tscn"
-	var unit_instance = load(path).instantiate()
+	var unit_instance = load(path).instantiate() as Unit
 
-	unit_instance.mainCamera = get_parent().camera
 	unit_instance.set_multiplayer_authority(get_multiplayer_authority())
-
+	
 	get_parent().add_child(unit_instance)
+	unit_instance.Component_Moving.mainCamera = get_parent().camera
 	unit_instance.global_transform.origin = spawn_point.global_transform.origin
 	if target_location_active:
-		unit_instance.move_to_exit_point(exit_point.global_transform.origin, target_location_active, rally_point)
+		unit_instance.Component_Moving.move_to_exit_point(exit_point.global_transform.origin, target_location_active, rally_point)
 	else:
-		unit_instance.move_to_exit_point(exit_point.global_transform.origin)
+		unit_instance.Component_Moving.move_to_exit_point(exit_point.global_transform.origin)
 
-	await unit_instance.reached_exit
+	await unit_instance.Component_Moving.reached_exit
 	animPlayer.play("GarageDoorClose")
 	await animPlayer.animation_finished
 

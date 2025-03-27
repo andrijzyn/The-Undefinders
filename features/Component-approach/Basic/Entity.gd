@@ -1,12 +1,6 @@
 extends Node3D
 ## Абстрактный класс, для всех играбельных сущностей игры здания / юниты
-class_name Entity
-
-# ------- PLAYER ID -----
-var playerID: int
-
-func setPlayerID(id:int) -> void:
-	self.playerID = id
+class_name Component_Basic
 
 # -------- HEALTH VARS ----------
 ## [b]Должно быть указано при инициализации конкретной сущностью.[/b][br]
@@ -17,8 +11,8 @@ var currentHealth: float
 
 
 # ---------- NODES-CONTAINING VARS -----------
-@onready var healthBar :HealthBar = $SubViewport.get_child(0)
-@onready var healthBarSprite :Sprite3D = $HealthBarSprite
+@onready var healthBar :HealthBar = $"../SubViewport".get_child(0)
+@onready var healthBarSprite :Sprite3D = $"../HealthBarSprite"
 
 # ----- FLAGS --------
 var isHealthBarVisible := false

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://ddgyyo64uur78"]
+
+[ext_resource type="Script" uid="uid://jbu4kojjrxtr" path="res://features/Component-approach/Moving-on-Ground/MovableUnit.gd" id="1_64qof"]
+
+[node name="Moving-on-Ground_(MovableUnit)" type="Node3D"]
+script = ExtResource("1_64qof")

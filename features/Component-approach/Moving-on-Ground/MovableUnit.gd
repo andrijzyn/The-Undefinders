@@ -1,6 +1,11 @@
-extends Entity
+extends Node3D
 ## Абстрактный класс для юнитов которые могут двигатся
-class_name MovableUnit
+class_name Component_Moving
+
+var PARENT: Unit
+
+func _ready() -> void:
+	PARENT = get_parent()
 
 # ----- ROTATING VARS -----
 const threshold: float = 0.001
@@ -30,22 +35,19 @@ var velocity: Vector3
 var speed: float = 2.0
 
 # ---------- NODES-CONTAINING VARS -----------
-@onready var animPlayer := $AnimPlayer
-@onready var collider := $CollisionPolygon3D2
+#
+@onready var collider := $"../CollisionPolygon3D2"
 @onready var mainCamera: MainCamera
 
 # ------------ SIGNALS -----------
 signal reached_exit
 
 # ----------- IN-BUILD TIMELINE METHODS IMPLEMENTATION -----------
-func _init() -> void:
-	add_to_group(Constants.selectable)
-	add_to_group(Constants.movable)
 
 func _process(delta: float) -> void:
 	direction = Vector3.ZERO
 	MovementContinuator.listen(self, delta)
-	position += velocity * delta
+	PARENT.position += velocity * delta
 
 # ---------------- OTHER STUFF ------------------ 
 func rotate_by_position(delta: float, move_direction: Vector3):
@@ -74,7 +76,7 @@ class MovementContinuator:
 	## Управляет движением юнита в зависимости от его текущего состояния[br]
 	## [param node: MovableUnit] - юнит, который отслеживается [br]
 	## [method MovementContinuator.continueMovement]
-	static func listen(node: MovableUnit, delta: float):
+	static func listen(node: Component_Moving, delta: float):
 		if node.isMoving:
 			keep_moving(node, delta)
 		elif node.isPatrolling:
@@ -96,15 +98,16 @@ class MovementContinuator:
 	## Плавно поворачивает юнит в направлении целевого угла[br]
 	## [param node: MovableUnit] - юнит, который должен продолжить поворот[br]
 	## [method MovementContinuator.keep_rotating]
-	static func keep_rotating(node: MovableUnit, delta: float):
-		node.rotation.y = lerp_angle(node.rotation.y, node.target_angle, node.rotation_speed * delta)
-		if angle_diff(node.rotation.y, node.target_angle) < 0.05:
+	static func keep_rotating(node: Component_Moving, delta: float):
+		print(node.PARENT)
+		node.PARENT.rotation.y = lerp_angle(node.PARENT.rotation.y, node.target_angle, node.rotation_speed * delta)
+		if angle_diff(node.PARENT.rotation.y, node.target_angle) < 0.05:
 			node.isRotating = false
 
 	## Обрабатывает движение юнита к следующей точке маршрута[br]
 	## [param node: MovableUnit] - юнит, который должен продолжать двигаться[br]
 	## [method MovementContinuator.keep_moving]
-	static func keep_moving(node: MovableUnit, delta: float):
+	static func keep_moving(node: Component_Moving, delta: float):
 		if node.currentPaths.is_empty() or node.currentPath >= node.currentPaths.size():
 			return
 		var next_position = node.currentPaths[node.currentPath] - node.global_position
@@ -131,7 +134,7 @@ class MovementContinuator:
 	## Обрабатывает движение юнита по маршруту патрулирования[br]
 	## [param node: MovableUnit] - юнит, который должен продолжить патрулирование[br]
 	## [method MovementContinuator.keep_patrolling]
-	static func keep_patrolling(node: MovableUnit, delta: float):
+	static func keep_patrolling(node: Component_Moving, delta: float):
 		var next_position = node.currentPaths[node.currentPath] - node.global_position
 		if not node.isRotating:
 			node.rotate_by_position(delta, next_position)
@@ -147,28 +150,11 @@ class MovementContinuator:
 
 ## Отвечает за обработку команд для перемещаемых юнитов[br]
 class MovementOrderHandler:
-	## Ожидает ввода и вызывает соответствующий обработчик команды[br]
-	## [param node: MovableUnit] - юнит, которому передаются команды[br]
-	## [method OrderHandler.listen]
-	static func listen(node: MovableUnit, delta):
-		if node.isSelected:
-			if Input.is_action_just_pressed("CONTEXT"):
-				var targetLocation = RaycastHandler.getRaycastResultPosition(node.mainCamera)
-				if node.mainCamera.isReadytoRotate:
-					handleRotateOrder(node, targetLocation)
-					node.mainCamera.toggleReadyRotate()
-				elif node.mainCamera.isReadytoPatrol:
-					handlePatrolOrder(node, targetLocation)
-				elif not node.mainCamera.isReadytoAttack:
-					handleMovingOrder(node, targetLocation)
-			if Input.is_action_just_pressed("ABORT"):
-				handleAbortOrder(node)
-
 
 	## Обрабатывает команду поворота юнита в указанном направлении[br]
 	## [param node: MovableUnit] - юнит, который должен начать поворот[br]
 	## [method OrderHandler.handleRotateOrder]
-	static func handleRotateOrder(node: MovableUnit, targetLocation: Vector3) -> void:
+	static func handleRotateOrder(node: Component_Moving, targetLocation: Vector3) -> void:
 		var direction = Vector3(targetLocation.x - node.global_position.x, 0, targetLocation.z - node.global_position.z).normalized()
 		if direction.length() > 0:
 			node.target_angle = atan2(direction.x, direction.z)
@@ -180,8 +166,7 @@ class MovementOrderHandler:
 	## Обрабатывает команду перемещения юнита в указанную точку или массив точек(через shift)[br]
 	## [param node: MovableUnit] - юнит, который должен начать двигаться[br]
 	## [method OrderHandler.handleMovingOrder]
-	static func handleMovingOrder(node: MovableUnit, targetLocation: Vector3) -> void:
-
+	static func handleMovingOrder(node: Component_Moving, targetLocation: Vector3) -> void:
 		if not Input.is_action_pressed("MULTI_SELECT"):
 			node.waypointQueue.clear()
 			handleAbortOrder(node)
@@ -192,7 +177,7 @@ class MovementOrderHandler:
 	## Обрабатывает команду патрулирования между текущей позицией и указанной точкой или между массивом точек(через shift)[br]
 	## [param node: MovableUnit] - юнит, который должен начать патрулирование[br]
 	## [method OrderHandler.handlePatrolOrder]
-	static func handlePatrolOrder(node: MovableUnit, targetLocation: Vector3) -> void:
+	static func handlePatrolOrder(node: Component_Moving, targetLocation: Vector3) -> void:
 		if Input.is_action_pressed("MULTI_SELECT"):
 			if node.patrolPoints.is_empty():
 				node.patrolPoints.append(node.global_position)
@@ -206,7 +191,7 @@ class MovementOrderHandler:
 	## Обрабатывает команду отмены всех действий юнита[br]
 	## [param node: MovableUnit] - юнит, чьи выполняемые действия необходимо немедленно прекратить[br]
 	## [method OrderHandler.handleAbortOrder]
-	static func handleAbortOrder(node: MovableUnit) -> void:
+	static func handleAbortOrder(node: Component_Moving) -> void:
 		node.isMoving = false
 		node.isPatrolling = false
 		node.velocity = Vector3.ZERO

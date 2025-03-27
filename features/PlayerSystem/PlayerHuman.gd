@@ -17,10 +17,10 @@ func _process(delta: float) -> void:
 		
 		if Input.is_action_just_pressed("CONTEXT") and isReadytoAttack:
 			for node in selected_nodes:
-				node.start_attack()
+				node.Component_Attack.start_attack()
 		elif Input.is_action_just_pressed("ABORT") or Input.is_action_just_pressed("CONTEXT"):
 			for node in selected_nodes:
-				node.stop_attack()
+				node.Component_Attack.stop_attack()
 	MovementOrderHandler.listen(self, delta)
 
 # ----------- PLAYABLE NODES HANDLING VARS ----------
@@ -59,28 +59,28 @@ class MovementOrderHandler:
 				var targetLocation = RaycastHandler.getRaycastResultPosition(player.camera)
 				if player.isReadytoRotate:
 					for node in player.selected_nodes:
-						handleRotateOrder(node, targetLocation)
-						node.mainCamera.player.toggleReadyRotate()
+						handleRotateOrder(node.Component_Moving, targetLocation)
+						player.toggleReadyRotate()
 				elif player.isReadytoPatrol:
 					#var positions = _get_distributed_positions_around_point(targetLocation, player.selected_nodes.size(), 2.0)
 					var positions = get_matrix_positions_around_point(targetLocation, player.selected_nodes.size(), 2.0)
 					for i in range(player.selected_nodes.size()):
-						handlePatrolOrder(player.selected_nodes[i], positions[i])
+						handlePatrolOrder(player.selected_nodes[i].Component_Moving, positions[i])
 				elif not player.isReadytoAttack:
 					#var positions = _get_distributed_positions_around_point(targetLocation, player.selected_nodes.size(), 2.0)
 					var positions = get_matrix_positions_around_point(targetLocation, player.selected_nodes.size(), 2.0)
 					
 					for i in range(player.selected_nodes.size()):
-						handleMovingOrder(player.selected_nodes[i], positions[i])
+						handleMovingOrder(player.selected_nodes[i].Component_Moving, positions[i])
 			if Input.is_action_just_pressed("ABORT"):
 				for node in player.selected_nodes:
-					handleAbortOrder(node)
+					handleAbortOrder(node.Component_Moving)
 
 
 	## Обрабатывает команду поворота юнита в указанном направлении[br]
 	## [param node: MovableUnit] - юнит, который должен начать поворот[br]
 	## [method OrderHandler.handleRotateOrder]
-	static func handleRotateOrder(node: MovableUnit, targetLocation: Vector3) -> void:
+	static func handleRotateOrder(node: Component_Moving, targetLocation: Vector3) -> void:
 		var direction = Vector3(targetLocation.x - node.global_position.x, 0, targetLocation.z - node.global_position.z).normalized()
 		if direction.length() > 0:
 			node.target_angle = atan2(direction.x, direction.z)
@@ -92,7 +92,7 @@ class MovementOrderHandler:
 	## Обрабатывает команду перемещения юнита в указанную точку или массив точек(через shift)[br]
 	## [param node: MovableUnit] - юнит, который должен начать двигаться[br]
 	## [method OrderHandler.handleMovingOrder]
-	static func handleMovingOrder(node: MovableUnit, targetLocation: Vector3) -> void:
+	static func handleMovingOrder(node: Component_Moving, targetLocation: Vector3) -> void:
 
 		if not Input.is_action_pressed("MULTI_SELECT"):
 			node.waypointQueue.clear()
@@ -104,7 +104,7 @@ class MovementOrderHandler:
 	## Обрабатывает команду патрулирования между текущей позицией и указанной точкой или между массивом точек(через shift)[br]
 	## [param node: MovableUnit] - юнит, который должен начать патрулирование[br]
 	## [method OrderHandler.handlePatrolOrder]
-	static func handlePatrolOrder(node: MovableUnit, targetLocation: Vector3) -> void:
+	static func handlePatrolOrder(node: Component_Moving, targetLocation: Vector3) -> void:
 		if Input.is_action_pressed("MULTI_SELECT"):
 			if node.patrolPoints.is_empty():
 				node.patrolPoints.append(node.global_position)
@@ -118,7 +118,7 @@ class MovementOrderHandler:
 	## Обрабатывает команду отмены всех действий юнита[br]
 	## [param node: MovableUnit] - юнит, чьи выполняемые действия необходимо немедленно прекратить[br]
 	## [method OrderHandler.handleAbortOrder]
-	static func handleAbortOrder(node: MovableUnit) -> void:
+	static func handleAbortOrder(node: Component_Moving) -> void:
 		node.isMoving = false
 		node.isPatrolling = false
 		node.velocity = Vector3.ZERO

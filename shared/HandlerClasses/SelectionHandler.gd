@@ -6,18 +6,22 @@ static func handleSingleSelection(oldSelections: Array[Node3D], newSelection: No
 			return oldSelections
 		if oldSelections.size() > 1:
 			for select in oldSelections:
-				select.setSelected(false)
+				if select.has_method("setSelected"): select.setSelected(false)
+				else: select.Component_Basic.setSelected(false)
 			oldSelections.clear()
 			handleSingleSelection(oldSelections, newSelection, caller)
 		if oldSelections.size() > 0 and oldSelections[0] and oldSelections[0] != newSelection:
-			oldSelections[0].setSelected(false)
+			if oldSelections[0].has_method("setSelected"): oldSelections[0].setSelected(false)
+			else: oldSelections[0].Component_Basic.setSelected(false)
 		oldSelections.clear()
-		newSelection.setSelected(true)
+		if newSelection.has_method("setSelected"): newSelection.setSelected(true)
+		else: newSelection.Component_Basic.setSelected(true)
 		oldSelections.append(newSelection)
 		return oldSelections
 	elif oldSelections.size() > 0:
 		for select in oldSelections:
-			select.setSelected(false)
+			if select.has_method("setSelected"): select.setSelected(false)
+			else: select.Component_Basic.setSelected(false)
 		oldSelections.clear()
 		return oldSelections
 	return oldSelections
@@ -26,7 +30,8 @@ static func handleSingleSelection(oldSelections: Array[Node3D], newSelection: No
 static func handleMultipleSelectionByShift(oldSelections: Array[Node3D], newSelection: Node3D, caller: Node3D) -> Array[Node3D]:
 	if newSelection and newSelection.is_in_group(Constants.selectable):
 		if newSelection.get_multiplayer_authority() == caller.get_multiplayer_authority():
-			newSelection.setSelected(true)
+			if newSelection.has_method("setSelected"): newSelection.setSelected(true)
+			else: newSelection.Component_Basic.setSelected(true)
 			oldSelections.append(newSelection)
 	return oldSelections
 	
@@ -46,7 +51,8 @@ static func handleMultipleSelectionByDoubleClick(oldSelections: Array[Node3D], n
 					var screen_pos := Vector2(projected.x, projected.y)
 					
 					if screen_pos.x >= 0 and screen_pos.x <= viewport_size.x and screen_pos.y >= 0 and screen_pos.y <= viewport_size.y:
-						node.setSelected(true)
+						if node.has_method("setSelected"): node.setSelected(true)
+						else: node.Component_Basic.setSelected(true)
 						oldSelections.append(node)
 		return oldSelections
 	return oldSelections
@@ -70,8 +76,8 @@ static func handleSelectionBySelectionRect(camera: MainCamera):
 		grid_size_y = max(grid_size_y, 3)
 
 		for node in camera.player.selected_nodes:
-			if node.has_method("setSelected"):
-				node.setSelected(false)
+			if node.has_method("setSelected"): node.setSelected(false)
+			else: node.Component_Basic.setSelected(false)
 		camera.player.selected_nodes.clear()
 
 		var selected_objects := {}
@@ -93,6 +99,8 @@ static func handleSelectionBySelectionRect(camera: MainCamera):
 					selected_objects[result.collider] = true
 
 		for obj in selected_objects.keys():
-			if obj.has_method("setSelected") and obj.get_multiplayer_authority() == camera.get_multiplayer_authority():
-				obj.setSelected(true)
+			if obj is StaticBody3D: continue
+			if obj.get_multiplayer_authority() == camera.get_multiplayer_authority():
+				if obj.has_method("setSelected"): obj.setSelected(true)
+				else: obj.Component_Basic.setSelected(true)
 				camera.player.selected_nodes.append(obj)

@@ -1,13 +1,13 @@
 class_name HoverHandler
 
-static var hoverItem: MovableUnit
+static var hoverItem: Unit
 
 static func handleHover(camera: MainCamera):
 	var result := RaycastHandler.getRaycastResult(camera)
 	
-	if result and result is MovableUnit:
-		result.setHealthBarVisibility(true)
+	if result and result is Unit:
+		result.Component_Basic.setHealthBarVisibility(true)
 		hoverItem = result
-	elif hoverItem and not hoverItem.isSelected:
-		hoverItem.setHealthBarVisibility(false)
+	elif hoverItem and not hoverItem.Component_Basic.isSelected:
+		hoverItem.Component_Basic.setHealthBarVisibility(false)
 		hoverItem = null

@@ -31,11 +31,11 @@ class AStarNode:
 
 # Path request structure
 class PathRequest:
-	var unit: MovableUnit
+	var unit: Component_Moving
 	var start: Vector2
 	var end: Vector2
 	
-	func _init(unit: MovableUnit, start: Vector2, end: Vector2):
+	func _init(unit: Component_Moving, start: Vector2, end: Vector2):
 		self.unit = unit
 		self.start = start
 		self.end = end
@@ -50,7 +50,7 @@ func _init():
 	processing_thread.start(Callable(self, "_process_requests"))
 
 # Add a pathfinding request to the queue
-func request_path(unit: MovableUnit, start: Vector2, end: Vector2) -> void:
+func request_path(unit: Component_Moving, start: Vector2, end: Vector2) -> void:
 	request_mutex.lock()
 	request_queue.append(PathRequest.new(unit, start, end))
 	request_mutex.unlock()
@@ -74,7 +74,7 @@ func _process_requests():
 			call_deferred("_deliver_path", request.unit, result_path)
 
 # Deliver the path to the unit in the main thread
-func _deliver_path(unit: MovableUnit, path: Array):
+func _deliver_path(unit: Component_Moving, path: Array):
 	var world_path = []
 	for point in path:
 		var world_pos = Vector3(

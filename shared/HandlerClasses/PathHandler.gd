@@ -7,7 +7,7 @@ static var pathfinder: Pathfinding
 ## Строит новый маршрут для юнита на основе его очереди точек перемещения[br]
 ## [param node: MovableUnit] - юнит, для которого строится маршрут[br]
 ## [method PathHandler.newPath]
-static func newPath(node: MovableUnit) -> void:
+static func newPath(node: Component_Moving) -> void:
 	if node.waypointQueue.is_empty():
 		if Global.is_debugging: print("Error: Empty waypoint queue!")
 		return
@@ -44,7 +44,7 @@ static func newPath(node: MovableUnit) -> void:
 ## Обновляет маршрут патрулирования юнита, переключая его между точками патруля[br]
 ## [param node: MovableUnit] - юнит, выполняющий патрулирование[br]
 ## [method PathHandler.updatePatrolPath]
-static func updatePatrolPath(node: MovableUnit) -> void:
+static func updatePatrolPath(node: Component_Moving) -> void:
 	node.waypointQueue = [
 		node.patrolPoints[node.currentPatrolPoint],
 		node.patrolPoints[(node.currentPatrolPoint + 1) % node.patrolPoints.size()]
