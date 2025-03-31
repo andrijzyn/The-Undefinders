@@ -6,8 +6,10 @@ var height: int
 var cell_size: float
 var cells = []
 
+@onready var fog_of_war = FogOfWar.new(self)
 @onready var debug_mesh = ImmediateMesh.new()
 @onready var debug_instance = MeshInstance3D.new()
+@onready var canvas_layer: = CanvasLayer.new()
 
 class GridCell:
 	var x: int
@@ -90,6 +92,10 @@ func _ready():
 	stretch_to_ground()
 	update_debug_mesh()
 
+	#Fog Test
+	add_child(fog_of_war)
+	fog_of_war.reveal_fog(5.0, 5.0, 5.0) 
+
 # Display grid
 func update_debug_mesh():
 	debug_mesh.clear_surfaces()
@@ -100,7 +106,7 @@ func update_debug_mesh():
 		for y in range(height):
 			var pos = Vector3(x * cell_size, 0, y * cell_size)
 			var color = Color(0, 1, 0) if cells[x][y].walkable else Color(1, 0, 0)
-			print("Cell[", x, "][", y, "] Walkable: ", cells[x][y].walkable)
+			if !Global.is_debugging: print("Cell[", x, "][", y, "] Walkable: ", cells[x][y].walkable)
 			# Draw the cell borders
 			debug_mesh.surface_set_color(color)
 			debug_mesh.surface_add_vertex(pos)
