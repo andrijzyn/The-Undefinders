@@ -1,4 +1,5 @@
 extends Node3D
+class_name MainScene
 
 class PlayerData:
 	var id: int
@@ -24,17 +25,19 @@ class PlayerData:
 
 var loaded_players = [
 	PlayerData.new(0, false, 0, 1000, 1, 1, "Player1", Color.RED, "Test"),
-	PlayerData.new(1, true, 2, 1000, -1, 2, "", Color.BLUE, "Test")
+	PlayerData.new(1, false, 2, 1000, -1, 2, "", Color.BLUE, "Test")
 ]
 var players: Array[Player]
 var current_camera: Camera3D = null
 var current_player_index: int = 0
-var grid = Grid.new(80, 80, 0.25)  # Map size 80x80, cell size 0.25
 var pathfinder
 
 func _ready() -> void:
 	setup_players(loaded_players)
-	add_child(grid)
+	pathfinder = Pathfinding.new()
+	pathfinder.scene = self
+	PathHandler.pathfinder = pathfinder
+	PathHandler.scene = self
 
 func setup_players(player_list: Array):
 	for player_data in player_list:
@@ -49,7 +52,11 @@ func setup_players(player_list: Array):
 			new_player.set_multiplayer_authority(new_player.id)
 			add_child(new_player)
 			players.append(new_player)
-			
+
+			var grid = Grid.new(80, 80, 0.25)  # Map size 80x80, cell size 0.25
+			new_player.add_child(grid)
+			new_player.grid = grid
+
 			var ui = load("res://features/HUD/UI/rts_ui.tscn").instantiate()
 			ui.name = "PlayerUI"
 			ui.set_multiplayer_authority(new_player.id)
@@ -107,9 +114,8 @@ func _input(event):
 	if event.is_action_pressed("SWITCH_PLAYER"):
 		switch_player()
 
-func init_path_finder():
-	print(1)
-	pathfinder = Pathfinding.new()
-	pathfinder.grid = grid
-	PathHandler.grid = grid
-	PathHandler.pathfinder = pathfinder
+func get_player_by_multiplayer_id(multiplayerID: int):
+	for player in players:
+		if player.get_multiplayer_authority() == multiplayerID:
+			return player
+	return null

@@ -13,6 +13,7 @@ var buildings: Array
 var units: Array
 var camera: MainCamera
 var ui: Control
+var grid: Grid
 
 func _init(player_id: int, player_name: String, player_money: int, player_team: int, player_color: Color, player_faction: String):
 	id = player_id

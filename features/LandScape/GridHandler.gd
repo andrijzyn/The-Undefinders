@@ -150,7 +150,7 @@ func get_nearest_walkable(start_pos: Vector2, target_pos: Vector2) -> Vector2:
 	return nearest
 
 func stretch_to_ground():
-	var ground = get_parent().find_child("Ground", true, false)
+	var ground = get_tree().current_scene.find_child("Ground", true, false)
 	if ground and ground is StaticBody3D:
 		var mesh_instance = ground.find_child("Mesh", true, false)
 		var ground_scale = ground.scale  # Get the scale from StaticBody3D
@@ -176,4 +176,3 @@ func stretch_to_ground():
 			generate_grid()
 			update_debug_mesh()
 			get_parent().grid = self
-			get_parent().init_path_finder()
