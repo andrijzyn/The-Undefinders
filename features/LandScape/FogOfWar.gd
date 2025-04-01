@@ -7,11 +7,24 @@ var fog_instance: MeshInstance3D
 var fog_image: Image  # Stores the image
 var fog_map: ImageTexture  # Texture storing the fog transparency level
 
+var fade_timer = Timer.new()  # Timer for units
+var special_area_timers = {}
+var special_area_counter = 0  # Unique ID for special areas
+
+# Stores the areas that have been revealed
+var vision_areas = {}
+var special_areas = {}
+
 func _init(g: Grid):
 	grid = g
 
 func _ready():
 	create_fog_of_war()
+	add_child(fade_timer)
+	fade_timer.wait_time = 1.0  # Time before fading
+	fade_timer.one_shot = false
+	fade_timer.timeout.connect(_fade_fog)
+	fade_timer.start()
 
 # Creates the fog mesh, assigns material, and adjusts height
 func create_fog_of_war():
@@ -144,7 +157,7 @@ func create_fog_texture():
 	print("fog_texture size:", fog_map.get_size())
 
 # Reveals fog in a circular area
-func reveal_fog(world_x: float, world_y: float, r: float):
+func reveal_fog(world_x: float, world_y: float, r: float, unit_id: int = -1):
 	# Convert world coordinates to texture indices
 	var cx = int((world_x - grid.position.x) / grid.cell_size)
 	var cy = int((world_y - grid.position.z) / grid.cell_size)
@@ -154,6 +167,28 @@ func reveal_fog(world_x: float, world_y: float, r: float):
 	var x_max = min(cx + r, grid.width - 1)
 	var y_min = max(cy - r, 0)
 	var y_max = min(cy + r, grid.height - 1)
+
+	if unit_id != -1:
+		# Remember the unit's vision radius
+		vision_areas[unit_id] = { "cx": cx, "cy": cy, "r": r }
+	else:
+		# Create a unique ID for the area
+		var area_id = special_area_counter
+		special_area_counter += 1
+
+		# Add a temporary area
+		special_areas[area_id] = { "cx": cx, "cy": cy, "r": r }
+
+		# Create a timer for this area
+		var area_timer = Timer.new()
+		add_child(area_timer)
+		area_timer.wait_time = 10.0
+		area_timer.one_shot = true
+		area_timer.timeout.connect(func(): _on_special_area_time_out(area_id, area_timer))
+		area_timer.start()
+
+		# Save the timer in the dictionary
+		special_area_timers[area_id] = area_timer
 
 	# Update pixels within the circular radius
 	for x in range(x_min, x_max + 1):
@@ -165,5 +200,42 @@ func reveal_fog(world_x: float, world_y: float, r: float):
 				fog_image.set_pixel(x, y, Color(1, 1, 1, 0))
 
 	# Update texture and pass it to the shader
+	fog_map.set_image(fog_image)
+	fog_material.set_shader_parameter("fog_texture", fog_map)
+
+func _on_special_area_time_out(area_id: int, area_timer: Timer):
+	if area_id in special_areas:
+		special_areas.erase(area_id)
+
+	area_timer.queue_free()
+	special_area_timers.erase(area_id)
+
+func _fade_fog():
+	for x in range(grid.width):
+		for y in range(grid.height):
+			var is_visible = false
+
+			# Check if this pixel belongs to any vision area
+			for key in vision_areas:
+				var area = vision_areas[key]
+				var dx = x - area["cx"]
+				var dy = y - area["cy"]
+				if dx * dx + dy * dy <= area["r"] * area["r"]:
+					is_visible = true
+					break
+
+			for key in special_areas:
+				var area = special_areas[key]
+				var dx = x - area["cx"]
+				var dy = y - area["cy"]
+				if dx * dx + dy * dy <= area["r"] * area["r"]:
+					is_visible = true
+					break
+
+			# If the pixel is no longer visible, darken it
+			var color = fog_image.get_pixel(x, y)
+			if not is_visible and color.a == 0:
+				fog_image.set_pixel(x, y, Color(color.r, color.g, color.b, 0.20))
+
 	fog_map.set_image(fog_image)
 	fog_material.set_shader_parameter("fog_texture", fog_map)

@@ -29,6 +29,10 @@ var velocity: Vector3
 ## [b]Значение строго больше 0[/b]
 var speed: float = 2.0
 
+# ----- FOG VARS -----
+var last_position := Vector3.ZERO
+var id: int
+
 # ---------- NODES-CONTAINING VARS -----------
 @onready var animPlayer := $AnimPlayer
 @onready var collider := $CollisionPolygon3D2
@@ -49,6 +53,7 @@ func _process(delta: float) -> void:
 	position += velocity * delta
 
 func _ready() -> void:
+	last_position = global_position
 	mapRID = get_world_3d().navigation_map
 
 

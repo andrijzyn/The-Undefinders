@@ -2,6 +2,7 @@ extends Player
 class_name PlayerHuman
 
 func _process(delta: float) -> void:
+	super(delta)
 	if selected_nodes.size() > 0 and selected_nodes[0] is not ProductionBuilding:
 		if Input.is_action_just_pressed("ROTATE"):
 			toggleReadyRotate()

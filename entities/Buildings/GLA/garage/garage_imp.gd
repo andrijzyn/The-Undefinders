@@ -33,6 +33,9 @@ func on_production_complete(unit_name: String):
 
 	unit_instance.mainCamera = get_parent().camera
 	unit_instance.set_multiplayer_authority(get_multiplayer_authority())
+	var player = get_tree().current_scene.get_player_by_multiplayer_id(get_multiplayer_authority())
+	player.units.append(unit_instance)
+	unit_instance.id = player.get_next_available_unit_id()
 
 	get_parent().add_child(unit_instance)
 	unit_instance.global_transform.origin = spawn_point.global_transform.origin
