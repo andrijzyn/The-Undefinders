@@ -70,6 +70,7 @@ func setup_players(player_list: Array):
 				camera.position = spawn_point.position + Vector3(0, 20, 0)
 				camera.rotation_degrees.x = -60
 				camera.set_multiplayer_authority(new_player.id)
+				camera.cull_mask = (1 << 0) | (1 << new_player.team)
 				new_player.add_child(camera)
 
 				var building = preload("res://entities/Buildings/GLA/garage/garage_imp.tscn").instantiate()

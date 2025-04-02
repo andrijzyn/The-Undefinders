@@ -4,8 +4,6 @@ class_name Soldier
 var icon: Texture2D = preload("res://entities/Units/USA/Infantry/Soldier/soldier_icon.PNG")
 
 func _init() -> void:
-	super._init()
-	
 	max_health = 100
 	currentHealth = max_health
 	

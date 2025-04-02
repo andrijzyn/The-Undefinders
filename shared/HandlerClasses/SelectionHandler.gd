@@ -1,7 +1,9 @@
 class_name SelectionHandler
 
 static func handleSingleSelection(oldSelections: Array[Node3D], newSelection: Node3D, caller: Node3D) -> Array[Node3D]:
+	print(newSelection.is_in_group(Constants.selectable))
 	if newSelection and newSelection.is_in_group(Constants.selectable):
+		newSelection = newSelection.get_parent()
 		if newSelection.get_multiplayer_authority() != caller.get_multiplayer_authority():
 			return oldSelections
 		if oldSelections.size() > 1:
@@ -25,6 +27,7 @@ static func handleSingleSelection(oldSelections: Array[Node3D], newSelection: No
 
 static func handleMultipleSelectionByShift(oldSelections: Array[Node3D], newSelection: Node3D, caller: Node3D) -> Array[Node3D]:
 	if newSelection and newSelection.is_in_group(Constants.selectable):
+		newSelection = newSelection.get_parent()
 		if newSelection.get_multiplayer_authority() == caller.get_multiplayer_authority():
 			newSelection.setSelected(true)
 			oldSelections.append(newSelection)
@@ -32,6 +35,7 @@ static func handleMultipleSelectionByShift(oldSelections: Array[Node3D], newSele
 	
 static func handleMultipleSelectionByDoubleClick(oldSelections: Array[Node3D], newSelection: Node3D, camera: MainCamera) -> Array[Node3D]:
 	if newSelection and newSelection.is_in_group(Constants.selectable):
+		newSelection = newSelection.get_parent()
 		var selectableNodes := camera.get_tree().get_nodes_in_group(Constants.selectable)
 		var viewport_size: Vector2 = camera.get_viewport().size
 		for node in selectableNodes:
@@ -93,6 +97,7 @@ static func handleSelectionBySelectionRect(camera: MainCamera):
 					selected_objects[result.collider] = true
 
 		for obj in selected_objects.keys():
+			obj = obj.get_parent()
 			if obj.has_method("setSelected") and obj.get_multiplayer_authority() == camera.get_multiplayer_authority():
 				obj.setSelected(true)
 				camera.player.selected_nodes.append(obj)

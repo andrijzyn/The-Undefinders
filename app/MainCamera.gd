@@ -411,7 +411,7 @@ func finish_building_placement() -> void:
 		enable_colliders(phantom_building)
 		fix_building_transparency(phantom_building)
 		phantom_building = null
-		main_scene.grid.update_walkability()
+		main_scene.get_player_by_multiplayer_id(get_multiplayer_authority()).grid.update_walkability()
 
 #Func find_first_colliusion_shape
 #Finds the first collision found on an object and returns it

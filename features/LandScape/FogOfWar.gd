@@ -239,3 +239,9 @@ func _fade_fog():
 
 	fog_map.set_image(fog_image)
 	fog_material.set_shader_parameter("fog_texture", fog_map)
+
+func get_pixel_alpha(x: int, y: int):
+	var rx = int((x - grid.position.x) / grid.cell_size)
+	var ry = int((y - grid.position.z) / grid.cell_size)
+	if (rx <= grid.width and ry <= grid.height):
+		return fog_map.get_pixel(rx, ry).a

@@ -1,4 +1,4 @@
-extends Node3D
+extends VisualInstance3D
 ## Абстрактный класс, для всех играбельных сущностей игры здания / юниты
 class_name Entity
 
@@ -53,3 +53,16 @@ func handleHealthChange(val: float):
 func changeHealthBar():
 	var health_percentage = currentHealth / max_health
 	healthBar.setHealthPercentage(health_percentage)
+
+# Function for switching unit visibility
+func update_entity_visibility():
+	var pos = global_position
+	var visible_layers = 0
+	var scene = get_tree().current_scene
+
+	for player in scene.players:
+		var fog_alpha = player.grid.fog_of_war.get_pixel_alpha(int(pos.x), int(pos.z))
+		if fog_alpha < 0.1:  # <0.1 to account for fog attenuation
+			visible_layers |= player.team  # Add to bit mask
+
+	set_layer_mask(visible_layers)
