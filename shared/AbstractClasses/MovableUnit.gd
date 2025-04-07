@@ -31,7 +31,6 @@ var speed: float = 2.0
 
 # ----- FOG VARS -----
 var last_position := Vector3.ZERO
-var id: int
 
 # ---------- NODES-CONTAINING VARS -----------
 @onready var animPlayer := $AnimPlayer

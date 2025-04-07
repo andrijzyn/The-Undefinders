@@ -31,6 +31,7 @@ var players: Array[Player]
 var current_camera: Camera3D = null
 var current_player_index: int = 0
 var pathfinder
+var visibilityChecker
 
 func _ready() -> void:
 	setup_players(loaded_players)
@@ -38,6 +39,9 @@ func _ready() -> void:
 	pathfinder.scene = self
 	PathHandler.pathfinder = pathfinder
 	PathHandler.scene = self
+	visibilityChecker = VisibilityChecker.new()
+	visibilityChecker.scene = self
+	add_child(visibilityChecker)
 
 func setup_players(player_list: Array):
 	for player_data in player_list:
@@ -70,20 +74,26 @@ func setup_players(player_list: Array):
 				camera.position = spawn_point.position + Vector3(0, 20, 0)
 				camera.rotation_degrees.x = -60
 				camera.set_multiplayer_authority(new_player.id)
-				camera.cull_mask = (1 << 0) | (1 << new_player.team)
+				camera.cull_mask = (1 << 0) | (1 << new_player.id + 1)
 				new_player.add_child(camera)
 
 				var building = preload("res://entities/Buildings/GLA/garage/garage_imp.tscn").instantiate()
 				building.position = spawn_point.position
 				building.set_multiplayer_authority(new_player.id)
+				building.id = new_player.get_next_available_unit_id(true)
+				building.set_layer_mask(1 << new_player.id + 1)
 				camera.duplicate_meshes(building)
 				camera.change_fraction_color(building, new_player.color)
+				new_player.buildings.append(building)
 				new_player.add_child(building)
 				
 				camera.ui = ui
 				ui.player_camera = camera
 				new_player.camera = camera
 				new_player.ui = ui
+				print("Camera cull_mask for player", new_player.id, ": ", camera.cull_mask)
+				print("Building layer mask: ", building.get_layer_mask())
+
 			else:
 				print("Error: There's no spawn point for player" + str(new_player.id))
 

@@ -1,7 +1,6 @@
 class_name SelectionHandler
 
 static func handleSingleSelection(oldSelections: Array[Node3D], newSelection: Node3D, caller: Node3D) -> Array[Node3D]:
-	print(newSelection.is_in_group(Constants.selectable))
 	if newSelection and newSelection.is_in_group(Constants.selectable):
 		newSelection = newSelection.get_parent()
 		if newSelection.get_multiplayer_authority() != caller.get_multiplayer_authority():

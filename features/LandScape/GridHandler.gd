@@ -92,6 +92,7 @@ func _ready():
 	stretch_to_ground()
 	update_debug_mesh()
 
+	fog_of_war.set_layer_mask(1 << get_parent().id + 1)
 	#Fog Test
 	add_child(fog_of_war)
 	fog_of_war.reveal_fog(5.0, 5.0, 5.0) 

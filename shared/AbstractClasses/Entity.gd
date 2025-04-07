@@ -8,6 +8,9 @@ var playerID: int
 func setPlayerID(id:int) -> void:
 	self.playerID = id
 
+# ------- UNIT ID -----
+var id: int
+
 # -------- HEALTH VARS ----------
 ## [b]Должно быть указано при инициализации конкретной сущностью.[/b][br]
 ## [b]Значение строго больше 0[/b]
@@ -61,8 +64,14 @@ func update_entity_visibility():
 	var scene = get_tree().current_scene
 
 	for player in scene.players:
-		var fog_alpha = player.grid.fog_of_war.get_pixel_alpha(int(pos.x), int(pos.z))
+		var fog_alpha = player.grid.fog_of_war.get_pixel_alpha(pos.x, pos.z)
 		if fog_alpha < 0.1:  # <0.1 to account for fog attenuation
-			visible_layers |= player.team  # Add to bit mask
+			visible_layers |= (1 << (player.id + 1)) # Add to bit mask
 
-	set_layer_mask(visible_layers)
+	set_layer_mask_recursively(self, visible_layers)
+
+func set_layer_mask_recursively(node: Node, mask: int) -> void:
+	if node is VisualInstance3D:
+		node.set_layer_mask(mask)
+	for child in node.get_children():
+		set_layer_mask_recursively(child, mask)

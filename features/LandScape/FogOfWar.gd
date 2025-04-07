@@ -1,4 +1,4 @@
-extends Node3D
+extends VisualInstance3D
 class_name FogOfWar
 
 var grid
@@ -21,7 +21,7 @@ func _init(g: Grid):
 func _ready():
 	create_fog_of_war()
 	add_child(fade_timer)
-	fade_timer.wait_time = 1.0  # Time before fading
+	fade_timer.wait_time = 0.5  # Time before fading
 	fade_timer.one_shot = false
 	fade_timer.timeout.connect(_fade_fog)
 	fade_timer.start()
@@ -34,6 +34,7 @@ func create_fog_of_war():
 	var fog_mesh = create_fog_mesh()
 
 	fog_instance = MeshInstance3D.new()
+	fog_instance.set_layer_mask(get_layer_mask())
 	fog_instance.mesh = fog_mesh
 	fog_instance.material_override = fog_material
 	add_child(fog_instance)
@@ -240,8 +241,8 @@ func _fade_fog():
 	fog_map.set_image(fog_image)
 	fog_material.set_shader_parameter("fog_texture", fog_map)
 
-func get_pixel_alpha(x: int, y: int):
+func get_pixel_alpha(x: float, y: float):
 	var rx = int((x - grid.position.x) / grid.cell_size)
 	var ry = int((y - grid.position.z) / grid.cell_size)
 	if (rx <= grid.width and ry <= grid.height):
-		return fog_map.get_pixel(rx, ry).a
+		return fog_image.get_pixel(rx, ry).a
