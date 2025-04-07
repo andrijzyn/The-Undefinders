@@ -86,6 +86,7 @@ func setup_players(player_list: Array):
 				camera.change_fraction_color(building, new_player.color)
 				new_player.buildings.append(building)
 				new_player.add_child(building)
+				new_player.grid.update_walkability()
 				
 				camera.ui = ui
 				ui.player_camera = camera

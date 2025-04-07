@@ -18,10 +18,12 @@ func _process(delta: float) -> void:
 	if selected_nodes.size() > 0 and selected_nodes[0] is not ProductionBuilding:
 		if Input.is_action_just_pressed("CONTEXT") and isReadytoAttack:
 			for node in selected_nodes:
-				node.start_attack()
+				if node is AttackUnit:
+					node.start_attack()
 		elif Input.is_action_just_pressed("ABORT") or Input.is_action_just_pressed("CONTEXT"):
 			for node in selected_nodes:
-				node.stop_attack()
+				if node is AttackUnit:
+					node.stop_attack()
 	MovementOrderHandler.listen(self, delta)
 
 # ----------- PLAYABLE NODES HANDLING VARS ----------
