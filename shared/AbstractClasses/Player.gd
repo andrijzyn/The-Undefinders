@@ -26,11 +26,13 @@ func _init(player_id: int, player_name: String, player_money: int, player_team: 
 func _process(delta: float) -> void:
 	if grid.fog_of_war:
 		for unit in units:
-			if unit.global_position.distance_squared_to(unit.last_position) > 1.0:
-				grid.fog_of_war.reveal_fog(unit.global_position.x, unit.global_position.z, 30, unit.id)
-				unit.last_position = unit.global_position
+			if is_instance_valid(unit):
+				if unit.global_position.distance_squared_to(unit.last_position) > 1.0:
+					grid.fog_of_war.reveal_fog(unit.global_position.x, unit.global_position.z, 30, unit.id)
+					unit.last_position = unit.global_position
 		for building in buildings:
-			grid.fog_of_war.reveal_fog(building.global_position.x, building.global_position.z, 50, building.id)
+			if is_instance_valid(building):
+				grid.fog_of_war.reveal_fog(building.global_position.x, building.global_position.z, 50, building.id)
 
 # Looking for the first available ID
 func get_next_available_unit_id(is_building: bool = false) -> int:

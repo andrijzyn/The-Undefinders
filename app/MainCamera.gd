@@ -294,6 +294,9 @@ func start_building_placement(building_name: String) -> void:
 		apply_ghost_shader(phantom_building)
 		disable_colliders(phantom_building)
 		setup_phantom_area(phantom_building)
+
+		var player = main_scene.get_player_by_multiplayer_id(get_multiplayer_authority())
+		phantom_building.set_layer_mask_recursively(phantom_building, (1 << (player.id + 1)))
 		get_parent().add_child(phantom_building)
 	else:
 		print("Error: Scene not found at path:", path)

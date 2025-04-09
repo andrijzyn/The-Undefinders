@@ -10,6 +10,8 @@ func _process(delta):
 		visibility_update_timer = 0.0
 		for player in scene.players:
 			for unit in player.units:
-				unit.update_entity_visibility()
+				if is_instance_valid(unit):
+					unit.update_entity_visibility()
 			for building in player.buildings:
-				building.update_entity_visibility()
+				if is_instance_valid(building):
+					building.update_entity_visibility()
