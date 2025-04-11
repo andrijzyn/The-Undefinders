@@ -99,7 +99,6 @@ func _process(delta:float) -> void:
 			toggleReadyPatrol()
 		elif Input.is_action_just_pressed("ATTACK"):
 			toggleReadyAttack()
-			
 
 	if selecting:
 		updateSelectionRectangle()
@@ -122,92 +121,93 @@ func _input(event):
 		return
 	# Handle mouse button events
 	if event is InputEventMouseButton:
-		if phantom_building:
-			# Middle mouse button rotates phantom building
-			if event.button_index == MOUSE_BUTTON_MIDDLE:
-				if event.pressed:
-					rotating_building = true
-					last_mouse_position = event.position
-				else:
-					rotating_building = false
-				return
-		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-			if selected_nodes.size() == 1 and selected_nodes[0] is ProductionBuilding:
-				var ground_pos = get_ground_position(event.position)
-				selected_nodes[0].set_rally_point(ground_pos)
-		# Right mouse button - drag movement
-		if event.button_index == MOUSE_BUTTON_RIGHT:
-			if phantom_building:
-				cancel_building_placement()
-				return
-			if selected_nodes.is_empty():
-				dragging = event.pressed
-				last_mouse_position = event.position
+		handle_mouse_button(event)
 
-		# Middle mouse button - camera rotation
-		elif event.button_index == MOUSE_BUTTON_MIDDLE:
-			rotating = event.pressed
-			last_mouse_position = event.position
-
-		# Left mouse button - selection
-		elif event.button_index == MOUSE_BUTTON_LEFT:
-			if is_mouse_over_ui():
-				return # Block input if mouse is over UI
-			if event.pressed:
-				if phantom_building:
-					finish_building_placement()
-					return
-				# Shift + click selects multiple units
-				if Input.is_action_pressed("MULTI_SELECT"):
-					var result = RaycastHandler.getRaycastResult(self)
-					if result:
-						selected_nodes = SelectionHandler.handleMultipleSelectionByShift(selected_nodes, result, self)
-				elif event.double_click:
-					# Double-click selects multiple objects of the same type
-					var result = RaycastHandler.getRaycastResult(self)
-					if result:
-						selected_nodes = SelectionHandler.handleMultipleSelectionByDoubleClick(selected_nodes, result, self)
-				else:
-					# Start selection box
-					selecting = true
-					selection_start = event.position
-					selection_overlay.position = selection_start
-					selection_overlay.size = Vector2.ZERO
-					selection_overlay.visible = true
-			else:
-				# Left button release
-				if selecting:
-					selecting = false
-					selection_overlay.visible = false
-					if event.position.distance_to(selection_start) > DRAG_THRESHOLD:
-						SelectionHandler.handleSelectionBySelectionRect(self)
-					else:
-						var result = RaycastHandler.getRaycastResult(self)
-						if result:
-							selected_nodes = SelectionHandler.handleSingleSelection(selected_nodes, result, self)
-					if ui:
-						ui.update_selected_objects(selected_nodes)
-
-	# Handle mouse movement (drag and rotate)
 	elif event is InputEventMouseMotion:
-		if phantom_building and rotating_building:
-			if is_mouse_over_ui():
-				return # Block input if over UI
-			var delta_angle = event.position.x - last_mouse_position.x
-			phantom_building.rotate_y(-delta_angle * ROTATION_SPEED_MULTIPLIER)
+		handle_mouse_motion(event)
+		
+func handle_mouse_button(event: InputEventMouseButton) -> void:
+	if is_mouse_over_ui() and event.button_index == MOUSE_BUTTON_LEFT:
+		return
+	
+	match event.button_index:
+		MOUSE_BUTTON_LEFT:
+			handle_left_click(event)
+		MOUSE_BUTTON_RIGHT:
+			handle_right_click(event)
+		MOUSE_BUTTON_MIDDLE:
+			handle_middle_click(event)
+			
+func handle_left_click(event: InputEventMouseButton) -> void:
+	if event.pressed:
+		if phantom_building:
+			finish_building_placement()
+			return
+
+		var result = RaycastHandler.getRaycastResult(self)
+		if Input.is_action_pressed("MULTI_SELECT") and result:
+			selected_nodes = SelectionHandler.handleMultipleSelectionByShift(selected_nodes, result, self)
+		elif event.double_click and result:
+			selected_nodes = SelectionHandler.handleMultipleSelectionByDoubleClick(selected_nodes, result, self)
+		else:
+			selecting = true
+			selection_start = event.position
+			selection_overlay.position = selection_start
+			selection_overlay.size = Vector2.ZERO
+			selection_overlay.visible = true
+	else:
+		if selecting:
+			selecting = false
+			selection_overlay.visible = false
+			if event.position.distance_to(selection_start) > DRAG_THRESHOLD:
+				SelectionHandler.handleSelectionBySelectionRect(self)
+			else:
+				var result = RaycastHandler.getRaycastResult(self)
+				if result:
+					selected_nodes = SelectionHandler.handleSingleSelection(selected_nodes, result, self)
+			if ui:
+				ui.update_selected_objects(selected_nodes)
+
+func handle_right_click(event: InputEventMouseButton) -> void:
+	if event.pressed:
+		if selected_nodes.size() == 1 and selected_nodes[0] is ProductionBuilding:
+			var ground_pos = get_ground_position(event.position)
+			selected_nodes[0].set_rally_point(ground_pos)
+		elif phantom_building:
+			cancel_building_placement()
+		elif selected_nodes.is_empty():
+			dragging = true
 			last_mouse_position = event.position
-		if dragging:
-			var delta_move = event.position - last_mouse_position
-			var move_x = transform.basis.x * delta_move.x * CAMERA_SPEED_MULTPLIER
-			var move_z = transform.basis.z * delta_move.y * CAMERA_SPEED_MULTPLIER
-			move_x.y = 0
-			move_z.y = 0
-			position += move_x + move_z
-			last_mouse_position = event.position
-		elif rotating:
-			var delta_rotate = (event.position - last_mouse_position) * ROTATION_SPEED_MULTIPLIER
-			rotate_y(-delta_rotate.x)
-			last_mouse_position = event.position
+	else:
+		dragging = false
+		
+func handle_middle_click(event: InputEventMouseButton) -> void:
+	if phantom_building:
+		rotating_building = event.pressed
+		last_mouse_position = event.position
+	else:
+		rotating = event.pressed
+		last_mouse_position = event.position
+
+func handle_mouse_motion(event: InputEventMouseMotion) -> void:
+	if phantom_building and rotating_building:
+		if is_mouse_over_ui():
+			return
+		var delta_angle = event.position.x - last_mouse_position.x
+		phantom_building.rotate_y(-delta_angle * ROTATION_SPEED_MULTIPLIER)
+		last_mouse_position = event.position
+	elif dragging:
+		var delta = event.position - last_mouse_position
+		var move_x = transform.basis.x * delta.x * CAMERA_SPEED_MULTPLIER
+		var move_z = transform.basis.z * delta.y * CAMERA_SPEED_MULTPLIER
+		move_x.y = 0
+		move_z.y = 0
+		position += move_x + move_z
+		last_mouse_position = event.position
+	elif rotating:
+		var delta_rotate = (event.position - last_mouse_position) * ROTATION_SPEED_MULTIPLIER
+		rotate_y(-delta_rotate.x)
+		last_mouse_position = event.position
 
 # -------- CAMERA MOVEMENT METHODS --------
 func cameraZoom(delta:float)-> void:
