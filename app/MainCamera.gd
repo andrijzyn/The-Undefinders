@@ -214,11 +214,11 @@ func cameraZoom(delta:float)-> void:
 	if position.y >= 10 and Input.is_action_just_pressed("ZOOM_IN"):
 		# -transform.basis.z дает локальный вектор "вперед" камеры
 		var zoom_offset: Vector3 = -transform.basis.z * ZOOM_SPEED_MULTPLIER * delta
-		print("Zoom offset: ", zoom_offset)
+		print_debug("Zoom offset: ", zoom_offset)
 		position += zoom_offset
 	elif Input.is_action_just_pressed("ZOOM_OUT") and position.y < 40:
 		var zoom_offset: Vector3 = -transform.basis.z * -1 * ZOOM_SPEED_MULTPLIER * delta
-		print("Zoom offset: ", zoom_offset)
+		print_debug("Zoom offset: ", zoom_offset)
 		position += zoom_offset
 func handleEdgeScrolling(delta: float) -> void:
 	if is_mouse_over_ui():
@@ -321,7 +321,7 @@ func start_building_placement(building_name: String) -> void:
 		setup_phantom_area(phantom_building)
 		get_parent().add_child(phantom_building)
 	else:
-		print("Error: Scene not found at path:", path)
+		print_debug("Error: Scene not found at path:", path)
 func duplicate_meshes(node: Node) -> void:
 	if node is MeshInstance3D and node.mesh:
 		node.mesh = node.mesh.duplicate()
@@ -467,20 +467,20 @@ class CursorChangeHandler:
 			camera.isReadytoAttack = false
 			return
 		if DisplayServer.cursor_get_shape() == DisplayServer.CURSOR_POINTING_HAND:
-			#print("hand")
+			print_debug("hand")
 			return
 		if camera.isReadytoRotate:
 			DisplayServer.cursor_set_custom_image(Cursors.rotateCursor)
-			#print("rotate")
+			print_debug("rotate")
 		elif camera.isReadytoPatrol:
 			DisplayServer.cursor_set_custom_image(Cursors.patrolCursor)
-			#print("patrol")
+			print_debug("patrol")
 		elif camera.isReadytoAttack:
 			DisplayServer.cursor_set_custom_image(Cursors.attackCursor)
-			#print("attack")
+			print_debug("attack")
 		else:
 			DisplayServer.cursor_set_custom_image(null)
-			#print("default")
+			print_debug("default")
 			DisplayServer.cursor_set_shape(DisplayServer.CURSOR_ARROW)
 class Cursors:
 	static var rotateCursor := preload("res://shared/Cursors/rotate-left.png")
