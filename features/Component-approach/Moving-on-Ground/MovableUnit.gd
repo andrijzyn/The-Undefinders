@@ -4,9 +4,6 @@ class_name Component_Moving
 
 var PARENT: Unit
 
-func _ready() -> void:
-	PARENT = get_parent()
-
 # ----- ROTATING VARS -----
 const threshold: float = 0.001
 var target_angle: float
@@ -53,7 +50,7 @@ func _process(delta: float) -> void:
 func rotate_by_position(delta: float, move_direction: Vector3):
 	if move_direction.length_squared() > threshold:
 		target_angle = atan2(move_direction.x, move_direction.z)
-		rotation.y = lerp_angle(rotation.y, target_angle, rotation_speed * delta)
+		PARENT.rotation.y = lerp_angle(PARENT.rotation.y, target_angle, rotation_speed * delta)
 
 ## Перемещает юнит к выходной точке, с возможностью следования к флагу после выхода[br]
 ## [param exit_position] Vector3 - координаты выходной точки[br]

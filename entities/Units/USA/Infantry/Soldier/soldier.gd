@@ -13,6 +13,9 @@ func _ready() -> void:
 	self.Component_Moving = $"Moving-on-Ground_(MovableUnit)"
 	self.Component_Attack = $"Attacking-on-Ground_(attackUnit)"
 	
+	self.Component_Moving.PARENT = self
+	self.Component_Attack.PARENT = self
+	
 	self.Component_Basic.max_health = 100
 	self.Component_Basic.currentHealth = self.Component_Basic.max_health
 	

@@ -1,8 +1,8 @@
 [gd_scene load_steps=35 format=4 uid="uid://cjd68qtn0ujeb"]
 
 [ext_resource type="Script" uid="uid://c6gvq2b040rpa" path="res://entities/Units/USA/Infantry/Soldier/soldier.gd" id="1_e6lx5"]
-[ext_resource type="Texture2D" uid="uid://diroy00kuilct" path="res://entities/Units/USA/Infantry/Soldier/source/Sketchfab_2021_03_16_23_33_20_0.png" id="1_njsy7"]
-[ext_resource type="Texture2D" uid="uid://c8iw68xdib6u7" path="res://entities/Units/USA/Infantry/Soldier/textures/soldier.png" id="2_gih13"]
+[ext_resource type="Texture2D" uid="uid://cpl3ir5vpbi2m" path="res://entities/Units/USA/Infantry/Soldier/source/Sketchfab_2021_03_16_23_33_20_0.png" id="1_njsy7"]
+[ext_resource type="Texture2D" uid="uid://bdkfvccaiquei" path="res://entities/Units/USA/Infantry/Soldier/textures/soldier.png" id="2_gih13"]
 [ext_resource type="PackedScene" uid="uid://pvsgtle0ubdj" path="res://features/HUD/healthBar/health_bar.tscn" id="4_l5f2g"]
 [ext_resource type="PackedScene" uid="uid://is6rng0xm2y8" path="res://features/Component-approach/Attacking-on-Ground/attacking_on_ground_(attack_unit).tscn" id="5_ee7k6"]
 [ext_resource type="PackedScene" uid="uid://cv31dogm7ag31" path="res://features/Component-approach/Basic/basic_(entity).tscn" id="6_1xvbb"]

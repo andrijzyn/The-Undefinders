@@ -58,7 +58,6 @@ var bullet: PackedScene = preload("res://features/Shells/Bullet/bullet.tscn")
 #var explosion: PackedScene = preload("")
 
 func _ready():
-	PARENT = get_parent()
 	# Устанавливаем радиус зоны атаки
 	var sphere_shape = detection_shape.shape as SphereShape3D
 	if sphere_shape:
