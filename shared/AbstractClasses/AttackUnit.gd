@@ -65,37 +65,76 @@ func _ready():
 
 func _process(delta: float) -> void:
 	super._process(delta)
+	
 	if isAutoAttackEnabled:
-		if currentAttackGoal == null and not enemies_in_range.is_empty():
-			if check_line_of_sigth(enemies_in_range[0]):
-				currentAttackGoal = enemies_in_range[0]
-			elif not isReachingTarget: 
-				isReachingTarget = true
-				MovementOrderHandler.handleMovingOrder(self, enemies_in_range[0].global_position)
-				targetForReaching = enemies_in_range[0]
-		if not enemies_in_range.is_empty() and currentAttackGoal:
-			isAttacking = true
-			#MovementOrderHandler.handleAbortOrder(self)
-			isMoving = false
-			velocity = Vector3.ZERO
-
+		handle_auto_attack_logic()
+	
 	if isReachingTarget:
-		if (check_line_of_sigth(targetForReaching) and enemies_in_range.has(targetForReaching)):
-			MovementOrderHandler.handleAbortOrder(self)
-			isAttacking = true
-			currentAttackGoal = targetForReaching
-			targetForReaching = null
-			isReachingTarget = false
+		handle_reaching_target()
+	
 	if isAttacking and not isRotating:
+		handle_attack()
+
+func handle_auto_attack_logic() -> void:
+	if currentAttackGoal == null and not enemies_in_range.is_empty():
+		var enemy = enemies_in_range[0]
+		if check_line_of_sigth(enemy):
+			currentAttackGoal = enemy
+		elif not isReachingTarget:
+			isReachingTarget = true
+			targetForReaching = enemy
+			MovementOrderHandler.handleMovingOrder(self, enemy.global_position)
+	
+	if not enemies_in_range.is_empty() and currentAttackGoal:
+		start_attacking()
+
+func start_attacking() -> void:
+	isAttacking = true
+	isMoving = false
+	velocity = Vector3.ZERO
+
+func handle_reaching_target() -> void:
+	if targetForReaching and check_line_of_sigth(targetForReaching) and enemies_in_range.has(targetForReaching):
+		MovementOrderHandler.handleAbortOrder(self)
+		currentAttackGoal = targetForReaching
+		isAttacking = true
+		isReachingTarget = false
+		targetForReaching = null
+
+func handle_attack() -> void:
+	if currentAttackGoal and is_instance_valid(currentAttackGoal):
+		var targetLocation = currentAttackGoal.global_position
+		rotate_towards_target(targetLocation)
+		shoot()
+	else:
+		stop_attacking()
+
+func stop_attacking() -> void:
+	isAttacking = false
+	currentAttackGoal = null
+	isMoving = not waypointQueue.is_empty()
+	isPatrolling = not isMoving and not patrolPoints.is_empty()
+
+func shoot() -> void:
+	if not canShoot:
+		return
+	
+	canShoot = false
+	
+	if isSingleShooting:
 		if currentAttackGoal and is_instance_valid(currentAttackGoal):
-			var targetLocation = currentAttackGoal.global_position
-			rotate_towards_target(targetLocation)
-			shoot()
-		else:
-			if not waypointQueue.is_empty():
-				isMoving = true
-			if not patrolPoints.is_empty():
-				isPatrolling = true
+			currentAttackGoal.handleHealthChange(damage)
+	else:
+		for i in range(shootsAmount):
+			if not (currentAttackGoal and is_instance_valid(currentAttackGoal)):
+				stop_attacking()
+				break
+			currentAttackGoal.handleHealthChange(damage)
+			await get_tree().create_timer(fireRate).timeout
+	
+	await get_tree().create_timer(reloadTime).timeout
+	canShoot = true
+
 
 # ----------- ATTACK HANDLING ----------
 func start_attack() -> void:
@@ -125,25 +164,7 @@ func stop_attack() -> void:
 	mainCamera.player.isReadytoAttack = false
 	isAttacking = false
 
-func shoot() -> void:
-	if canShoot:
-		canShoot = false
-		#create_bullets()
-		if isSingleShooting:
-			currentAttackGoal.handleHealthChange(damage)
-		else:
-			for i in range(shootsAmount):
-				if not (currentAttackGoal and is_instance_valid(currentAttackGoal)):
-					if enemies_in_range.is_empty():
-						if not waypointQueue.is_empty():
-							isMoving = true
-						if not patrolPoints.is_empty():
-							isPatrolling = true
-					break
-				currentAttackGoal.handleHealthChange(damage)
-				await get_tree().create_timer(fireRate).timeout
-		await get_tree().create_timer(reloadTime).timeout
-		canShoot = true
+
 
 
 # ----------- HELPER FUNCTIONS ----------
