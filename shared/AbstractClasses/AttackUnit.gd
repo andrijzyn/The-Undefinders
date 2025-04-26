@@ -75,7 +75,10 @@ func _process(delta: float) -> void:
 				targetForReaching = enemies_in_range[0]
 		if not enemies_in_range.is_empty() and currentAttackGoal:
 			isAttacking = true
-			MovementOrderHandler.handleAbortOrder(self)
+			#MovementOrderHandler.handleAbortOrder(self)
+			isMoving = false
+			velocity = Vector3.ZERO
+
 	if isReachingTarget:
 		if (check_line_of_sigth(targetForReaching) and enemies_in_range.has(targetForReaching)):
 			MovementOrderHandler.handleAbortOrder(self)
@@ -88,6 +91,11 @@ func _process(delta: float) -> void:
 			var targetLocation = currentAttackGoal.global_position
 			rotate_towards_target(targetLocation)
 			shoot()
+		else:
+			if not waypointQueue.is_empty():
+				isMoving = true
+			if not patrolPoints.is_empty():
+				isPatrolling = true
 
 # ----------- ATTACK HANDLING ----------
 func start_attack() -> void:
@@ -109,6 +117,8 @@ func start_attack() -> void:
 			MovementOrderHandler.handleMovingOrder(self, target.global_position)
 			targetForReaching = target
 		mainCamera.player.toggleReadyAttack()
+	elif target is not Entity:
+		MovementOrderHandler.handleMovingOrder(self, targetLocation)
 
 func stop_attack() -> void:
 	currentAttackGoal = null
@@ -124,6 +134,11 @@ func shoot() -> void:
 		else:
 			for i in range(shootsAmount):
 				if not (currentAttackGoal and is_instance_valid(currentAttackGoal)):
+					if enemies_in_range.is_empty():
+						if not waypointQueue.is_empty():
+							isMoving = true
+						if not patrolPoints.is_empty():
+							isPatrolling = true
 					break
 				currentAttackGoal.handleHealthChange(damage)
 				await get_tree().create_timer(fireRate).timeout

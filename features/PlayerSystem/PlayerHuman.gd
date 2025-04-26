@@ -18,6 +18,7 @@ func _process(delta: float) -> void:
 		if Input.is_action_just_pressed("CONTEXT") and isReadytoAttack:
 			for node in selected_nodes:
 				node.start_attack()
+			toggleReadyAttack()
 		elif Input.is_action_just_pressed("ABORT") or Input.is_action_just_pressed("CONTEXT"):
 			for node in selected_nodes:
 				node.stop_attack()
@@ -54,7 +55,8 @@ class MovementOrderHandler:
 	## [param node: MovableUnit] - юнит, которому передаются команды[br]
 	## [method OrderHandler.listen]
 	static func listen(player: Player, delta):
-		if player.selected_nodes.size() > 0 and player.selected_nodes[0] is not ProductionBuilding:
+		if player.selected_nodes.size() > 0 and (player.selected_nodes[0] is not ProductionBuilding
+		):
 			if Input.is_action_just_pressed("CONTEXT"):
 				var targetLocation = RaycastHandler.getRaycastResultPosition(player.camera)
 				if player.isReadytoRotate:
