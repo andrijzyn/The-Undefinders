@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3 uid="uid://dot0scj3g8o0y"]
+
+[ext_resource type="Texture2D" uid="uid://7p013ealwk8t" path="res://features/GameLobby/textures/mapBlockExclusive/MapBlockLabel.png" id="1_gvp63"]
+[ext_resource type="Theme" uid="uid://cfya8goxetmod" path="res://features/GameLobby/elementsAdditional/Map_white_text_theme.tres" id="2_yplyp"]
+
+[node name="MapName" type="TextureRect"]
+offset_right = 350.0
+offset_bottom = 60.0
+texture = ExtResource("1_gvp63")
+expand_mode = 1
+
+[node name="MapNameText" type="Label" parent="."]
+clip_contents = true
+layout_mode = 0
+offset_left = 8.0
+offset_top = 9.0
+offset_right = 1658.0
+offset_bottom = 209.0
+scale = Vector2(0.2, 0.2)
+theme = ExtResource("2_yplyp")
+text = " Map name: "
+vertical_alignment = 1
+clip_text = true

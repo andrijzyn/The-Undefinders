@@ -51,20 +51,20 @@ func create_fog_mesh() -> ArrayMesh:
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 
 	for x in range(grid.width):
-		for y in range(grid.height):
+		for z in range(grid.depth):
 			var cell_size = grid.cell_size
 			
 			# Vertex positions for the cell
-			var p1 = Vector3(x * cell_size, 0, y * cell_size)
-			var p2 = Vector3((x + 1) * cell_size, 0, y * cell_size)
-			var p3 = Vector3(x * cell_size, 0, (y + 1) * cell_size)
-			var p4 = Vector3((x + 1) * cell_size, 0, (y + 1) * cell_size)
+			var p1 = Vector3(x * cell_size, 0, z * cell_size)
+			var p2 = Vector3((x + 1) * cell_size, 0, z * cell_size)
+			var p3 = Vector3(x * cell_size, 0, (z + 1) * cell_size)
+			var p4 = Vector3((x + 1) * cell_size, 0, (z + 1) * cell_size)
 			
 			# UV coordinates for the cell (normalized grid coordinates)
-			var uv1 = Vector2(x / float(grid.width), y / float(grid.height))
-			var uv2 = Vector2((x + 1) / float(grid.width), y / float(grid.height))
-			var uv3 = Vector2(x / float(grid.width), (y + 1) / float(grid.height))
-			var uv4 = Vector2((x + 1) / float(grid.width), (y + 1) / float(grid.height))
+			var uv1 = Vector2(x / float(grid.width), z / float(grid.depth))
+			var uv2 = Vector2((x + 1) / float(grid.width), z / float(grid.depth))
+			var uv3 = Vector2(x / float(grid.width), (z + 1) / float(grid.depth))
+			var uv4 = Vector2((x + 1) / float(grid.width), (z + 1) / float(grid.depth))
 			
 			# First triangle of the cell
 			st.set_uv(uv1)
@@ -138,7 +138,7 @@ func adjust_fog_to_terrain(fog: MeshInstance3D):
 func create_fog_texture():
 	print("Creating fog texture...")  # Debug
 
-	fog_image = Image.create_empty(grid.width, grid.height, false, Image.FORMAT_RGBA8)
+	fog_image = Image.create_empty(grid.width, grid.depth, false, Image.FORMAT_RGBA8)
 	if fog_image == null:
 		print("Error: fog_image was not created!")
 		return
@@ -167,7 +167,7 @@ func reveal_fog(world_x: float, world_y: float, r: float, unit_id: int = -1):
 	var x_min = max(cx - r, 0)
 	var x_max = min(cx + r, grid.width - 1)
 	var y_min = max(cy - r, 0)
-	var y_max = min(cy + r, grid.height - 1)
+	var y_max = min(cy + r, grid.depth - 1)
 
 	if unit_id != -1:
 		# Remember the unit's vision radius
@@ -213,7 +213,7 @@ func _on_special_area_time_out(area_id: int, area_timer: Timer):
 
 func _fade_fog():
 	for x in range(grid.width):
-		for y in range(grid.height):
+		for y in range(grid.depth):
 			var is_visible = false
 
 			# Check if this pixel belongs to any vision area
@@ -244,5 +244,5 @@ func _fade_fog():
 func get_pixel_alpha(x: float, y: float):
 	var rx = int((x - grid.position.x) / grid.cell_size)
 	var ry = int((y - grid.position.z) / grid.cell_size)
-	if (rx <= grid.width and ry <= grid.height):
+	if (rx <= grid.width and ry <= grid.depth):
 		return fog_image.get_pixel(rx, ry).a

@@ -94,6 +94,8 @@ func set_rally_point(position: Vector3):
 
 	if not rally_flag:
 		rally_flag = preload("res://entities/Buildings/Shared/Rally_flag/rally_flag.tscn").instantiate()
+		var player = get_tree().current_scene.players[get_multiplayer_authority()]
+		Entity.set_layer_mask_recursively(rally_flag, (1 << (player.id + 1)))
 		add_child(rally_flag)
 
 	rally_flag.global_transform.origin = rally_point

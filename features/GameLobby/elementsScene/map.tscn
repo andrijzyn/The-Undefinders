@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3 uid="uid://huyfm63p3sog"]
+
+[ext_resource type="Texture2D" uid="uid://dakahmt1yfkej" path="res://features/GameLobby/textures/mapBlockExclusive/MapBlockMap.png" id="1_cnycr"]
+[ext_resource type="Texture2D" uid="uid://cnmq24vgj7ti" path="res://features/GameLobby/textures/mapBlockExclusive/MapFilter.png" id="2_ct5x6"]
+
+[node name="Map" type="TextureRect"]
+offset_right = 350.0
+offset_bottom = 350.0
+texture = ExtResource("1_cnycr")
+expand_mode = 1
+
+[node name="MapFilter" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 19.0
+offset_right = 329.0
+offset_bottom = 327.0
+texture = ExtResource("2_ct5x6")
+expand_mode = 1
+
+[node name="MapImage" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 19.0
+offset_right = 329.0
+offset_bottom = 325.0

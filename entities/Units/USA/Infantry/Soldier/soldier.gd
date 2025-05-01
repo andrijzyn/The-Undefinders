@@ -26,6 +26,6 @@ func _init() -> void:
 func _process(delta: float) -> void:
 	super._process(delta)
 	if isMoving or isPatrolling:
-		animPlayer.play("rig|walk ")
+		animPlayer.play("walk")
 	else:
-		animPlayer.play("rig|idle ")
+		animPlayer.play("idle")

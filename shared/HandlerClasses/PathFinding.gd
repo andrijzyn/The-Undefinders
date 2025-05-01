@@ -33,11 +33,13 @@ class PathRequest:
 	var unit: MovableUnit
 	var start: Vector2
 	var end: Vector2
+	var unit_size: Vector2i
 	
-	func _init(unit: MovableUnit, start: Vector2, end: Vector2):
+	func _init(unit: MovableUnit, start: Vector2, end: Vector2, unit_size: Vector2i):
 		self.unit = unit
 		self.start = start
 		self.end = end
+		self.unit_size = unit_size
 
 # Euclidean distance
 static func heuristic(a: Grid.GridCell, b: Grid.GridCell) -> float:
@@ -50,8 +52,12 @@ func _init():
 
 # Add a pathfinding request to the queue
 func request_path(unit: MovableUnit, start: Vector2, end: Vector2) -> void:
+	var playerID = unit.get_multiplayer_authority()
+	var player = scene.get_player_by_multiplayer_id(playerID)
+	var size_in_cells = unit.get_entity_size_in_cells(player.grid.cell_size)
+	
 	request_mutex.lock()
-	request_queue.append(PathRequest.new(unit, start, end))
+	request_queue.append(PathRequest.new(unit, start, end, size_in_cells))
 	request_mutex.unlock()
 
 # Main request processing thread
@@ -68,7 +74,7 @@ func _process_requests():
 
 		if Global.is_debugging: print(request)
 		var playerID = request.unit.get_multiplayer_authority()
-		var result_path = find_path(request.start, request.end, playerID)
+		var result_path = find_path(request.start, request.end, playerID, request.unit_size)
 		if not result_path.is_empty():
 			if Global.is_debugging: print(result_path)
 			call_deferred("_deliver_path", request.unit, result_path, playerID)
@@ -94,7 +100,7 @@ func _exit_tree():
 	processing_active = false
 	processing_thread.wait_to_finish()
 
-func simplify_path(path: Array, playerID: int) -> Array:
+func simplify_path(path: Array, playerID: int, unit_size: Vector2i) -> Array:
 	if path.size() < 3:
 		return path
 
@@ -104,40 +110,46 @@ func simplify_path(path: Array, playerID: int) -> Array:
 		var prev = simplified_path[-1]
 		var next = path[i + 1]
 
-		if not has_line_of_sight(prev, next, playerID):
+		if not has_line_of_sight(prev, next, playerID, unit_size):
 			simplified_path.append(path[i])
 
 	simplified_path.append(path[-1])
 	return simplified_path
 
-func has_line_of_sight(start: Vector2, end: Vector2, playerID: int) -> bool:
+func has_line_of_sight(start: Vector2, end: Vector2, playerID: int, unit_size: Vector2i) -> bool:
 	var direction = (end - start).normalized()
 	var current_pos = start
 	var player = scene.get_player_by_multiplayer_id(playerID)
-
-	while (current_pos - start).length() < (end - start).length():
-		var cell = player.grid.cells[current_pos.x][current_pos.y]
-		if not cell or not cell.walkable:
+	
+	var total_distance = (end - start).length()
+	var distance_travelled = 0.0
+	
+	while distance_travelled < total_distance:
+		var rounded_pos = Vector2(round(current_pos.x), round(current_pos.y))
+		
+		if not player.grid.is_area_walkable(rounded_pos.x, rounded_pos.y, unit_size):
 			return false
-		current_pos += direction * player.grid.cell_size
-
+		
+		current_pos += direction * 0.5
+		distance_travelled += 0.5
+		
 	return true
 
-func find_path(start: Vector2, end: Vector2, playerID: int) -> Array:
+func find_path(start: Vector2, end: Vector2, playerID: int, unit_size: Vector2i) -> Array:
 	var player = scene.get_player_by_multiplayer_id(playerID)
 	if not player.grid.is_within_bounds(start.x, start.y) or not player.grid.is_within_bounds(end.x, end.y):
 		return []
 
-	if has_line_of_sight(start, end, playerID):
+	if has_line_of_sight(start, end, playerID, unit_size):
 		return [start, end]
 
 	var distance = heuristic(player.grid.cells[start.x][start.y], player.grid.cells[end.x][end.y])
-	var result = find_full_path(start, end, playerID)
+	var result = find_full_path(start, end, playerID, unit_size)
 
-	return simplify_path(result, playerID)
+	return simplify_path(result, playerID, unit_size)
 
 # A* pathfinding
-func find_full_path(start: Vector2, end: Vector2, playerID: int) -> Array:
+func find_full_path(start: Vector2, end: Vector2, playerID: int, unit_size: Vector2i) -> Array:
 	var player = scene.get_player_by_multiplayer_id(playerID)
 	var start_cell = player.grid.cells[start.x][start.y]
 	var end_cell = player.grid.cells[end.x][end.y]
@@ -159,7 +171,7 @@ func find_full_path(start: Vector2, end: Vector2, playerID: int) -> Array:
 
 		closed_list[current_node.cell] = true
 
-		for neighbor in get_neighbors_with_diagonals(current_node.cell, playerID):
+		for neighbor in get_neighbors_with_diagonals(current_node.cell, playerID, unit_size):
 			if neighbor in closed_list:
 				continue
 
@@ -179,7 +191,7 @@ func find_full_path(start: Vector2, end: Vector2, playerID: int) -> Array:
 	return []  # No path
 
 # Get neighbors with diagonal movement (prevent diagonal clipping)
-func get_neighbors_with_diagonals(cell: Grid.GridCell, playerID: int) -> Array:
+func get_neighbors_with_diagonals(cell: Grid.GridCell, playerID: int, unit_size: Vector2i) -> Array:
 	var neighbors = []
 	var directions = [
 		Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1),  # Main directions
@@ -191,12 +203,12 @@ func get_neighbors_with_diagonals(cell: Grid.GridCell, playerID: int) -> Array:
 		var nx = cell.x + dir.x
 		var ny = cell.y + dir.y
 
-		if not player.grid.is_within_bounds(nx, ny) or not player.grid.cells[nx][ny].walkable:
+		if not player.grid.is_area_walkable(nx, ny, unit_size):
 			continue
 
 		# Diagonal movement is allowed only if there are no obstacles on the sides
 		if abs(dir.x) == 1 and abs(dir.y) == 1:
-			if not (player.grid.cells[cell.x + dir.x][cell.y].walkable and player.grid.cells[cell.x][cell.y + dir.y].walkable):
+			if not (player.grid.is_area_walkable(cell.x + dir.x, cell.y, unit_size) and player.grid.is_area_walkable(cell.x, cell.y + dir.y, unit_size)):
 				continue
 
 		neighbors.append(player.grid.cells[nx][ny])
