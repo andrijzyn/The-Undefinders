@@ -60,7 +60,6 @@ func rotate_by_position(delta: float, move_direction: Vector3):
 ## [method move_to_exit_point]
 func move_to_exit_point(exit_position: Vector3, target_location_active: bool = false, flag_position: Vector3 = Vector3.ZERO):
 	isLeavingBuilding = true
-	collider.disabled = true
 	waypointQueue.clear()
 	waypointQueue.append(exit_position)
 	if target_location_active:
@@ -124,9 +123,7 @@ class MovementContinuator:
 				node.isMoving = false
 			if node.isLeavingBuilding:
 				node.isLeavingBuilding = false
-				node.collider.disabled = false
 				node.reached_exit.emit()
-
 
 	## Обрабатывает движение юнита по маршруту патрулирования[br]
 	## [param node: MovableUnit] - юнит, который должен продолжить патрулирование[br]

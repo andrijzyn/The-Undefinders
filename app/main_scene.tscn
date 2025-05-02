@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://ddj7yhyrrg4b8"]
 
-[ext_resource type="Script" path="res://app/MainScene.gd" id="1_o8hv5"]
+[ext_resource type="Script" uid="uid://b5x07vifqjwdm" path="res://app/MainScene.gd" id="1_o8hv5"]
 [ext_resource type="PackedScene" uid="uid://bbsgnge3ole1f" path="res://entities/Maps/ground.tscn" id="2_hvjiq"]
 
 [node name="MainScene" type="Node3D"]

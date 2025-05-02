@@ -45,7 +45,10 @@ func setHealthBarVisibility(val: bool):
 ## [method Entity.handleHealthChange]
 func handleHealthChange(val: float):
 	currentHealth -= val
-	if currentHealth < 0: queue_free()
+	if currentHealth < 0:
+		var main_scene = get_tree().current_scene
+		main_scene.players[playerID].selected_nodes.erase(self)
+		queue_free()
 	changeHealthBar()
 
 ## Обновляет отображение полосы здоровья в зависимости от текущего здоровья[br]

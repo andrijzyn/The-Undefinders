@@ -55,8 +55,7 @@ class MovementOrderHandler:
 	## [param node: MovableUnit] - юнит, которому передаются команды[br]
 	## [method OrderHandler.listen]
 	static func listen(player: Player, delta):
-		if player.selected_nodes.size() > 0 and (player.selected_nodes[0] is not ProductionBuilding
-		):
+		if player.selected_nodes.size() > 0 and is_instance_valid(player.selected_nodes[0]) and (player.selected_nodes[0] is not ProductionBuilding):
 			if Input.is_action_just_pressed("CONTEXT"):
 				var targetLocation = RaycastHandler.getRaycastResultPosition(player.camera)
 				if player.isReadytoRotate:
