@@ -88,15 +88,12 @@ func get_ground_height(position: Vector3) -> float:
 		return position.y
 
 func update_walkability():
-	print("detect")
 	var space_state = get_world_3d().direct_space_state  # Get the collision space
 
 	for x in range(width):
 		for y in range(depth):
 			var cell_world_pos = get_world_position(x, y)
 			cells[x][y].walkable = detect_obstacles(space_state, cell_world_pos)  # Update walkability
-			if cells[x][y].walkable == false:
-				print("Cell x, y:", x," ", y)
 
 	update_debug_mesh()  # Update the visual display
 

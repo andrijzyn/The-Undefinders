@@ -28,23 +28,10 @@ func _process(delta: float) -> void:
 		for unit in units:
 			if is_instance_valid(unit):
 				if unit.global_position.distance_squared_to(unit.last_position) > 1.0:
-					grid.fog_of_war.reveal_fog(unit.global_position.x, unit.global_position.z, 30, unit.id)
+					grid.fog_of_war.reveal_fog(unit.global_position.x, unit.global_position.z, 30, unit)
+					unit.last_position = unit.global_position
+				if unit.last_position == null:
 					unit.last_position = unit.global_position
 		for building in buildings:
 			if is_instance_valid(building):
-				grid.fog_of_war.reveal_fog(building.global_position.x, building.global_position.z, 50, building.id)
-
-# Looking for the first available ID
-func get_next_available_unit_id(is_building: bool = false) -> int:
-	var occupied_ids := {}
-	if (!is_building):
-		for unit in units:
-			occupied_ids[unit.id] = true
-	else:
-		for building in buildings:
-			occupied_ids[building.id] = true
-	var next_id = 0
-	while next_id in occupied_ids:
-		next_id += 1
-
-	return next_id
+				grid.fog_of_war.reveal_fog(building.global_position.x, building.global_position.z, 50, building)

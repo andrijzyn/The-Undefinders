@@ -38,7 +38,7 @@ func multiplayer_ownership_checker():
 var phantom_building: Node3D = null
 var overlapping_bodies_count: int = 0
 var ghost_shader = preload("res://shared/shaders/ghost_shader.gdshader")
-
+var fog_of_war: FogOfWar
 
 
 # ----------- IN-BUILD TIMELINE METHODS IMPLEMENTATION -----------
@@ -52,7 +52,8 @@ func _ready():
 	get_viewport().add_child.call_deferred(canvas_layer)
 	
 	player = get_tree().current_scene.players[get_multiplayer_authority()] as PlayerHuman
-
+	fog_of_war = player.grid.fog_of_war
+	
 	var selection_container = Control.new()
 	selection_container.name = "SelectionContainer"
 	selection_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -407,13 +408,16 @@ func cancel_building_placement() -> void:
 		phantom_building.queue_free()
 		phantom_building = null
 func finish_building_placement() -> void:
+	var pos = phantom_building.global_transform.origin
+	if fog_of_war.get_pixel_alpha(pos.x, pos.z) > 0.3:
+		return
+		
 	if phantom_building and can_place:
 		for child in phantom_building.get_children():
 			if child is Area3D:
 				child.queue_free()
 		enable_colliders(phantom_building)
 		fix_building_transparency(phantom_building)
-		phantom_building.id = player.get_next_available_unit_id(true)
 		player.grid.update_walkability()
 
 		var player = main_scene.get_player_by_multiplayer_id(get_multiplayer_authority())

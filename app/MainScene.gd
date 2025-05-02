@@ -80,7 +80,6 @@ func setup_players(player_list: Array):
 				var building = preload("res://entities/Buildings/GLA/garage/garage_imp.tscn").instantiate()
 				building.position = spawn_point.position
 				building.set_multiplayer_authority(new_player.id)
-				building.id = new_player.get_next_available_unit_id(true)
 				building.set_layer_mask(1 << new_player.id + 1)
 				camera.duplicate_meshes(building)
 				camera.change_fraction_color(building, new_player.color)

@@ -137,13 +137,18 @@ func adjust_fog_to_terrain(fog: MeshInstance3D):
 # Creates the fog texture (alpha channel for transparency)
 func create_fog_texture():
 	print("Creating fog texture...")  # Debug
-
-	fog_image = Image.create_empty(grid.width, grid.depth, false, Image.FORMAT_RGBA8)
-	if fog_image == null:
-		print("Error: fog_image was not created!")
+	var img = Image.new()
+	var err = img.load("res://features/LandScape/textures/FogImage.png")
+	
+	if err != OK:
+		push_error("Failed to load fog image: res://features/LandScape/textures/FogImage.png")
 		return
-
-	fog_image.fill(Color(1, 1, 1, 1))  # Completely obscure the map
+		
+	if img.get_width() != grid.width or img.get_height() != grid.depth:
+		push_warning("Fog image size does not match grid size. Resizing image.")
+		img.resize(grid.width, grid.depth, Image.INTERPOLATE_LANCZOS)
+		
+	fog_image = img  # Completely obscure the map
 
 	fog_map = ImageTexture.create_from_image(fog_image)
 	if fog_map == null:
@@ -158,7 +163,7 @@ func create_fog_texture():
 	print("fog_texture size:", fog_map.get_size())
 
 # Reveals fog in a circular area
-func reveal_fog(world_x: float, world_y: float, r: float, unit_id: int = -1):
+func reveal_fog(world_x: float, world_y: float, r: float, unit: Node = null):
 	# Convert world coordinates to texture indices
 	var cx = int((world_x - grid.position.x) / grid.cell_size)
 	var cy = int((world_y - grid.position.z) / grid.cell_size)
@@ -169,9 +174,9 @@ func reveal_fog(world_x: float, world_y: float, r: float, unit_id: int = -1):
 	var y_min = max(cy - r, 0)
 	var y_max = min(cy + r, grid.depth - 1)
 
-	if unit_id != -1:
+	if unit:
 		# Remember the unit's vision radius
-		vision_areas[unit_id] = { "cx": cx, "cy": cy, "r": r }
+		vision_areas[unit] = { "cx": cx, "cy": cy, "r": r }
 	else:
 		# Create a unique ID for the area
 		var area_id = special_area_counter
@@ -196,9 +201,9 @@ func reveal_fog(world_x: float, world_y: float, r: float, unit_id: int = -1):
 		for y in range(y_min, y_max + 1):
 			var dx = x - cx
 			var dy = y - cy
+			var color = fog_image.get_pixel(x, y)
 			if dx * dx + dy * dy <= r * r:
-				# Set alpha to 0 (fully transparent)
-				fog_image.set_pixel(x, y, Color(1, 1, 1, 0))
+				fog_image.set_pixel(x, y, Color(color.r, color.g, color.b, 0))
 
 	# Update texture and pass it to the shader
 	fog_map.set_image(fog_image)
@@ -217,8 +222,11 @@ func _fade_fog():
 			var is_visible = false
 
 			# Check if this pixel belongs to any vision area
-			for key in vision_areas:
-				var area = vision_areas[key]
+			for unit in vision_areas.keys():
+				if not is_instance_valid(unit):
+					vision_areas.erase(unit)
+					continue
+				var area = vision_areas[unit]
 				var dx = x - area["cx"]
 				var dy = y - area["cy"]
 				if dx * dx + dy * dy <= area["r"] * area["r"]:

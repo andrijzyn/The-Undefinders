@@ -36,7 +36,6 @@ func on_production_complete(unit_name: String):
 	var player = get_tree().current_scene.get_player_by_multiplayer_id(get_multiplayer_authority())
 	unit_instance.set_layer_mask_recursively(unit_instance, (1 << (player.id + 1)))
 	player.units.append(unit_instance)
-	unit_instance.id = player.get_next_available_unit_id()
 
 	get_parent().add_child(unit_instance)
 	unit_instance.global_transform.origin = spawn_point.global_transform.origin

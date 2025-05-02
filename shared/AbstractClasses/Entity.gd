@@ -8,9 +8,6 @@ var playerID: int
 func setPlayerID(id:int) -> void:
 	self.playerID = id
 
-# ------- UNIT ID -----
-var id: int
-
 # -------- HEALTH VARS ----------
 ## [b]Должно быть указано при инициализации конкретной сущностью.[/b][br]
 ## [b]Значение строго больше 0[/b]
@@ -64,12 +61,30 @@ func update_entity_visibility():
 	var pos = global_position
 	var visible_layers = 0
 	var scene = get_tree().current_scene
+	var grid = scene.players[0].grid
+	var cell_size = grid.cell_size
+	var entity_size = get_entity_size_in_cells(cell_size)
+	var half_cell = (cell_size * 0.5)
 
+	var ox = pos.x - (entity_size.x * half_cell)
+	var oz = pos.z - (entity_size.y * half_cell)
+	
 	for player in scene.players:
-		var fog_alpha = player.grid.fog_of_war.get_pixel_alpha(pos.x, pos.z)
-		if fog_alpha < 0.1:  # <0.1 to account for fog attenuation
-			visible_layers |= (1 << (player.id + 1)) # Add to bit mask
-
+		var fog = player.grid.fog_of_war
+		var player_id = player.id + 1
+		var fully_visible = false
+		for dx in range(entity_size.x):
+			for dz in range(entity_size.y):
+				var cx = ox + dx * cell_size + half_cell
+				var cz = oz + dz * cell_size + half_cell
+				var alpha = fog.get_pixel_alpha(cx, cz)
+				if alpha < 0.1:
+					fully_visible = true
+					break
+			if fully_visible:
+				break
+		if fully_visible:
+			visible_layers |= (1 << player_id)
 	set_layer_mask_recursively(self, visible_layers)
 
 static func set_layer_mask_recursively(node: Node, mask: int) -> void:
