@@ -3,6 +3,7 @@ class_name PathHandler
 
 static var grid: Grid
 static var pathfinder: Pathfinding
+static var scene: MainScene
 
 ## Строит новый маршрут для юнита на основе его очереди точек перемещения[br]
 ## [param node: MovableUnit] - юнит, для которого строится маршрут[br]
@@ -12,6 +13,7 @@ static func newPath(node: MovableUnit) -> void:
 		if Global.is_debugging: print("Error: Empty waypoint queue!")
 		return
 
+	grid = scene.get_player_by_multiplayer_id(node.get_multiplayer_authority()).grid
 	var start = node.global_position
 	var target = node.waypointQueue[0]
 

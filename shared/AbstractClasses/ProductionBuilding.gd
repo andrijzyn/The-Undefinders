@@ -1,11 +1,10 @@
-extends Node3D
+extends Entity
 class_name ProductionBuilding
 
 var available_items: Dictionary = {}
 var ui
 var icon: Texture2D
 var is_builder: bool = false
-var isSelected: bool = false
 var is_producing: bool = false
 var production_queue: Array = []
 const MAX_QUEUE_SIZE: int = 10
@@ -14,14 +13,18 @@ var target_location_active: bool = false
 var rally_flag: Node3D
 
 func _init():
-	add_to_group(Constants.selectable)
-	add_to_group(Constants.mouseChanger)
+	max_health = 1000
+	currentHealth = max_health
 
 func _ready():
 	ui = get_tree().current_scene.players[get_multiplayer_authority()].get_node_or_null("PlayerUI")
+	var static_body = $StaticBody3D
+	if static_body:
+		static_body.add_to_group(Constants.selectable)
+		static_body.add_to_group(Constants.mouseChanger)
 
 func setSelected(val: bool):
-	isSelected = val
+	super(val)
 	if rally_flag:
 		rally_flag.visible = isSelected and target_location_active
 
@@ -91,6 +94,8 @@ func set_rally_point(position: Vector3):
 
 	if not rally_flag:
 		rally_flag = preload("res://entities/Buildings/Shared/Rally_flag/rally_flag.tscn").instantiate()
+		var player = get_tree().current_scene.players[get_multiplayer_authority()]
+		Entity.set_layer_mask_recursively(rally_flag, (1 << (player.id + 1)))
 		add_child(rally_flag)
 
 	rally_flag.global_transform.origin = rally_point

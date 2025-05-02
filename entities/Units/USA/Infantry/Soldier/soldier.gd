@@ -4,8 +4,6 @@ class_name Soldier
 var icon: Texture2D = preload("res://entities/Units/USA/Infantry/Soldier/soldier_icon.PNG")
 
 func _init() -> void:
-	super._init()
-	
 	max_health = 100
 	currentHealth = max_health
 	
@@ -28,6 +26,6 @@ func _init() -> void:
 func _process(delta: float) -> void:
 	super._process(delta)
 	if isMoving or isPatrolling:
-		animPlayer.play("rig|walk ")
+		animPlayer.play("walk")
 	else:
-		animPlayer.play("rig|idle ")
+		animPlayer.play("idle")

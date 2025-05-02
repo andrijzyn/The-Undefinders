@@ -38,7 +38,7 @@ func multiplayer_ownership_checker():
 var phantom_building: Node3D = null
 var overlapping_bodies_count: int = 0
 var ghost_shader = preload("res://shared/shaders/ghost_shader.gdshader")
-
+var fog_of_war: FogOfWar
 
 
 # ----------- IN-BUILD TIMELINE METHODS IMPLEMENTATION -----------
@@ -52,7 +52,8 @@ func _ready():
 	get_viewport().add_child.call_deferred(canvas_layer)
 	
 	player = get_tree().current_scene.players[get_multiplayer_authority()] as PlayerHuman
-
+	fog_of_war = player.grid.fog_of_war
+	
 	var selection_container = Control.new()
 	selection_container.name = "SelectionContainer"
 	selection_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -294,6 +295,9 @@ func start_building_placement(building_name: String) -> void:
 		apply_ghost_shader(phantom_building)
 		disable_colliders(phantom_building)
 		setup_phantom_area(phantom_building)
+
+		var player = main_scene.get_player_by_multiplayer_id(get_multiplayer_authority())
+		phantom_building.set_layer_mask_recursively(phantom_building, (1 << (player.id + 1)))
 		get_parent().add_child(phantom_building)
 	else:
 		print("Error: Scene not found at path:", path)
@@ -404,14 +408,21 @@ func cancel_building_placement() -> void:
 		phantom_building.queue_free()
 		phantom_building = null
 func finish_building_placement() -> void:
+	var pos = phantom_building.global_transform.origin
+	if fog_of_war.get_pixel_alpha(pos.x, pos.z) > 0.3:
+		return
+		
 	if phantom_building and can_place:
 		for child in phantom_building.get_children():
 			if child is Area3D:
 				child.queue_free()
 		enable_colliders(phantom_building)
 		fix_building_transparency(phantom_building)
+		player.grid.update_walkability()
+
+		var player = main_scene.get_player_by_multiplayer_id(get_multiplayer_authority())
+		player.buildings.append(phantom_building)
 		phantom_building = null
-		main_scene.grid.update_walkability()
 
 #Func find_first_colliusion_shape
 #Finds the first collision found on an object and returns it

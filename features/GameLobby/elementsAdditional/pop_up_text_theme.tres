@@ -1,0 +1,10 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://ihkrrok3fnvc"]
+
+[ext_resource type="Texture2D" uid="uid://c1nrh7wowirpo" path="res://features/GameLobby/textures/ArrowDown.png" id="1_uflsv"]
+
+[resource]
+default_font_size = 12
+OptionButton/colors/font_color = Color(0.690196, 0.745098, 0.768627, 1)
+OptionButton/colors/font_outline_color = Color(0.937255, 0.937255, 0.937255, 1)
+OptionButton/constants/outline_size = 5
+OptionButton/icons/arrow = ExtResource("1_uflsv")

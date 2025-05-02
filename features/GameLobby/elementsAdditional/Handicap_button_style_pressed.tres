@@ -1,0 +1,8 @@
+[gd_resource type="Theme" format=3 uid="uid://b1k1xs3towoq8"]
+
+[resource]
+default_base_scale = 2.0
+default_font_size = 70
+Button/colors/font_outline_color = Color(1, 0.7075, 0.55, 1)
+Button/colors/font_pressed_color = Color(0.91, 0.506567, 0.273, 1)
+Button/constants/outline_size = 5

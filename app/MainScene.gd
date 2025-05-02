@@ -1,4 +1,5 @@
 extends Node3D
+class_name MainScene
 
 var loaded_players = [
 	PlayerData.new(0, false, 0, 1000, 1, 1, "Player1", Color.RED, "Test"),
@@ -7,13 +8,18 @@ var loaded_players = [
 var players: Array[Player]
 var current_camera: Camera3D = null
 var current_player_index: int = 0
-var grid = Grid.new(80, 80, 0.25)  # Map size 20x20, cell size 1.0
 var pathfinder
+var visibilityChecker
 
 func _ready() -> void:
 	setup_players(loaded_players)
-	add_child(grid)
-	grid.set_walkable(5, 5, false)
+	pathfinder = Pathfinding.new()
+	pathfinder.scene = self
+	PathHandler.pathfinder = pathfinder
+	PathHandler.scene = self
+	visibilityChecker = VisibilityChecker.new()
+	visibilityChecker.scene = self
+	add_child(visibilityChecker)
 
 func setup_players(player_list: Array):
 	for player_data in player_list:
@@ -28,7 +34,11 @@ func setup_players(player_list: Array):
 			new_player.set_multiplayer_authority(new_player.id)
 			add_child(new_player)
 			players.append(new_player)
-			
+
+			var grid = Grid.new(80, 80, 0.25)  # Map size 80x80, cell size 0.25
+			new_player.add_child(grid)
+			new_player.grid = grid
+
 			var ui = load("res://features/HUD/UI/rts_ui.tscn").instantiate()
 			ui.name = "PlayerUI"
 			ui.set_multiplayer_authority(new_player.id)
@@ -42,19 +52,26 @@ func setup_players(player_list: Array):
 				camera.position = spawn_point.position + Vector3(0, 20, 0)
 				camera.rotation_degrees.x = -60
 				camera.set_multiplayer_authority(new_player.id)
+				camera.cull_mask = (1 << 0) | (1 << new_player.id + 1)
 				new_player.add_child(camera)
 
 				var building = preload("res://entities/Buildings/GLA/garage/garage_imp.tscn").instantiate()
 				building.position = spawn_point.position
 				building.set_multiplayer_authority(new_player.id)
+				building.set_layer_mask(1 << new_player.id + 1)
 				camera.duplicate_meshes(building)
 				camera.change_fraction_color(building, new_player.color)
+				new_player.buildings.append(building)
 				new_player.add_child(building)
+				new_player.grid.update_walkability()
 				
 				camera.ui = ui
 				ui.player_camera = camera
 				new_player.camera = camera
 				new_player.ui = ui
+				print("Camera cull_mask for player", new_player.id, ": ", camera.cull_mask)
+				print("Building layer mask: ", building.get_layer_mask())
+
 			else:
 				print("Error: There's no spawn point for player" + str(new_player.id))
 
@@ -86,9 +103,8 @@ func _input(event):
 	if event.is_action_pressed("SWITCH_PLAYER"):
 		switch_player()
 
-func init_path_finder():
-	print(1)
-	pathfinder = Pathfinding.new()
-	pathfinder.grid = grid
-	PathHandler.grid = grid
-	PathHandler.pathfinder = pathfinder
+func get_player_by_multiplayer_id(multiplayerID: int):
+	for player in players:
+		if player.get_multiplayer_authority() == multiplayerID:
+			return player
+	return null

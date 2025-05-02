@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://dtyc7xjlho41t"]
+
+[ext_resource type="Texture2D" uid="uid://dfuf6677htwc8" path="res://features/GameLobby/textures/mapBlockExclusive/MapBlockButton.png" id="1_li6ib"]
+[ext_resource type="Theme" uid="uid://cfya8goxetmod" path="res://features/GameLobby/elementsAdditional/Map_white_text_theme.tres" id="2_qoyfd"]
+
+[node name="MapChooseButton" type="TextureRect"]
+offset_right = 355.0
+offset_bottom = 81.0
+texture = ExtResource("1_li6ib")
+expand_mode = 1
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 7.0
+offset_top = 8.0
+offset_right = 1677.0
+offset_bottom = 238.0
+scale = Vector2(0.2, 0.2)
+theme = ExtResource("2_qoyfd")
+text = "Select Map"
+flat = true

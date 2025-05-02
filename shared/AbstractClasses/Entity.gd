@@ -1,4 +1,4 @@
-extends Node3D
+extends VisualInstance3D
 ## Абстрактный класс, для всех играбельных сущностей игры здания / юниты
 class_name Entity
 
@@ -24,6 +24,8 @@ var currentHealth: float
 var isHealthBarVisible := false
 var isSelected := false
 
+# ----- UNIT SIZE --------
+var _cached_size_in_cells: Vector2i = Vector2i(0, 0)
 
 # --------------- SELECTION SETTING ------------
 ## Устанавливает состояние выделения сущности, также вызывает [method Entity.setHealthBarVisibility] передавая входной параметр[br]
@@ -56,3 +58,89 @@ func handleHealthChange(val: float):
 func changeHealthBar():
 	var health_percentage = currentHealth / max_health
 	healthBar.setHealthPercentage(health_percentage)
+
+# Function for switching unit visibility
+func update_entity_visibility():
+	var pos = global_position
+	var visible_layers = 0
+	var scene = get_tree().current_scene
+	var grid = scene.players[0].grid
+	var cell_size = grid.cell_size
+	var entity_size = get_entity_size_in_cells(cell_size)
+	var half_cell = (cell_size * 0.5)
+
+	var ox = pos.x - (entity_size.x * half_cell)
+	var oz = pos.z - (entity_size.y * half_cell)
+	
+	for player in scene.players:
+		var fog = player.grid.fog_of_war
+		var player_id = player.id + 1
+		var fully_visible = false
+		for dx in range(entity_size.x):
+			for dz in range(entity_size.y):
+				var cx = ox + dx * cell_size + half_cell
+				var cz = oz + dz * cell_size + half_cell
+				var alpha = fog.get_pixel_alpha(cx, cz)
+				if alpha < 0.1:
+					fully_visible = true
+					break
+			if fully_visible:
+				break
+		if fully_visible:
+			visible_layers |= (1 << player_id)
+	set_layer_mask_recursively(self, visible_layers)
+
+static func set_layer_mask_recursively(node: Node, mask: int) -> void:
+	if node is VisualInstance3D:
+		node.set_layer_mask(mask)
+	for child in node.get_children():
+		set_layer_mask_recursively(child, mask)
+
+func get_entity_size_in_cells(grid_cell_size: float) -> Vector2i:
+	if _cached_size_in_cells != Vector2i(0, 0):
+		return _cached_size_in_cells
+
+	var body_node = null
+
+	for child in get_children():
+		if child is CharacterBody3D or child is StaticBody3D:
+			body_node = child
+			break
+
+	if body_node == null:
+		push_error("Entity does not have a CharacterBody3D or StaticBody3D.")
+		_cached_size_in_cells = Vector2i(1, 1)
+		return _cached_size_in_cells
+
+	var collider_node = null
+	for grandchild in body_node.get_children():
+		if grandchild is CollisionShape3D or grandchild is CollisionPolygon3D:
+			collider_node = grandchild
+			break
+
+	if collider_node == null:
+		push_error("Entity's body node does not have a CollisionShape3D or CollisionPolygon3D.")
+		_cached_size_in_cells = Vector2i(1, 1)
+		return _cached_size_in_cells
+
+	var size = Vector3(1, 1, 1)
+	if collider_node is CollisionShape3D:
+		var shape = collider_node.shape
+		if shape is BoxShape3D:
+			size = shape.extents * 2.0
+		elif shape is CapsuleShape3D:
+			size = Vector3(shape.radius * 2.0, shape.height, shape.radius * 2.0)
+		elif shape is SphereShape3D:
+			size = Vector3(shape.radius * 2.0, shape.radius * 2.0, shape.radius * 2.0)
+		else:
+			push_warning("Entity has unsupported collision shape: %s" % shape)
+
+	elif collider_node is CollisionPolygon3D:
+		push_warning("CollisionPolygon3D used; defaulting to 1x1 size.")
+		size = Vector3(1, 1, 1)
+
+	var size_x_in_cells = max(1, ceil(size.x / grid_cell_size))
+	var size_z_in_cells = max(1, ceil(size.z / grid_cell_size))
+
+	_cached_size_in_cells = Vector2i(size_x_in_cells, size_z_in_cells)
+	return _cached_size_in_cells

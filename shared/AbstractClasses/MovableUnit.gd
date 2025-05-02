@@ -29,23 +29,30 @@ var velocity: Vector3
 ## [b]Значение строго больше 0[/b]
 var speed: float = 2.0
 
+# ----- FOG VARS -----
+var last_position := Vector3.ZERO
+
 # ---------- NODES-CONTAINING VARS -----------
 @onready var animPlayer := $AnimPlayer
-@onready var collider := $CollisionPolygon3D2
+@onready var collider := $CharacterBody3D/CollisionPolygon3D2
+@onready var characterBody3D := $CharacterBody3D
 @onready var mainCamera: MainCamera
 
 # ------------ SIGNALS -----------
 signal reached_exit
 
 # ----------- IN-BUILD TIMELINE METHODS IMPLEMENTATION -----------
-func _init() -> void:
-	add_to_group(Constants.selectable)
-	add_to_group(Constants.movable)
-
 func _process(delta: float) -> void:
 	direction = Vector3.ZERO
 	MovementContinuator.listen(self, delta)
 	position += velocity * delta
+
+func _ready() -> void:
+	last_position = global_position
+	mapRID = get_world_3d().navigation_map
+	characterBody3D.add_to_group(Constants.selectable)
+	characterBody3D.add_to_group(Constants.movable)
+
 
 # ---------------- OTHER STUFF ------------------ 
 func rotate_by_position(delta: float, move_direction: Vector3):
