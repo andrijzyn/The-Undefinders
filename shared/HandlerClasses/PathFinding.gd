@@ -116,7 +116,7 @@ func simplify_path(path: Array, playerID: int, unit_size: Vector2i) -> Array:
 	simplified_path.append(path[-1])
 	return simplified_path
 
-func has_line_of_sight(start: Vector2, end: Vector2, playerID: int, unit_size: Vector2i) -> bool:
+func has_line_of_sight(start: Vector2, end: Vector2, playerID: int, unit_size: Vector2i = Vector2i(1, 1)) -> bool:
 	var direction = (end - start).normalized()
 	var current_pos = start
 	var player = scene.get_player_by_multiplayer_id(playerID)

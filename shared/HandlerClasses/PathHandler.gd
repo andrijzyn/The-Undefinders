@@ -20,7 +20,6 @@ static func newPath(node: MovableUnit) -> void:
 	var start_grid_pos = normalizeByGrid(start.x, grid.position.x, start.z, grid.position.z, grid.cell_size)
 	var target_grid_pos = normalizeByGrid(target.x, grid.position.x, target.z, grid.position.z, grid.cell_size)
 	
-
 	if not grid.is_within_bounds(start_grid_pos.x, start_grid_pos.y):
 		if Global.is_debugging:
 			print("Start position outside grid boundary! Searching for nearest available point...")

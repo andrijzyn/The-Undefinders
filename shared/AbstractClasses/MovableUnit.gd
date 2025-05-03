@@ -37,6 +37,7 @@ var last_position := Vector3.ZERO
 @onready var collider := $CharacterBody3D/CollisionPolygon3D2
 @onready var characterBody3D := $CharacterBody3D
 @onready var mainCamera: MainCamera
+@onready var mapRID: RID
 
 # ------------ SIGNALS -----------
 signal reached_exit

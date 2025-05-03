@@ -207,4 +207,4 @@ func check_line_of_sigth(target: Entity) -> bool:
 	var grid = PathHandler.grid
 	var selfPos = PathHandler.normalizeByGrid(global_position.x, grid.position.x, global_position.z, grid.position.z, grid.cell_size)
 	var targetPos = PathHandler.normalizeByGrid(target.global_position.x, grid.position.x, target.global_position.z, grid.position.z, grid.cell_size)
-	return PathHandler.pathfinder.has_line_of_sight(selfPos, targetPos)
+	return PathHandler.pathfinder.has_line_of_sight(selfPos, targetPos, get_multiplayer_authority())
