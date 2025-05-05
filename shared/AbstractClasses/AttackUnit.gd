@@ -193,14 +193,16 @@ func rotate_towards_target(targetLocation: Vector3) -> void:
 
 # --------- SIGNALS ---------
 func _on_enemy_entered(body):
-	if body is MovableUnit and body != self and self.get_multiplayer_authority() != body.get_multiplayer_authority():  # Проверяем, что это враг и не сам юнит
-		enemies_in_range.append(body)
+	var parent_entity = body.get_parent()
+	if parent_entity is MovableUnit and parent_entity != self and self.get_multiplayer_authority() != parent_entity.get_multiplayer_authority():  # Проверяем, что это враг и не сам юнит
+		enemies_in_range.append(parent_entity)
 		#if currentAttackGoal == null:
-			#currentAttackGoal = body  # Если цели нет, выбираем нового врага
+			#currentAttackGoal = parent_entity  # Если цели нет, выбираем нового врага
 
 func _on_enemy_exited(body):
-	enemies_in_range.erase(body)
-	#if currentAttackGoal == body:
+	var parent_entity = body.get_parent()
+	enemies_in_range.erase(parent_entity)
+	#if currentAttackGoal == parent_entity:
 		#currentAttackGoal = enemies_in_range.front() if enemies_in_range.size() > 0 else null  # Меняем цель
 
 func check_line_of_sigth(target: Entity) -> bool:
