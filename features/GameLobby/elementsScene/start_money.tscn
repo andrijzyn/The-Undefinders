@@ -1,0 +1,37 @@
+[gd_scene load_steps=3 format=3 uid="uid://fc7vps22xds4"]
+
+[ext_resource type="Texture2D" uid="uid://d2wp6o31133tq" path="res://features/GameLobby/textures/buttonBlockExclusive/button_input.png" id="1_hcjbo"]
+[ext_resource type="Theme" uid="uid://cfya8goxetmod" path="res://features/GameLobby/ElementsAdditional/Lobby_white_text_theme.tres" id="2_3spvm"]
+
+[node name="StartMoney" type="TextureRect"]
+offset_right = 250.0
+offset_bottom = 50.0
+texture = ExtResource("1_hcjbo")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 15.0
+offset_top = 7.0
+offset_right = 786.0
+offset_bottom = 207.0
+scale = Vector2(0.14, 0.14)
+theme = ExtResource("2_3spvm")
+text = "Start Money:"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HourLine" type="LineEdit" parent="."]
+clip_contents = true
+layout_mode = 0
+offset_left = 124.0
+offset_top = 7.0
+offset_right = 903.0
+offset_bottom = 193.0
+scale = Vector2(0.14, 0.14)
+theme = ExtResource("2_3spvm")
+text = "5000"
+alignment = 1
+max_length = 10
+virtual_keyboard_type = 2
+flat = true

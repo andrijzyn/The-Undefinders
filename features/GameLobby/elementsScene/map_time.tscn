@@ -1,0 +1,62 @@
+[gd_scene load_steps=3 format=3 uid="uid://cwe61ombpk7hd"]
+
+[ext_resource type="Texture2D" uid="uid://d2wp6o31133tq" path="res://features/GameLobby/textures/buttonBlockExclusive/button_input.png" id="1_isoo3"]
+[ext_resource type="Theme" uid="uid://cfya8goxetmod" path="res://features/GameLobby/ElementsAdditional/Lobby_white_text_theme.tres" id="2_wcwd2"]
+
+[node name="Map_Time" type="TextureRect"]
+offset_right = 250.0
+offset_bottom = 50.0
+texture = ExtResource("1_isoo3")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 7.0
+offset_right = 780.0
+offset_bottom = 207.0
+scale = Vector2(0.14, 0.14)
+theme = ExtResource("2_wcwd2")
+text = "Map Time:"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HourLine" type="LineEdit" parent="."]
+clip_contents = true
+layout_mode = 0
+offset_left = 161.0
+offset_top = 7.0
+offset_right = 549.0
+offset_bottom = 187.0
+scale = Vector2(0.15, 0.15)
+theme = ExtResource("2_wcwd2")
+text = "21"
+max_length = 2
+virtual_keyboard_type = 2
+flat = true
+
+[node name="Separator" type="Label" parent="."]
+layout_mode = 0
+offset_left = 180.0
+offset_top = 7.0
+offset_right = 207.0
+offset_bottom = 187.0
+scale = Vector2(0.15, 0.15)
+theme = ExtResource("2_wcwd2")
+text = ":"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MinuteLine" type="LineEdit" parent="."]
+clip_contents = true
+layout_mode = 0
+offset_left = 185.0
+offset_top = 7.0
+offset_right = 573.0
+offset_bottom = 187.0
+scale = Vector2(0.15, 0.15)
+theme = ExtResource("2_wcwd2")
+text = "21"
+max_length = 4
+virtual_keyboard_type = 2
+flat = true

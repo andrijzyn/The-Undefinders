@@ -1,8 +1,31 @@
-[gd_resource type="Theme" format=3 uid="uid://h8by0bp6evfl"]
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://cfya8goxetmod"]
+
+[ext_resource type="Texture2D" uid="uid://c1nrh7wowirpo" path="res://features/GameLobby/textures/ArrowDown.png" id="1_y6hyy"]
 
 [resource]
 Button/colors/font_color = Color(0.692111, 0.743236, 0.767501, 1)
 Button/colors/font_outline_color = Color(0.93845, 0.93845, 0.938449, 1)
-Button/constants/outline_size = 5
-Button/font_sizes/font_size = 40
+Button/colors/font_pressed_color = Color(0.909804, 0.505882, 0.27451, 1)
+Button/constants/outline_size = 10
+Button/font_sizes/font_size = 100
 Button/fonts/font = null
+Label/colors/font_color = Color(0.690196, 0.745098, 0.768627, 1)
+Label/colors/font_outline_color = Color(0.937255, 0.937255, 0.937255, 1)
+Label/constants/outline_size = 10
+Label/font_sizes/font_size = 100
+LineEdit/colors/font_color = Color(0.690196, 0.745098, 0.768627, 1)
+LineEdit/colors/font_outline_color = Color(0.937255, 0.937255, 0.937255, 1)
+LineEdit/constants/outline_size = 10
+LineEdit/font_sizes/font_size = 100
+OptionButton/colors/font_color = Color(0.690196, 0.745098, 0.768627, 1)
+OptionButton/colors/font_outline_color = Color(0.937255, 0.937255, 0.937255, 1)
+OptionButton/constants/outline_size = 10
+OptionButton/font_sizes/font_size = 16
+OptionButton/icons/arrow = ExtResource("1_y6hyy")
+TextEdit/colors/background_color = Color(0, 0, 0, 0)
+TextEdit/colors/caret_background_color = Color(0, 0, 0, 0)
+TextEdit/colors/caret_color = Color(0.88, 0.88, 0.88, 0)
+TextEdit/colors/font_color = Color(0.690196, 0.745098, 0.768627, 1)
+TextEdit/colors/font_outline_color = Color(0.937255, 0.937255, 0.937255, 1)
+TextEdit/constants/outline_size = 10
+TextEdit/font_sizes/font_size = 100

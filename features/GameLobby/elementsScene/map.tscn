@@ -13,8 +13,8 @@ expand_mode = 1
 layout_mode = 0
 offset_left = 18.0
 offset_top = 19.0
-offset_right = 329.0
-offset_bottom = 327.0
+offset_right = 328.0
+offset_bottom = 325.0
 texture = ExtResource("2_ct5x6")
 expand_mode = 1
 
@@ -22,5 +22,5 @@ expand_mode = 1
 layout_mode = 0
 offset_left = 18.0
 offset_top = 19.0
-offset_right = 329.0
+offset_right = 328.0
 offset_bottom = 325.0

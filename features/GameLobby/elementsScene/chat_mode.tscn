@@ -1,0 +1,41 @@
+[gd_scene load_steps=5 format=3 uid="uid://duymm4eekvj6"]
+
+[ext_resource type="Texture2D" uid="uid://ckysyj2558bkn" path="res://features/GameLobby/textures/buttonBlockExclusive/button_switch.png" id="1_ldeds"]
+[ext_resource type="Theme" uid="uid://lu0wejgpenok" path="res://features/GameLobby/ElementsAdditional/Player_block_open_page_theme.tres" id="2_1wqor"]
+[ext_resource type="ButtonGroup" uid="uid://bav03bg1h451f" path="res://features/GameLobby/ElementsAdditional/chat_button_group.tres" id="2_ldeds"]
+[ext_resource type="Theme" uid="uid://daj0ouj86pvpe" path="res://features/GameLobby/ElementsAdditional/Player_block_page_theme.tres" id="4_j31xp"]
+
+[node name="Chat Mode" type="TextureRect"]
+offset_right = 250.0
+offset_bottom = 50.0
+texture = ExtResource("1_ldeds")
+expand_mode = 1
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 6.0
+offset_right = 703.0
+offset_bottom = 213.0
+scale = Vector2(0.15, 0.15)
+theme = ExtResource("2_1wqor")
+toggle_mode = true
+button_pressed = true
+button_group = ExtResource("2_ldeds")
+text = "Global"
+flat = true
+
+[node name="Button2" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.04
+offset_left = 125.0
+offset_top = 6.0
+offset_right = 842.0
+offset_bottom = 206.0
+scale = Vector2(0.15, 0.15)
+theme = ExtResource("4_j31xp")
+toggle_mode = true
+button_group = ExtResource("2_ldeds")
+text = "Team"
+flat = true

@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3 uid="uid://bhtfqp0fnyukn"]
+
+[ext_resource type="Texture2D" uid="uid://d2wp6o31133tq" path="res://features/GameLobby/textures/buttonBlockExclusive/button_input.png" id="1_yf0b1"]
+[ext_resource type="Theme" uid="uid://cfya8goxetmod" path="res://features/GameLobby/ElementsAdditional/Lobby_white_text_theme.tres" id="2_hivqw"]
+
+[node name="Weather" type="TextureRect"]
+offset_right = 250.0
+offset_bottom = 50.0
+texture = ExtResource("1_yf0b1")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 7.0
+offset_right = 831.0
+offset_bottom = 222.0
+scale = Vector2(0.13, 0.13)
+theme = ExtResource("2_hivqw")
+text = "Map weather:"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="OptionButton" type="OptionButton" parent="."]
+layout_mode = 0
+offset_left = 123.0
+offset_top = 7.0
+offset_right = 909.0
+offset_bottom = 200.0
+scale = Vector2(0.14, 0.14)
+theme = ExtResource("2_hivqw")
+flat = true

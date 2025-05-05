@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3 uid="uid://7v6ygnhrdsk1"]
+
+[ext_resource type="Texture2D" uid="uid://brxwv0w6px6c7" path="res://features/GameLobby/textures/buttonBlockExclusive/button_default.png" id="1_rewkx"]
+[ext_resource type="Theme" uid="uid://cfya8goxetmod" path="res://features/GameLobby/ElementsAdditional/Lobby_white_text_theme.tres" id="2_sisk7"]
+
+[node name="Start" type="TextureButton"]
+offset_right = 250.0
+offset_bottom = 50.0
+texture_normal = ExtResource("1_rewkx")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 6.0
+offset_right = 1476.0
+offset_bottom = 199.0
+scale = Vector2(0.15, 0.15)
+theme = ExtResource("2_sisk7")
+text = "Start Game"
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -1,12 +1,12 @@
 [gd_scene load_steps=8 format=3 uid="uid://dtkv16ihja4fe"]
 
 [ext_resource type="Texture2D" uid="uid://dwvu1wfheau6i" path="res://features/GameLobby/textures/playerBlockExclusive/LobbyPlayerSlotBackground.png" id="1_lsfk4"]
-[ext_resource type="Theme" uid="uid://b8axifsl0vpvk" path="res://features/GameLobby/elementsAdditional/Player_ready.tres" id="2_03k7u"]
-[ext_resource type="Theme" uid="uid://h8by0bp6evfl" path="res://features/GameLobby/elementsAdditional/Lobby_white_text_theme.tres" id="3_03k7u"]
-[ext_resource type="Theme" uid="uid://ihkrrok3fnvc" path="res://features/GameLobby/elementsAdditional/pop_up_text_theme.tres" id="3_g1gma"]
-[ext_resource type="Theme" uid="uid://cjirfdv8mvdh6" path="res://features/GameLobby/elementsAdditional/Handicap_button_style_default.tres" id="4_g1gma"]
-[ext_resource type="ButtonGroup" uid="uid://bf6e31k4pvn6p" path="res://features/GameLobby/elementsAdditional/Handicap_button_group.tres" id="5_wimdy"]
-[ext_resource type="Theme" uid="uid://b1k1xs3towoq8" path="res://features/GameLobby/elementsAdditional/Handicap_button_style_pressed.tres" id="6_csjwp"]
+[ext_resource type="Theme" uid="uid://b8axifsl0vpvk" path="res://features/GameLobby/ElementsAdditional/Player_ready.tres" id="2_03k7u"]
+[ext_resource type="Theme" uid="uid://cfya8goxetmod" path="res://features/GameLobby/ElementsAdditional/Lobby_white_text_theme.tres" id="3_03k7u"]
+[ext_resource type="Theme" uid="uid://ihkrrok3fnvc" path="res://features/GameLobby/ElementsAdditional/pop_up_text_theme.tres" id="3_g1gma"]
+[ext_resource type="Theme" uid="uid://cjirfdv8mvdh6" path="res://features/GameLobby/ElementsAdditional/Handicap_button_style_default.tres" id="4_g1gma"]
+[ext_resource type="ButtonGroup" uid="uid://bf6e31k4pvn6p" path="res://features/GameLobby/ElementsAdditional/Handicap_button_group.tres" id="5_wimdy"]
+[ext_resource type="Theme" uid="uid://b1k1xs3towoq8" path="res://features/GameLobby/ElementsAdditional/Handicap_button_style_pressed.tres" id="6_csjwp"]
 
 [node name="PlayerSlot" type="TextureRect"]
 offset_left = 22.0

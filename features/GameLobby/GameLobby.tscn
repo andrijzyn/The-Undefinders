@@ -1,13 +1,26 @@
-[gd_scene load_steps=9 format=3 uid="uid://cwi3tjevblu03"]
+[gd_scene load_steps=22 format=3 uid="uid://cwi3tjevblu03"]
 
 [ext_resource type="Texture2D" uid="uid://dypmm2xl75hgy" path="res://features/GameLobby/textures/LobbyBackground.png" id="1_1j5v3"]
+[ext_resource type="PackedScene" uid="uid://fc7vps22xds4" path="res://features/GameLobby/elementsScene/start_money.tscn" id="1_hrfag"]
+[ext_resource type="PackedScene" uid="uid://cwe61ombpk7hd" path="res://features/GameLobby/elementsScene/map_time.tscn" id="1_nay46"]
 [ext_resource type="Texture2D" uid="uid://cjjvtgf14v6oc" path="res://features/GameLobby/textures/playerBlockExclusive/PlayerBlockBackground.png" id="2_a53cd"]
+[ext_resource type="PackedScene" uid="uid://bhtfqp0fnyukn" path="res://features/GameLobby/elementsScene/map_weather.tscn" id="2_qu3uu"]
+[ext_resource type="PackedScene" uid="uid://b8l4s4wkejlyu" path="res://features/GameLobby/elementsScene/button_return.tscn" id="3_3qy8t"]
 [ext_resource type="PackedScene" uid="uid://dtkv16ihja4fe" path="res://features/GameLobby/elementsScene/player_slot.tscn" id="3_5hq6n"]
 [ext_resource type="Theme" uid="uid://daj0ouj86pvpe" path="res://features/GameLobby/elementsAdditional/Player_block_page_theme.tres" id="4_n2fvg"]
 [ext_resource type="Theme" uid="uid://lu0wejgpenok" path="res://features/GameLobby/elementsAdditional/Player_block_open_page_theme.tres" id="5_1j5v3"]
+[ext_resource type="ButtonGroup" uid="uid://cvrx6ake7jw3y" path="res://features/GameLobby/elementsAdditional/page_button_group.tres" id="5_1ng81"]
+[ext_resource type="PackedScene" uid="uid://duymm4eekvj6" path="res://features/GameLobby/elementsScene/chat_mode.tscn" id="5_atuvb"]
+[ext_resource type="Theme" uid="uid://cfya8goxetmod" path="res://features/GameLobby/elementsAdditional/Map_white_text_theme.tres" id="7_itbl4"]
 [ext_resource type="PackedScene" uid="uid://huyfm63p3sog" path="res://features/GameLobby/elementsScene/map.tscn" id="11_n2fvg"]
 [ext_resource type="PackedScene" uid="uid://dot0scj3g8o0y" path="res://features/GameLobby/elementsScene/map_name.tscn" id="12_ruu2o"]
 [ext_resource type="PackedScene" uid="uid://dtyc7xjlho41t" path="res://features/GameLobby/elementsScene/map_choose_button.tscn" id="13_ruu2o"]
+[ext_resource type="PackedScene" uid="uid://c1yloh5ct8xd0" path="res://features/GameLobby/elementsScene/button_game_mode.tscn" id="14_1ls1x"]
+[ext_resource type="PackedScene" uid="uid://vhg224etau6h" path="res://features/GameLobby/elementsScene/button_load_preset.tscn" id="15_1ng81"]
+[ext_resource type="PackedScene" uid="uid://my5q2kfs6f0d" path="res://features/GameLobby/elementsScene/button_save_preset.tscn" id="16_74lw3"]
+[ext_resource type="PackedScene" uid="uid://b7x42bhot5i63" path="res://features/GameLobby/elementsScene/button_advanced_settings.tscn" id="17_itbl4"]
+[ext_resource type="PackedScene" uid="uid://7v6ygnhrdsk1" path="res://features/GameLobby/elementsScene/button_start.tscn" id="18_kdjen"]
+[ext_resource type="PackedScene" uid="uid://camrnu37m0cxn" path="res://features/GameLobby/elementsScene/chat.tscn" id="20_74lw3"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -17,7 +30,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TextureRect" type="TextureRect" parent="."]
+[node name="BackGround" type="TextureRect" parent="."]
 layout_mode = 0
 offset_right = 1280.0
 offset_bottom = 720.0
@@ -27,17 +40,17 @@ expand_mode = 1
 [node name="PlayerBlock" type="TextureRect" parent="."]
 layout_mode = 2
 offset_left = 10.0
-offset_top = 10.0
+offset_top = 9.0
 offset_right = 660.0
-offset_bottom = 498.0
+offset_bottom = 497.0
 texture = ExtResource("2_a53cd")
 expand_mode = 1
 
 [node name="PlayerSlot8" parent="PlayerBlock" instance=ExtResource("3_5hq6n")]
 layout_mode = 0
-offset_left = 16.0
+offset_left = 19.0
 offset_top = 380.0
-offset_right = 631.0
+offset_right = 634.0
 offset_bottom = 420.0
 
 [node name="PlayerSlot7" parent="PlayerBlock" instance=ExtResource("3_5hq6n")]
@@ -49,37 +62,37 @@ offset_bottom = 368.0
 
 [node name="PlayerSlot6" parent="PlayerBlock" instance=ExtResource("3_5hq6n")]
 layout_mode = 0
-offset_left = 18.0
+offset_left = 19.0
 offset_top = 276.0
-offset_right = 633.0
+offset_right = 634.0
 offset_bottom = 316.0
 
 [node name="PlayerSlot5" parent="PlayerBlock" instance=ExtResource("3_5hq6n")]
 layout_mode = 0
-offset_left = 20.0
+offset_left = 19.0
 offset_top = 224.0
-offset_right = 635.0
+offset_right = 634.0
 offset_bottom = 264.0
 
 [node name="PlayerSlot4" parent="PlayerBlock" instance=ExtResource("3_5hq6n")]
 layout_mode = 0
-offset_left = 20.0
+offset_left = 19.0
 offset_top = 172.0
-offset_right = 635.0
+offset_right = 634.0
 offset_bottom = 212.0
 
 [node name="PlayerSlot3" parent="PlayerBlock" instance=ExtResource("3_5hq6n")]
 layout_mode = 0
-offset_left = 20.0
+offset_left = 19.0
 offset_top = 120.0
-offset_right = 635.0
+offset_right = 634.0
 offset_bottom = 160.0
 
 [node name="PlayerSlot2" parent="PlayerBlock" instance=ExtResource("3_5hq6n")]
 layout_mode = 0
-offset_left = 18.0
+offset_left = 19.0
 offset_top = 68.0
-offset_right = 633.0
+offset_right = 634.0
 offset_bottom = 108.0
 
 [node name="PlayerSlot1" parent="PlayerBlock" instance=ExtResource("3_5hq6n")]
@@ -97,6 +110,8 @@ offset_right = 798.0
 offset_bottom = 590.0
 scale = Vector2(0.2, 0.2)
 theme = ExtResource("4_n2fvg")
+toggle_mode = true
+button_group = ExtResource("5_1ng81")
 text = "2"
 flat = true
 
@@ -108,26 +123,103 @@ offset_right = 741.0
 offset_bottom = 590.0
 scale = Vector2(0.2, 0.2)
 theme = ExtResource("5_1j5v3")
+toggle_mode = true
+button_pressed = true
+button_group = ExtResource("5_1ng81")
 text = "1"
 flat = true
 
-[node name="Map" parent="." instance=ExtResource("11_n2fvg")]
+[node name="RoomCode" type="Label" parent="PlayerBlock"]
 layout_mode = 0
-offset_left = 675.0
+offset_left = 11.0
+offset_top = 440.0
+offset_right = 3398.0
+offset_bottom = 713.0
+scale = Vector2(0.15, 0.15)
+theme = ExtResource("7_itbl4")
+vertical_alignment = 1
+autowrap_mode = 1
+clip_text = true
+
+[node name="MapBlock" type="Control" parent="."]
+anchors_preset = 0
+offset_left = 673.0
 offset_top = 8.0
-offset_right = 1025.0
-offset_bottom = 358.0
-
-[node name="MapName" parent="." instance=ExtResource("12_ruu2o")]
-layout_mode = 0
-offset_left = 675.0
-offset_top = 358.0
-offset_right = 1026.0
-offset_bottom = 418.0
-
-[node name="MapChooseButton" parent="." instance=ExtResource("13_ruu2o")]
-layout_mode = 0
-offset_left = 676.0
-offset_top = 418.0
-offset_right = 1029.0
+offset_right = 1027.0
 offset_bottom = 499.0
+
+[node name="Map" parent="MapBlock" instance=ExtResource("11_n2fvg")]
+layout_mode = 0
+
+[node name="MapName" parent="MapBlock" instance=ExtResource("12_ruu2o")]
+layout_mode = 0
+offset_top = 350.0
+offset_right = 351.0
+offset_bottom = 410.0
+
+[node name="MapChooseButton" parent="MapBlock" instance=ExtResource("13_ruu2o")]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 410.0
+offset_right = 354.0
+offset_bottom = 491.0
+
+[node name="ButtonsBlock" type="Control" parent="."]
+anchors_preset = 0
+offset_left = 1022.0
+offset_top = 9.0
+offset_right = 1272.0
+offset_bottom = 509.0
+
+[node name="Return" parent="ButtonsBlock" instance=ExtResource("3_3qy8t")]
+layout_mode = 2
+
+[node name="Start_Money" parent="ButtonsBlock" instance=ExtResource("1_hrfag")]
+layout_mode = 0
+offset_top = 49.0
+offset_bottom = 99.0
+
+[node name="Map_Time" parent="ButtonsBlock" instance=ExtResource("1_nay46")]
+layout_mode = 0
+offset_top = 98.0
+offset_bottom = 148.0
+
+[node name="Map_Weather" parent="ButtonsBlock" instance=ExtResource("2_qu3uu")]
+layout_mode = 0
+offset_top = 147.0
+offset_bottom = 197.0
+
+[node name="GameMode" parent="ButtonsBlock" instance=ExtResource("14_1ls1x")]
+layout_mode = 0
+offset_top = 196.0
+offset_bottom = 246.0
+
+[node name="Load Preset" parent="ButtonsBlock" instance=ExtResource("15_1ng81")]
+layout_mode = 0
+offset_top = 245.0
+offset_bottom = 295.0
+
+[node name="Save Preset" parent="ButtonsBlock" instance=ExtResource("16_74lw3")]
+layout_mode = 0
+offset_top = 294.0
+offset_bottom = 344.0
+
+[node name="Advanced Settings" parent="ButtonsBlock" instance=ExtResource("17_itbl4")]
+layout_mode = 0
+offset_top = 343.0
+offset_bottom = 393.0
+
+[node name="Start" parent="ButtonsBlock" instance=ExtResource("18_kdjen")]
+layout_mode = 0
+offset_top = 392.0
+offset_bottom = 442.0
+
+[node name="Chat Mode" parent="ButtonsBlock" instance=ExtResource("5_atuvb")]
+layout_mode = 2
+offset_top = 441.0
+offset_bottom = 491.0
+
+[node name="ChatBlock" parent="." instance=ExtResource("20_74lw3")]
+layout_mode = 0
+offset_top = 498.0
+offset_bottom = 720.0
