@@ -29,6 +29,8 @@ var velocity: Vector3
 ## [b]Значение строго больше 0[/b]
 var speed: float = 2.0
 
+
+
 # ----- FOG VARS -----
 var last_position := Vector3.ZERO
 

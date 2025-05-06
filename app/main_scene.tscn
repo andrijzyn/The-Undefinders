@@ -1,7 +1,18 @@
-[gd_scene load_steps=3 format=3 uid="uid://ddj7yhyrrg4b8"]
+[gd_scene load_steps=10 format=3 uid="uid://ddj7yhyrrg4b8"]
 
 [ext_resource type="Script" uid="uid://b5x07vifqjwdm" path="res://app/MainScene.gd" id="1_o8hv5"]
 [ext_resource type="PackedScene" uid="uid://bbsgnge3ole1f" path="res://entities/Maps/ground.tscn" id="2_hvjiq"]
+[ext_resource type="Script" uid="uid://bghur3qmf711e" path="res://addons/zylann.hterrain/hterrain.gd" id="3_o8hv5"]
+[ext_resource type="Resource" uid="uid://d3ue1s8x738ct" path="res://features/LandScape/data.hterrain" id="4_35ytx"]
+[ext_resource type="Script" uid="uid://c8l4aq3t4ilwl" path="res://addons/zylann.hterrain/hterrain_texture_set.gd" id="5_5nvvh"]
+[ext_resource type="Texture2D" uid="uid://cd6ribycbrrga" path="res://features/LandScape/textures/rocky_trail_02_diff_1k.jpg" id="6_dot6m"]
+[ext_resource type="PackedScene" uid="uid://cofenth674r67" path="res://entities/Buildings/Neutral/OilRig/oil_rig.tscn" id="7_5nvvh"]
+[ext_resource type="PackedScene" uid="uid://cjd68qtn0ujeb" path="res://entities/Units/USA/Infantry/Soldier/soldier.tscn" id="8_dot6m"]
+
+[sub_resource type="Resource" id="Resource_8vxae"]
+script = ExtResource("5_5nvvh")
+mode = 0
+textures = [[ExtResource("6_dot6m")], [null]]
 
 [node name="MainScene" type="Node3D"]
 script = ExtResource("1_o8hv5")
@@ -20,3 +31,29 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.066, 0, -12.472)
 
 [node name="PlayerSpawn1" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.78917, 0.0827103, 9.50742)
+
+[node name="HTerrain" type="Node3D" parent="."]
+script = ExtResource("3_o8hv5")
+map_scale = Vector3(0.3, 1, 0.3)
+_terrain_data = ExtResource("4_35ytx")
+chunk_size = 64
+collision_enabled = true
+collision_layer = 1
+collision_mask = 1
+shader_type = "Classic4Lite"
+custom_shader = null
+custom_globalmap_shader = null
+texture_set = SubResource("Resource_8vxae")
+render_layers = 1
+cast_shadow = 1
+shader_params/u_ground_uv_scale = 20
+shader_params/u_depth_blending = true
+shader_params/u_triplanar = null
+shader_params/u_tile_reduction = null
+metadata/_custom_type_script = "uid://bghur3qmf711e"
+
+[node name="OilRig" parent="." instance=ExtResource("7_5nvvh")]
+transform = Transform3D(3.5, 0, 0, 0, 3.5, 0, 0, 0, 3.5, 41, 4.18435, 103)
+
+[node name="Soldier" parent="." instance=ExtResource("8_dot6m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46.1896, 2.13862, 102.072)
