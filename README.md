@@ -1,2 +1,6 @@
-# The-Undefinders
- The Godot-based RTS XXI PRO ULTRA PLUS 3D game 
+# The Undefinders
+
+## Description
+
+**The Undefinders** is an indie Real-Time Strategy (RTS) game where developers' ideas are brought to life. The game is built using the Godot engine and primarily written in GDScript.
+
